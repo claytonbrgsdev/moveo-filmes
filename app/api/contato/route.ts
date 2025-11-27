@@ -125,8 +125,9 @@ export async function POST(request: NextRequest) {
       { message: 'Mensagem enviada com sucesso!' },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error('Erro ao enviar mensagem:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    console.error('Erro ao enviar mensagem:', errorMessage);
     return NextResponse.json(
       { error: 'Erro ao enviar mensagem. Por favor, tente novamente.' },
       { status: 500 }

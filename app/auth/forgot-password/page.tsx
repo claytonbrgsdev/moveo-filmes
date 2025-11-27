@@ -25,13 +25,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 pt-24">
+    <div className="flex min-h-screen items-center justify-center px-4 bg-black">
       <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6">Recuperar Senha</h1>
+        <h1 className="text-2xl font-bold mb-6 text-white">Recuperar Senha</h1>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-white">
               Email
             </label>
             <input
@@ -40,19 +40,19 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white"
               placeholder="seu@email.com"
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+            <div className="bg-red-900 border border-red-500 text-red-300 px-4 py-3 rounded">
               {error}
             </div>
           )}
 
           {message && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-500 text-green-700 dark:text-green-300 px-4 py-3 rounded">
+            <div className="bg-green-900 border border-green-500 text-green-300 px-4 py-3 rounded">
               {message}
             </div>
           )}
@@ -60,14 +60,14 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white text-black py-2 px-4 rounded-lg hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             {loading ? 'Enviando...' : 'Enviar Email de Recuperação'}
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm">
-          <Link href="/auth/login" className="text-blue-600 hover:underline">
+          <Link href="/auth/login" className="text-white hover:underline">
             Voltar para login
           </Link>
         </div>
@@ -75,4 +75,3 @@ export default function ForgotPasswordPage() {
     </div>
   )
 }
-

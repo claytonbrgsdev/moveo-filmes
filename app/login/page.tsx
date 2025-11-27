@@ -3,7 +3,6 @@
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useUser } from '@/lib/hooks/useUser'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -13,12 +12,10 @@ export default function AdminLoginPage() {
   const [redirecting, setRedirecting] = useState(false)
   const { signIn } = useAuth()
   const { user, loading: userLoading } = useUser()
-  const router = useRouter()
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
     if (!userLoading && user && !redirecting) {
-      setRedirecting(true)
       window.location.href = '/central'
     }
   }, [user, userLoading, redirecting])
@@ -43,27 +40,27 @@ export default function AdminLoginPage() {
   // Mostrar loading enquanto verifica autenticação ou se está redirecionando
   if (userLoading || redirecting || (user && !error)) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="flex min-h-screen items-center justify-center px-4 bg-black">
         <div className="text-center">
-          <p className="text-lg">Redirecionando...</p>
+          <p className="text-lg text-white">Redirecionando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 bg-black">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Acesso Administrativo</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-3xl font-bold mb-2 text-white">Acesso Administrativo</h1>
+          <p className="text-sm text-gray-400">
             Faça login para acessar o painel administrativo
           </p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-white">
               Email
             </label>
             <input
@@ -72,14 +69,14 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white"
               placeholder="admin@exemplo.com"
               autoComplete="email"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
+            <label htmlFor="password" className="block text-sm font-medium mb-1 text-white">
               Senha
             </label>
             <input
@@ -88,14 +85,14 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white"
               placeholder="••••••••"
               autoComplete="current-password"
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+            <div className="bg-red-900 border border-red-500 text-red-300 px-4 py-3 rounded">
               {error}
             </div>
           )}
@@ -103,7 +100,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full bg-white text-black py-2 px-4 rounded-lg hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
@@ -112,4 +109,3 @@ export default function AdminLoginPage() {
     </div>
   )
 }
-

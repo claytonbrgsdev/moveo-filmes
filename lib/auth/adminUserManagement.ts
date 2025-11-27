@@ -20,8 +20,9 @@ export async function inviteUserByEmail(email: string): Promise<{ error: Error |
     const { error } = await supabase.auth.admin.inviteUserByEmail(email)
     
     return { error }
-  } catch (error: any) {
-    return { error }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    return { error: errorMessage }
   }
 }
 

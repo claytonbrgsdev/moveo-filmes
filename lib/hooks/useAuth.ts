@@ -20,8 +20,9 @@ export function useAuth() {
       if (error) throw error
 
       return { data, error: null }
-    } catch (error: any) {
-      return { data: null, error }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+      return { data: null, error: errorMessage }
     } finally {
       setLoading(false)
     }
@@ -39,8 +40,9 @@ export function useAuth() {
 
       router.refresh()
       return { data, error: null }
-    } catch (error: any) {
-      return { data: null, error }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+      return { data: null, error: errorMessage }
     } finally {
       setLoading(false)
     }
@@ -56,8 +58,9 @@ export function useAuth() {
       router.refresh()
       router.push('/')
       return { error: null }
-    } catch (error: any) {
-      return { error }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+      return { error: errorMessage }
     } finally {
       setLoading(false)
     }
@@ -73,8 +76,9 @@ export function useAuth() {
       if (error) throw error
 
       return { data, error: null }
-    } catch (error: any) {
-      return { data: null, error }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+      return { data: null, error: errorMessage }
     } finally {
       setLoading(false)
     }

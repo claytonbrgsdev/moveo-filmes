@@ -20,8 +20,9 @@ export async function getUser(): Promise<{ user: User | null; error: Error | nul
     }
     
     return { user, error: null }
-  } catch (error: any) {
-    return { user: null, error }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    return { user: null, error: errorMessage }
   }
 }
 
@@ -32,7 +33,7 @@ export async function getUser(): Promise<{ user: User | null; error: Error | nul
 export async function updateUser(params: {
   email?: string
   password?: string
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 }): Promise<{ user: User | null; error: Error | null }> {
   try {
     const supabase = createClient()
@@ -43,8 +44,9 @@ export async function updateUser(params: {
     }
     
     return { user, error: null }
-  } catch (error: any) {
-    return { user: null, error }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    return { user: null, error: errorMessage }
   }
 }
 
@@ -59,8 +61,9 @@ export async function logout(): Promise<{ error: Error | null }> {
     const { error } = await supabase.auth.signOut()
     
     return { error }
-  } catch (error: any) {
-    return { error }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    return { error: errorMessage }
   }
 }
 

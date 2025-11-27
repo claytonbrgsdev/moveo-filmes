@@ -1,103 +1,104 @@
 'use client'
 
-import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/hooks/useUser";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useLanguage } from "@/lib/hooks/useLanguage";
+import { useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
+import { useLanguage } from '@/lib/hooks/useLanguage';
 
 export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
-  const { user, loading } = useUser();
-  const { signOut } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
 
-  const handleSignOut = async () => {
-    await signOut();
+  const menuItems = [
+    { label: t('catalog'), path: '/catalogo' },
+    { label: t('about'), path: '/sobre' },
+    { label: t('media'), path: '/posts' },
+    { label: t('contact'), path: '/contato' },
+  ];
+
+  const handleMenuClick = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleNavigation = (path: string) => {
+  const handleMenuItemClick = (path: string) => {
+    setIsMenuOpen(false);
     router.push(path);
   };
 
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent border-b border-white" style={{ height: '50px', mixBlendMode: 'difference' }}>
-      <div className="relative w-full h-full flex items-center">
-        {/* Links de navegação posicionados no grid (relativo à tela total) */}
-        <div className="absolute inset-0" style={{ mixBlendMode: 'difference' }}>
-          {/* CATÁLOGO: Primeiro marcador (2.6%) */}
-          <div className="absolute flex items-center justify-center" style={{ left: '2.6%', top: '3.5px', bottom: '0', height: '100%', overflow: 'visible' }}>
-            <button
-              onClick={() => handleNavigation('/catalogo')}
-              className="text-white hover:opacity-70 transition-opacity text-sm md:text-base uppercase tracking-wide flex items-center justify-center bg-transparent border-none cursor-pointer"
-              style={{ lineHeight: 'normal', paddingTop: '0', paddingBottom: '0', mixBlendMode: 'difference' }}
-            >
-              {t('catalog')}
-            </button>
-          </div>
-          
-          {/* MÍDIA: Segundo marcador (18.4%) */}
-          <div className="absolute flex items-center justify-center" style={{ left: '18.4%', top: '3.5px', bottom: '0', height: '100%', overflow: 'visible' }}>
-            <button
-              onClick={() => handleNavigation('/posts')}
-              className="text-white hover:opacity-70 transition-opacity text-sm md:text-base uppercase tracking-wide flex items-center justify-center bg-transparent border-none cursor-pointer"
-              style={{ lineHeight: 'normal', paddingTop: '0', paddingBottom: '0', mixBlendMode: 'difference' }}
-            >
-              {t('media')}
-            </button>
-          </div>
-          
-          {/* SOBRE: Terceiro marcador (34.2%) */}
-          <div className="absolute flex items-center justify-center" style={{ left: '34.2%', top: '3.5px', bottom: '0', height: '100%', overflow: 'visible' }}>
-            <button
-              onClick={() => handleNavigation('/sobre')}
-              className="text-white hover:opacity-70 transition-opacity text-sm md:text-base uppercase tracking-wide flex items-center justify-center bg-transparent border-none cursor-pointer"
-              style={{ lineHeight: 'normal', paddingTop: '0', paddingBottom: '0', mixBlendMode: 'difference' }}
-            >
-              {t('about')}
-            </button>
-          </div>
-          
-          {/* CONTATO: Quinto marcador (65.8%) */}
-          <div className="absolute flex items-center justify-center" style={{ left: '65.8%', top: '3.5px', bottom: '0', height: '100%', overflow: 'visible' }}>
-            <button
-              onClick={() => handleNavigation('/contato')}
-              className="text-white hover:opacity-70 transition-opacity text-sm md:text-base uppercase tracking-wide flex items-center justify-center bg-transparent border-none cursor-pointer"
-              style={{ lineHeight: 'normal', paddingTop: '0', paddingBottom: '0', mixBlendMode: 'difference' }}
-            >
-              {t('contact')}
-            </button>
-          </div>
-        </div>
+  const handleLogoClick = () => {
+    router.push('/');
+  };
 
-        {/* Language Switcher e Auth - posicionados discretamente no canto */}
-        <div className="absolute flex items-center gap-4" style={{ right: '2.6%', top: '0', bottom: '0', height: '100%' }}>
-          {/* Language Switcher */}
-          <button
-            onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
-            className="text-xs text-white hover:opacity-70 transition-opacity px-2 py-1 border border-white rounded"
-            style={{ mixBlendMode: 'difference' }}
-            aria-label="Toggle language"
+  return (
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent" style={{ height: '50px', mixBlendMode: 'difference' }}>
+      <div className="relative w-full h-full flex items-center">
+          {/* Logo na posição A1 (linha A, coluna 1) */}
+          <div 
+            className="absolute flex items-center cursor-pointer hover:opacity-70 transition-opacity"
+            style={{ 
+              left: getMarkerPosition(1),
+              bottom: '0px'
+            }}
+            onClick={handleLogoClick}
           >
-            {language === 'en' ? 'EN' : 'PT'}
-          </button>
-          
-          {/* Auth Section - Apenas mostra logout se autenticado */}
-          {!loading && user && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-white opacity-70">
-                {t('admin')}
-              </span>
-              <button
-                onClick={handleSignOut}
-                className="text-xs text-white hover:opacity-70 transition-opacity"
-              >
-                {t('logout')}
-              </button>
+              <Image
+              src="/imagens/logomarca.png"
+                alt="Logo Moveo"
+                width={64}
+                height={64}
+                className="object-contain"
+              style={{ 
+                mixBlendMode: 'difference',
+                filter: 'brightness(0) invert(1)',
+                height: '1.125rem',
+                width: 'auto'
+              }}
+                unoptimized
+              />
             </div>
-          )}
+
+          {/* Tab MENU na posição A13 - canto inferior esquerdo do quadrante dentro da Navbar */}
+          <div 
+            className="absolute text-white text-xs cursor-pointer hover:opacity-70 transition-opacity uppercase"
+            style={{ 
+              left: getMarkerPosition(13),
+              bottom: '0px',
+              fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
+            }}
+            onClick={handleMenuClick}
+          >
+            MENU
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+          
+      {/* Dropdown Menu */}
+      {isMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black z-[60] flex items-center justify-center"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div 
+            className="flex flex-col gap-8 text-white text-2xl uppercase"
+            style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {menuItems.map((item, index) => (
+              <div
+                key={index}
+                className="cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={() => handleMenuItemClick(item.path)}
+              >
+                {item.label}
+              </div>
+            ))}
+            </div>
+        </div>
+      )}
+    </>
   );
 }
 

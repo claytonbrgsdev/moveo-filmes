@@ -1,6 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
+import { MainLayout } from "@/app/components/MainLayout";
 import Image from "next/image";
 import Link from "next/link";
+
+interface Filme {
+  id: string;
+  slug: string;
+  titulo_pt?: string;
+  ano?: number;
+  ano_previsto?: number;
+  status_interno_pt?: string;
+  poster_principal_url?: string;
+  thumbnail_card_url?: string;
+}
 
 export default async function CinemaPage() {
   const supabase = await createClient();
@@ -19,14 +31,15 @@ export default async function CinemaPage() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-8 pt-24">
+    <MainLayout>
+      <div className="relative w-full h-full overflow-auto px-4 py-8">
       <div className="max-w-7xl mx-auto w-full">
         {/* Container Principal */}
         <div className="flex flex-col gap-8">
           {/* Container com Título e Subtítulo */}
           <div>
-            <h1 className="text-4xl font-bold text-black mb-4">Cinema</h1>
-            <h2 className="text-2xl font-semibold text-black opacity-70">
+              <h1 className="text-4xl font-bold text-white mb-4">Cinema</h1>
+              <h2 className="text-2xl font-semibold text-white opacity-70">
               Filmes de longa-metragem
             </h2>
           </div>
@@ -41,24 +54,24 @@ export default async function CinemaPage() {
             )}
 
             {!error && (!filmes || filmes.length === 0) ? (
-              <div className="border border-yellow-500 rounded-lg p-6 bg-yellow-50">
-                <p className="font-bold text-yellow-800">
+                <div className="border border-yellow-500 rounded-lg p-6 bg-yellow-900">
+                  <p className="font-bold text-yellow-200">
                   Nenhum filme encontrado
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filmes?.map((filme: any) => (
+                {filmes?.map((filme) => (
                   <Link
                     key={filme.id}
                     href={`/catalogo/cinema/${filme.slug}`}
-                    className="border border-gray-300 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block"
+                      className="border border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block"
                   >
                     {/* Imagem do Filme */}
-                    <div className="w-full h-64 bg-gray-200 relative">
+                      <div className="w-full h-64 bg-gray-900 relative">
                       {filme.poster_principal_url || filme.thumbnail_card_url ? (
                         <Image
-                          src={filme.poster_principal_url || filme.thumbnail_card_url}
+                          src={(filme.poster_principal_url || filme.thumbnail_card_url) as string}
                           alt={filme.titulo_pt || "Filme"}
                           fill
                           className="object-cover"
@@ -100,7 +113,7 @@ export default async function CinemaPage() {
           </div>
         </div>
       </div>
-    </main>
+      </div>
+    </MainLayout>
   );
 }
-

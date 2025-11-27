@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth/requireAuth";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Lista de tabelas para testar conectividade
 const TABLES_TO_TEST = [
@@ -26,11 +27,11 @@ interface TableStatus {
 }
 
 async function testTableConnection(
-  supabase: any,
+  supabase: SupabaseClient,
   tableName: string
 ): Promise<TableStatus> {
   try {
-    const { data, error, count } = await supabase
+    const { error, count } = await supabase
       .from(tableName)
       .select("*", { count: "exact" })
       .limit(0);
@@ -49,12 +50,13 @@ async function testTableConnection(
       status: count === 0 ? "empty" : "success",
       count: count || 0,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
     return {
       name: tableName,
       status: "error",
       count: 0,
-      error: err.message || "Erro desconhecido",
+      error: errorMessage,
     };
   }
 }
@@ -69,7 +71,7 @@ export default async function CentralPage() {
   if (!supabaseUrl || !supabaseKey) {
     console.error("Variáveis de ambiente do Supabase não configuradas");
     return (
-      <div className="container mx-auto px-4 py-8 pt-24">
+      <div className="container mx-auto px-4 py-8 bg-black min-h-screen">
         <div className="text-red-500">
           Erro: Variáveis de ambiente do Supabase não configuradas. 
           Verifique se NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY estão no .env.local
@@ -94,8 +96,13 @@ export default async function CentralPage() {
   const errorTables = tableStatuses.filter((t) => t.status === "error");
   const emptyTables = tableStatuses.filter((t) => t.status === "empty");
 
+  interface Filme {
+    id: string;
+    [key: string]: unknown;
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8 pt-24">
+    <div className="container mx-auto px-4 py-8 bg-black min-h-screen text-white">
       {/* Seção de Teste de Conectividade */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Teste de Conectividade - Frontend ↔ Database</h2>
@@ -103,27 +110,27 @@ export default async function CentralPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {/* Resumo */}
           <div className="col-span-full grid grid-cols-3 gap-4 mb-4">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-500 rounded-lg p-4">
-              <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+            <div className="bg-green-900 border border-green-500 rounded-lg p-4">
+              <div className="text-2xl font-bold text-green-300">
                 {successfulTables.length}
               </div>
-              <div className="text-sm text-green-600 dark:text-green-400">
+              <div className="text-sm text-green-400">
                 Tabelas Acessíveis
               </div>
             </div>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-500 rounded-lg p-4">
-              <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+            <div className="bg-yellow-900 border border-yellow-500 rounded-lg p-4">
+              <div className="text-2xl font-bold text-yellow-300">
                 {emptyTables.length}
               </div>
-              <div className="text-sm text-yellow-600 dark:text-yellow-400">
+              <div className="text-sm text-yellow-400">
                 Tabelas Vazias
               </div>
             </div>
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-500 rounded-lg p-4">
-              <div className="text-2xl font-bold text-red-700 dark:text-red-300">
+            <div className="bg-red-900 border border-red-500 rounded-lg p-4">
+              <div className="text-2xl font-bold text-red-300">
                 {errorTables.length}
               </div>
-              <div className="text-sm text-red-600 dark:text-red-400">
+              <div className="text-sm text-red-400">
                 Erros de Conexão
               </div>
             </div>
@@ -135,10 +142,10 @@ export default async function CentralPage() {
               key={table.name}
               className={`border rounded-lg p-4 ${
                 table.status === "success"
-                  ? "bg-green-50 dark:bg-green-900/20 border-green-500"
+                  ? "bg-green-900 border-green-500"
                   : table.status === "empty"
-                  ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500"
-                  : "bg-red-50 dark:bg-red-900/20 border-red-500"
+                  ? "bg-yellow-900 border-yellow-500"
+                  : "bg-red-900 border-red-500"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -146,10 +153,10 @@ export default async function CentralPage() {
                 <span
                   className={`text-xs px-2 py-1 rounded ${
                     table.status === "success"
-                      ? "bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200"
+                      ? "bg-green-800 text-green-200"
                       : table.status === "empty"
-                      ? "bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200"
-                      : "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200"
+                      ? "bg-yellow-800 text-yellow-200"
+                      : "bg-red-800 text-red-200"
                   }`}
                 >
                   {table.status === "success"
@@ -161,17 +168,17 @@ export default async function CentralPage() {
               </div>
               <div className="text-xs mt-1">
                 {table.status === "success" && (
-                  <span className="text-green-700 dark:text-green-300">
+                  <span className="text-green-300">
                     {table.count} registro{table.count !== 1 ? "s" : ""}
                   </span>
                 )}
                 {table.status === "empty" && (
-                  <span className="text-yellow-700 dark:text-yellow-300">
+                  <span className="text-yellow-300">
                     Tabela existe mas está vazia
                   </span>
                 )}
                 {table.status === "error" && (
-                  <span className="text-red-700 dark:text-red-300 text-xs">
+                  <span className="text-red-300 text-xs">
                     {table.error}
                   </span>
                 )}
@@ -182,7 +189,7 @@ export default async function CentralPage() {
       </div>
 
       {/* Seção de Filmes */}
-      <div className="border-t pt-8">
+      <div className="border-t border-gray-700 pt-8">
         <h2 className="text-2xl font-bold mb-4">Filmes</h2>
         
         {error && (
@@ -193,23 +200,23 @@ export default async function CentralPage() {
         )}
 
         {!error && (!filmes || filmes.length === 0) ? (
-          <div className="border border-yellow-500 rounded-lg p-6 bg-yellow-50 dark:bg-yellow-900/20">
-            <p className="font-bold text-yellow-800 dark:text-yellow-200">
+          <div className="border border-yellow-500 rounded-lg p-6 bg-yellow-900">
+            <p className="font-bold text-yellow-200">
               Nenhum filme encontrado
             </p>
-            <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2">
+            <p className="text-sm text-yellow-300 mt-2">
               Total de registros: {count ?? 0}
             </p>
           </div>
         ) : (
           <>
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mb-4 text-sm text-gray-400">
               Total de filmes encontrados: {filmes?.length || 0}
             </div>
             <div className="grid gap-6">
-              {filmes?.map((filme: any) => (
-                <div key={filme.id} className="border rounded-lg p-4">
-                  <pre className="text-sm overflow-auto">
+              {filmes?.map((filme: Filme) => (
+                <div key={filme.id} className="border border-gray-700 rounded-lg p-4 bg-gray-900">
+                  <pre className="text-sm overflow-auto text-white">
                     {JSON.stringify(filme, null, 2)}
                   </pre>
                 </div>
@@ -221,4 +228,3 @@ export default async function CentralPage() {
     </div>
   );
 }
-

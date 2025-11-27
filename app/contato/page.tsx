@@ -1,6 +1,7 @@
 'use client'
 
 import { useLanguage } from '@/lib/hooks/useLanguage';
+import { MainLayout } from '../components/MainLayout';
 import { useState } from 'react';
 
 export default function ContatoPage() {
@@ -46,7 +47,7 @@ export default function ContatoPage() {
             : 'Error sending message. Please try again.'),
         });
       }
-    } catch (error) {
+    } catch {
       setMessage({
         type: 'error',
         text: language === 'pt' 
@@ -69,7 +70,7 @@ export default function ContatoPage() {
   };
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = '5561981424106'; // Formato internacional sem caracteres especiais
+    const phoneNumber = '5561981424106';
     const message = language === 'pt' 
       ? 'Olá, gostaria de entrar em contato com a Moveo Filmes.' 
       : 'Hello, I would like to contact Moveo Filmes.';
@@ -78,19 +79,20 @@ export default function ContatoPage() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-8 pt-24">
+    <MainLayout>
+      <div className="relative w-full h-full overflow-auto px-4 py-8">
       <div className="max-w-7xl mx-auto w-full">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Container do Formulário */}
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-black mb-8">
+              <h1 className="text-4xl font-bold text-white mb-8">
               {language === 'pt' ? 'Entre em Contato' : 'Get in Touch'}
             </h1>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Campo Nome */}
               <div>
-                <label htmlFor="nome" className="block text-sm font-medium text-black mb-2">
+                  <label htmlFor="nome" className="block text-sm font-medium text-white mb-2">
                   {language === 'pt' ? 'Nome' : 'Name'}
                 </label>
                 <input
@@ -100,13 +102,13 @@ export default function ContatoPage() {
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                    className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white"
                 />
               </div>
 
               {/* Campo Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
                   Email
                 </label>
                 <input
@@ -116,13 +118,13 @@ export default function ContatoPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                    className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white"
                 />
               </div>
 
               {/* Campo Mensagem */}
               <div>
-                <label htmlFor="mensagem" className="block text-sm font-medium text-black mb-2">
+                  <label htmlFor="mensagem" className="block text-sm font-medium text-white mb-2">
                   {language === 'pt' ? 'Mensagem' : 'Message'}
                 </label>
                 <textarea
@@ -132,7 +134,7 @@ export default function ContatoPage() {
                   onChange={(e) => setFormData({ ...formData, mensagem: e.target.value })}
                   required
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black resize-none"
+                    className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white resize-none"
                 />
               </div>
 
@@ -141,8 +143,8 @@ export default function ContatoPage() {
                 <div
                   className={`p-4 rounded-lg ${
                     message.type === 'success'
-                      ? 'bg-green-50 text-green-800 border border-green-200'
-                      : 'bg-red-50 text-red-800 border border-red-200'
+                        ? 'bg-green-900 text-green-200 border border-green-700'
+                        : 'bg-red-900 text-red-200 border border-red-700'
                   }`}
                 >
                   {message.text}
@@ -153,7 +155,7 @@ export default function ContatoPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-6 py-3 bg-white text-black rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading
                   ? (language === 'pt' ? 'Enviando...' : 'Sending...')
@@ -165,15 +167,15 @@ export default function ContatoPage() {
           {/* Container de Email e WhatsApp */}
           <div className="flex-1 flex flex-col gap-6">
             {/* Container Copiar Email */}
-            <div className="p-6 border border-gray-300 rounded-lg">
-              <h2 className="text-2xl font-bold text-black mb-4">
+              <div className="p-6 border border-gray-700 rounded-lg">
+                <h2 className="text-2xl font-bold text-white mb-4">
                 {language === 'pt' ? 'Email' : 'Email'}
               </h2>
               <div className="flex items-center gap-4">
-                <p className="text-black flex-1">contato@moveofilmes.com</p>
+                  <p className="text-white flex-1">contato@moveofilmes.com</p>
                 <button
                   onClick={handleCopyEmail}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:opacity-80 transition-opacity text-sm"
+                    className="px-4 py-2 bg-white text-black rounded-lg hover:opacity-80 transition-opacity text-sm"
                 >
                   {emailCopied
                     ? (language === 'pt' ? 'Copiado!' : 'Copied!')
@@ -183,12 +185,12 @@ export default function ContatoPage() {
             </div>
 
             {/* Container WhatsApp */}
-            <div className="p-6 border border-gray-300 rounded-lg">
-              <h2 className="text-2xl font-bold text-black mb-4">
+              <div className="p-6 border border-gray-700 rounded-lg">
+                <h2 className="text-2xl font-bold text-white mb-4">
                 WhatsApp
               </h2>
               <div className="flex items-center gap-4">
-                <p className="text-black flex-1">(61) 98142-4106</p>
+                  <p className="text-white flex-1">(61) 98142-4106</p>
                 <button
                   onClick={handleWhatsAppClick}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-80 transition-opacity text-sm"
@@ -199,13 +201,13 @@ export default function ContatoPage() {
             </div>
 
             {/* Container de Imagem */}
-            <div className="w-full h-64 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
+              <div className="w-full h-64 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
               <span className="text-gray-400 text-sm">Image Placeholder</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </MainLayout>
   );
 }
-

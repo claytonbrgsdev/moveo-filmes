@@ -1,7 +1,7 @@
 export default function FilmePage({
-  params,
+  params: _params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   return null;
 }

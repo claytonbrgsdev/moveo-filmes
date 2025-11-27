@@ -16,7 +16,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations: Record<Language, Record<string, string>> = {
   pt: {
     catalog: 'Catálogo',
-    media: 'Mídia',
+    media: 'Notícias',
     about: 'Sobre',
     contact: 'Contato',
     admin: 'Admin',
@@ -24,7 +24,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     catalog: 'Catalog',
-    media: 'Media',
+    media: 'News',
     about: 'About',
     contact: 'Contact',
     admin: 'Admin',
@@ -33,19 +33,23 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('pt');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
+  const [language, setLanguageState] = useState<Language>(() => {
     // Carregar idioma do localStorage ou usar padrão
     if (typeof window !== 'undefined') {
       const savedLanguage = localStorage.getItem('language') as Language | null;
       if (savedLanguage && (savedLanguage === 'pt' || savedLanguage === 'en')) {
-        setLanguageState(savedLanguage);
+        return savedLanguage;
       }
     }
-  }, []);
+    return 'pt';
+  });
+
+  useEffect(() => {
+    // Sincronizar com localStorage quando mudar
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', language);
+    }
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -79,4 +83,5 @@ export function useLanguage() {
   }
   return context;
 }
+
 
