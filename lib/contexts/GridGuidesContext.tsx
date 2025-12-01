@@ -9,7 +9,7 @@ interface GridGuidesContextType {
 const GridGuidesContext = createContext<GridGuidesContextType | undefined>(undefined);
 
 export function GridGuidesProvider({ children }: { children: ReactNode }) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {

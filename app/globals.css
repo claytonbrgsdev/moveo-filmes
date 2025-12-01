@@ -43,6 +43,8 @@
 :root {
   --background: #000000;
   --foreground: #ffffff;
+  --f-5-min: 30;
+  --f-5-max: 120;
 }
 
 @theme inline {
@@ -62,4 +64,46 @@ body {
   font-family: 'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif;
   overflow-x: hidden;
   position: relative;
+}
+
+/* Dragonfly animation styles */
+.dragonfly-path {
+  fill: none;
+  stroke: #8486aa;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.3s;
+}
+
+/* Ensure SVG doesn't appear before GSAP initialization */
+.hero svg {
+  opacity: 0;
+}
+
+.hero .heading {
+  position: relative;
+  z-index: 2;
+  mix-blend-mode: difference;
+  perspective: 1000px;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+  transform: rotate(0.1deg);
+}
+
+.hero .clamp {
+  position: relative;
+  z-index: -1;
+}
+
+.hero .yt {
+  z-index: 3;
+}
+
+.hero .images {
+  z-index: -1;
+}
+
+.pin-spacer {
+  pointer-events: none;
 }

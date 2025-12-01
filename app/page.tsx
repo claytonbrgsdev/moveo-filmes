@@ -60,6 +60,7 @@ export default function Home() {
   const horizontalTrackRef = useRef<HTMLDivElement>(null);
   const firstSectionRef = useRef<HTMLElement | null>(null);
   const secondSectionRef = useRef<HTMLElement | null>(null);
+  const thirdSectionRef = useRef<HTMLElement | null>(null);
   const horizontalSecondWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalSecondTrackRef = useRef<HTMLDivElement>(null);
   const horizontalThirdWrapperRef = useRef<HTMLDivElement>(null);
@@ -72,6 +73,12 @@ export default function Home() {
   const [mainTrackReady, setMainTrackReady] = useState(false);
   const mainTrackTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const [newsIndex, setNewsIndex] = useState(0);
+  const sobreMoveoContainerRef = useRef<HTMLDivElement>(null);
+  const sobreMoveoTextRef = useRef<HTMLDivElement>(null);
+  const [sobreMoveoFontSize, setSobreMoveoFontSize] = useState<number>(40);
+  const dragonflySectionRef = useRef<HTMLDivElement>(null);
+  const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
+  const dragonflyPinRef = useRef<HTMLDivElement>(null);
 
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition('F')} - ${getHorizontalLinePosition('E')}) / 2)`;
   const centerLeft = `calc(${getMarkerPosition(7)} + (${getMarkerPosition(8)} - ${getMarkerPosition(7)}) / 2)`;
@@ -169,7 +176,100 @@ export default function Home() {
     };
   }, []);
 
-  // Entrada suave dos elementos da primeira seção
+  // Pin dedicado para manter a seção 2 fixa enquanto o trilho horizontal avança
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!mainTrackReady) return;
+    if (!mainTrackTimelineRef.current) return;
+    if (!horizontalWrapperRef.current || !secondSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.getAll().forEach((st) => {
+      if (st.vars?.id === 'second-section-pin') {
+        st.kill();
+      }
+    });
+
+    const ctx = gsap.context(() => {
+      const section = secondSectionRef.current;
+      if (!section) return;
+
+      ScrollTrigger.create({
+        trigger: section,
+        containerAnimation: mainTrackTimelineRef.current || undefined,
+        start: 'left center',
+        end: 'right center',
+        pin: true,
+        pinSpacing: false,
+        pinType: 'transform',
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        id: 'second-section-pin',
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, horizontalWrapperRef);
+
+    return () => {
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.vars?.id === 'second-section-pin') {
+          st.kill();
+        }
+      });
+      if (ctx) ctx.revert();
+    };
+  }, [mainTrackReady]);
+
+  // Pin dedicado para manter a seção 3 fixa enquanto o trilho horizontal avança
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!mainTrackReady) return;
+    if (!mainTrackTimelineRef.current) return;
+    if (!horizontalWrapperRef.current || !thirdSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.getAll().forEach((st) => {
+      if (st.vars?.id === 'third-section-pin') {
+        st.kill();
+      }
+    });
+
+    const ctx = gsap.context(() => {
+      const section = thirdSectionRef.current;
+      if (!section) return;
+
+      const HOLD_DISTANCE = window.innerHeight * 0.5; // Hold for half viewport height of scroll
+
+      const st = ScrollTrigger.create({
+        trigger: section,
+        containerAnimation: mainTrackTimelineRef.current || undefined,
+        start: 'center center',
+        end: () => `+=${HOLD_DISTANCE}`,
+        pin: true,
+        pinSpacing: false,
+        pinType: 'transform',
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        id: 'third-section-pin',
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, horizontalWrapperRef);
+
+    return () => {
+      ScrollTrigger.getAll().forEach((st) => {
+        const vars = st.vars as { id?: string };
+        if (vars?.id === 'third-section-pin') {
+          st.kill();
+        }
+      });
+      if (ctx) ctx.revert();
+    };
+  }, [mainTrackReady]);
+
+  // Unique scroll trigger effects for first section elements
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!firstSectionRef.current) return;
@@ -177,25 +277,87 @@ export default function Home() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const targets = gsap.utils.toArray<HTMLElement>('[data-first-animate]');
-      if (!targets.length) return;
+      const allTargets = gsap.utils.toArray<HTMLElement>('[data-first-animate]');
+      if (!allTargets.length) return;
 
-      gsap.set(targets, { autoAlpha: 0, y: 40 });
+      // Find specific elements by checking their content and structure
+      const moveoElement = allTargets.find((el) => {
+        const text = el.textContent?.trim();
+        return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
+      }) as HTMLElement;
+      
+      const produtoraElement = allTargets.find((el) => {
+        const text = el.textContent || '';
+        return text.includes('Produtora boutique') || text.includes('De filmes independentes');
+      }) as HTMLElement;
+      
+      const imageElement = allTargets.find((el) => {
+        const hasImage = el.querySelector('img[alt="Capa Home"]') || 
+                        el.querySelector('img[src*="capahome"]') ||
+                        el.querySelector('img[src*="capahome"]');
+        return hasImage || el.classList.contains('overflow-hidden');
+      }) as HTMLElement;
 
-      gsap.timeline({
-        defaults: { duration: 0.9, ease: 'power2.out' },
-        scrollTrigger: {
-          trigger: firstSectionRef.current,
-          start: 'top top',
-          end: '+=300',
-          toggleActions: 'play none none none',
-          invalidateOnRefresh: true,
-        },
-      }).to(targets, {
-        autoAlpha: 1,
-        y: 0,
-        stagger: 0.12,
-      });
+      // Animation for MOVEO - Minimal fade with subtle vertical slide
+      if (moveoElement) {
+        gsap.set(moveoElement, { 
+          opacity: 0,
+          y: 60,
+        });
+        
+        gsap.to(moveoElement, {
+          opacity: 1,
+          y: 0,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: firstSectionRef.current,
+            start: 'top top',
+            end: '+=200',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
+
+      // Animation for Produtora boutique - Simple horizontal slide in
+      if (produtoraElement) {
+        gsap.set(produtoraElement, { 
+          opacity: 0,
+          x: -80,
+        });
+        
+        gsap.to(produtoraElement, {
+          opacity: 1,
+          x: 0,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: firstSectionRef.current,
+            start: 'top top',
+            end: '+=250',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
+
+      // Animation for Capa Home image - Simple fade in
+      if (imageElement) {
+        gsap.set(imageElement, { 
+          opacity: 0,
+        });
+        
+        gsap.to(imageElement, {
+          opacity: 1,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: firstSectionRef.current,
+            start: 'top top',
+            end: '+=300',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
     }, firstSectionRef);
 
     return () => ctx.revert();
@@ -213,34 +375,44 @@ export default function Home() {
       const q = gsap.utils.selector(secondSectionRef.current);
       const imageTargets = q('[data-second-image]') as HTMLElement[];
       const contentTargets = q('[data-second-animate]') as HTMLElement[];
-      const allTargets = [...imageTargets, ...contentTargets];
-      if (!allTargets.length) return;
+      if (!imageTargets.length && !contentTargets.length) return;
 
-      gsap.set(allTargets, { autoAlpha: 0 });
+      // Only set images to invisible initially, text will be handled by typewriter
+      gsap.set(imageTargets, { autoAlpha: 0 });
 
-      // Pin suave da seção 2 para segurar leitura e animar com espaço
-      ScrollTrigger.create({
-        trigger: secondSectionRef.current,
-        containerAnimation: mainTrackTimelineRef.current || undefined,
-        start: 'left 105%',
-        end: '+=900',
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      });
+      // Unique animation variants for each of the 8 images
+      const imageVariants = [
+        // Imagem 1 - Rectangle 8.png
+        { x: -120, y: 150, rotate: -4, scale: 1.2, blur: 12, duration: 1.9, ease: 'back.out(1.7)', delay: 0 },
+        // Imagem 2 - Rectangle 11.png
+        { x: 100, y: 130, rotate: 3, scale: 1.15, blur: 10, duration: 1.7, ease: 'power3.out', delay: 0.15 },
+        // Imagem 3 - Rectangle 9.png
+        { x: 0, y: 160, rotate: 0, scale: 1.25, blur: 15, duration: 2.0, ease: 'elastic.out(1, 0.5)', delay: 0.3 },
+        // Imagem 4 - Rectangle 10.png
+        { x: -80, y: 140, rotate: -2.5, scale: 1.18, blur: 11, duration: 1.8, ease: 'back.out(1.5)', delay: 0.45 },
+        // Imagem 5 - Rectangle 12.png
+        { x: 110, y: 145, rotate: 2.8, scale: 1.22, blur: 13, duration: 1.85, ease: 'power2.out', delay: 0.6 },
+        // Imagem 6 - Rectangle 8.png
+        { x: -60, y: 155, rotate: -1.8, scale: 1.16, blur: 9, duration: 1.75, ease: 'back.out(1.4)', delay: 0.75 },
+        // Imagem 7 - Rectangle 122.png
+        { x: 90, y: 125, rotate: 1.5, scale: 1.19, blur: 14, duration: 1.95, ease: 'elastic.out(1, 0.6)', delay: 0.9 },
+        // Imagem 8 - Rectangle 10.png
+        { x: 0, y: 135, rotate: 0, scale: 1.17, blur: 10, duration: 1.8, ease: 'power3.out', delay: 1.05 },
+      ];
 
       imageTargets.forEach((target, index) => {
-        const variants = [
-          { x: -110, y: 140, rotate: -3 },
-          { x: 90, y: 120, rotate: 2.4 },
-          { x: 0, y: 150, rotate: 0 },
-        ];
-        const variant = variants[index % variants.length];
+        const variant = imageVariants[index] || imageVariants[0]; // Fallback to first variant if more than 8 images
 
         gsap.fromTo(
           target,
-          { autoAlpha: 0, x: variant.x, y: variant.y, scale: 1.18, rotate: variant.rotate, filter: 'blur(10px)' },
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
           {
             autoAlpha: 1,
             x: 0,
@@ -248,55 +420,468 @@ export default function Home() {
             scale: 1,
             rotate: 0,
             filter: 'blur(0px)',
-            duration: 1.8,
-            ease: 'back.out(1.6)',
-            delay: index * 0.18,
+            ease: 'none',
             scrollTrigger: {
               trigger: target,
               containerAnimation: mainTrackTimelineRef.current || undefined,
               start: 'left 115%',
               end: 'left 35%',
-              toggleActions: 'play none none none',
+              scrub: true,
               invalidateOnRefresh: true,
             },
           }
         );
       });
 
+      // Unique animation variants for each text content element
+      const contentVariants = [
+        // 1. "Brasília, desde 2018"
+        { x: -50, y: 100, scale: 1.08, blur: 8 },
+        // 2. "Filmes de arte para o mercado internacional" (first instance)
+        { x: 55, y: 115, scale: 1.12, blur: 10 },
+        // 3. "SOBRE A MOVEO"
+        { x: 0, y: 130, scale: 1.15, blur: 12 },
+        // 4. "Focado em promissores cineastas brasileiros"
+        { x: -70, y: 105, scale: 1.09, blur: 9 },
+        // 5. "Um histórico sólido de colaborações com talentos emergentes"
+        { x: 65, y: 120, scale: 1.11, blur: 11 },
+        // 6. "Filmes de arte para o mercado internacional" (second instance)
+        { x: -45, y: 110, scale: 1.1, blur: 8 },
+        // 7. "FILMES DESTAQUE DO NOSSO CATÁLOGO"
+        { x: 0, y: 125, scale: 1.13, blur: 10 },
+      ];
+
       contentTargets.forEach((target, index) => {
-        const variants = [
-          { x: -60, y: 110 },
-          { x: 60, y: 125 },
-          { x: 0, y: 140 },
-        ];
-        const variant = variants[index % variants.length];
+        const variant = contentVariants[index] || contentVariants[0]; // Fallback to first variant if more than 7 elements
+
+        // Ensure container is visible
+        gsap.set(target, { autoAlpha: 1 });
+
+        // Apply typewriter effect to all text elements
+        const paragraph = target.querySelector('p');
+        const textContainer = target.querySelector('div[class*="text-white"]') || paragraph;
+        
+        if (textContainer) {
+          // Get all text content
+          const originalHTML = textContainer.innerHTML;
+          
+          // Check if it has nested divs (like SOBRE A MOVEO)
+          const hasNestedDivs = textContainer.querySelector('div') !== null;
+          
+          if (hasNestedDivs) {
+            // Handle nested structure (like SOBRE A MOVEO)
+            const nestedDivs = textContainer.querySelectorAll('div');
+            const allCharSpans: HTMLElement[] = [];
+            
+            nestedDivs.forEach((div) => {
+              const text = div.textContent || '';
+              div.innerHTML = '';
+              
+              for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+                span.style.opacity = '0';
+                span.style.display = 'inline';
+                div.appendChild(span);
+                allCharSpans.push(span);
+              }
+            });
+            
+            // Animate all characters with timeline (no scrub, restarts on enter/exit)
+            if (allCharSpans.length > 0) {
+              const typewriterTl = gsap.timeline({
+                paused: true,
+                scrollTrigger: {
+                  trigger: target,
+                  containerAnimation: mainTrackTimelineRef.current || undefined,
+                  start: 'left 112%',
+                  end: 'left 40%',
+                  toggleActions: 'play none none reverse', // Play on enter, reverse on leave
+                  invalidateOnRefresh: true,
+                },
+              });
+              
+              allCharSpans.forEach((span, i) => {
+                typewriterTl.to(span, {
+                  opacity: 1,
+                  duration: 0.03,
+                  ease: 'none',
+                }, i * 0.03);
+              });
+            }
+          } else {
+            // Handle simple paragraph structure
+            const charSpans: HTMLElement[] = [];
+            const hasBreaks = originalHTML.includes('<br');
+            const parts = hasBreaks ? originalHTML.split(/<br\s*\/?>/i) : [originalHTML];
+            
+            textContainer.innerHTML = '';
+            
+            parts.forEach((part, partIndex) => {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = part;
+              const text = tempDiv.textContent || '';
+              
+              for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+                span.style.opacity = '0';
+                span.style.display = 'inline';
+                textContainer.appendChild(span);
+                charSpans.push(span);
+              }
+              
+              if (partIndex < parts.length - 1) {
+                textContainer.appendChild(document.createElement('br'));
+              }
+            });
+            
+            // Animate characters appearing one by one with timeline (no scrub, restarts on enter/exit)
+            if (charSpans.length > 0) {
+              const typewriterTl = gsap.timeline({
+                paused: true,
+                scrollTrigger: {
+                  trigger: target,
+                  containerAnimation: mainTrackTimelineRef.current || undefined,
+                  start: 'left 112%',
+                  end: 'left 40%',
+                  toggleActions: 'play none none reverse', // Play on enter, reverse on leave
+                  invalidateOnRefresh: true,
+                },
+              });
+              
+              charSpans.forEach((span, i) => {
+                typewriterTl.to(span, {
+                  opacity: 1,
+                  duration: 0.03,
+                  ease: 'none',
+                }, i * 0.03);
+              });
+            }
+          }
+        } else {
+          // Fallback to original animation if no text container found
+          gsap.fromTo(
+            target,
+            { 
+              autoAlpha: 0, 
+              x: variant.x, 
+              y: variant.y, 
+              scale: variant.scale, 
+              filter: `blur(${variant.blur}px)` 
+            },
+            {
+              autoAlpha: 1,
+              x: 0,
+              y: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: target,
+                containerAnimation: mainTrackTimelineRef.current || undefined,
+                start: 'left 112%',
+                end: 'left 40%',
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+        }
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, secondSectionRef);
+
+    return () => ctx.revert();
+  }, [mainTrackReady]);
+
+  // ScrollTrigger animations for third section (images and text)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!thirdSectionRef.current || !mainTrackReady) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(thirdSectionRef.current);
+      const imageTargets = q('[data-third-image]') as HTMLElement[];
+      const contentTargets = q('[data-third-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Unique animation variants for each of the 10 images in third section
+      const thirdImageVariants = [
+        // Imagem 11 - Rectangle 8.png
+        { x: -130, y: 160, rotate: -5, scale: 1.22, blur: 13 },
+        // Imagem 12 - Rectangle 9.png
+        { x: 105, y: 140, rotate: 3.5, scale: 1.16, blur: 11 },
+        // Imagem 13 - Rectangle 10.png
+        { x: 0, y: 170, rotate: 0, scale: 1.26, blur: 16 },
+        // Imagem 14 - Rectangle 11.png
+        { x: -90, y: 150, rotate: -3, scale: 1.19, blur: 12 },
+        // Imagem 15 - Rectangle 12.png
+        { x: 115, y: 155, rotate: 3, scale: 1.23, blur: 14 },
+        // Imagem 16 - Rectangle 8.png
+        { x: -70, y: 165, rotate: -2, scale: 1.17, blur: 10 },
+        // Imagem 17 - Rectangle 9.png
+        { x: 95, y: 135, rotate: 2, scale: 1.2, blur: 15 },
+        // Imagem 18 - Rectangle 10.png
+        { x: -50, y: 145, rotate: -1.5, scale: 1.18, blur: 11 },
+        // Imagem 19 - Rectangle 11.png
+        { x: 100, y: 150, rotate: 2.5, scale: 1.21, blur: 13 },
+        // Imagem 20 - Rectangle 12.png
+        { x: 0, y: 140, rotate: 0, scale: 1.19, blur: 12 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = thirdImageVariants[index] || thirdImageVariants[0];
+        // Images 16, 17, 18, 19, 20 (indices 5-9) finish animation sooner
+        const shouldFinishSooner = index >= 5 && index <= 9;
+        // Images 16, 17, 18 (indices 5-7) don't use blur, use opacity and brightness instead
+        const noBlur = index >= 5 && index <= 7;
 
         gsap.fromTo(
           target,
-          { autoAlpha: 0, x: variant.x, y: variant.y, scale: 1.1, filter: 'blur(8px)' },
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: noBlur ? 'brightness(0.3)' : `blur(${variant.blur}px)`,
+            opacity: noBlur ? 0 : undefined,
+          },
           {
             autoAlpha: 1,
             x: 0,
             y: 0,
             scale: 1,
-            filter: 'blur(0px)',
-            duration: 1.6,
-            ease: 'back.out(1.4)',
-            delay: index * 0.14,
+            rotate: 0,
+            filter: noBlur ? 'brightness(1)' : 'blur(0px)',
+            opacity: noBlur ? 1 : undefined,
+            ease: 'none',
             scrollTrigger: {
               trigger: target,
               containerAnimation: mainTrackTimelineRef.current || undefined,
-              start: 'left 112%',
-              end: 'left 40%',
-              toggleActions: 'play none none none',
+              start: 'left 115%',
+              end: shouldFinishSooner ? 'left 60%' : 'left 35%',
+              scrub: true,
               invalidateOnRefresh: true,
             },
           }
         );
       });
 
+      // Unique animation variants for text content in third section
+      const thirdContentVariants = [
+        // "FILMES DESTAQUE DO NOSSO CATÁLOGO"
+        { x: 0, y: 140, scale: 1.16, blur: 13 },
+        // "Um histórico sólido de colaborações com talentos emergentes"
+        { x: -75, y: 110, scale: 1.1, blur: 10 },
+        // "Filmes de arte para o mercado internacional"
+        { x: 70, y: 125, scale: 1.12, blur: 11 },
+      ];
+
+      contentTargets.forEach((target, index) => {
+        const variant = thirdContentVariants[index] || thirdContentVariants[0];
+        const isFilmesDestaque = index === 0;
+        const isTypewriter = target.hasAttribute('data-typewriter-text');
+
+        // Skip default animation for typewriter element
+        if (isTypewriter) {
+          return;
+        }
+
+        if (isFilmesDestaque) {
+          // Unique creative animation: Dramatic wipe reveal with glitch effect
+          gsap.set(target, { 
+            clearProps: 'all',
+            overflow: 'hidden',
+          });
+
+          // Create a timeline for complex animation sequence
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: target,
+              containerAnimation: mainTrackTimelineRef.current || undefined,
+              start: 'left 112%',
+              end: 'left 65%',
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          // Phase 1: Dramatic wipe reveal from left with scale
+          tl.fromTo(
+            target,
+            {
+              clipPath: 'inset(0 100% 0 0)', // Completely hidden from right
+              opacity: 0,
+              x: -200, // Start far to the left
+              scale: 0.5, // Start very small
+              rotation: -10, // Tilted
+            },
+            {
+              clipPath: 'inset(0 0% 0 0)', // Fully revealed
+              opacity: 1,
+              x: 0,
+              scale: 1.05, // Slightly larger
+              rotation: 0,
+              duration: 0.6,
+              ease: 'power3.out',
+            }
+          )
+          // Phase 2: Glitch shake effect with color distortion
+          .fromTo(
+            target,
+            {
+              x: 0,
+              y: 0,
+              skewX: 0,
+              filter: 'contrast(1) brightness(1) saturate(1)',
+            },
+            {
+              x: -15, // Glitch offset
+              y: 8,
+              skewX: 5,
+              filter: 'contrast(2.8) brightness(1.8) saturate(2.2)',
+              duration: 0.15,
+              ease: 'power1.in',
+            },
+            '-=0.4'
+          )
+          .to(
+            target,
+            {
+              x: 12,
+              y: -6,
+              skewX: -4,
+              filter: 'contrast(1.5) brightness(1.3) saturate(1.4)',
+              duration: 0.1,
+              ease: 'power1.inOut',
+            }
+          )
+          .to(
+            target,
+            {
+              x: 0,
+              y: 0,
+              skewX: 0,
+              filter: 'contrast(1) brightness(1) saturate(1)',
+              duration: 0.15,
+              ease: 'power2.out',
+            }
+          )
+          // Phase 3: Final settle with bounce
+          .to(
+            target,
+            {
+              scale: 1,
+              duration: 0.3,
+              ease: 'elastic.out(1, 0.6)',
+            },
+            '-=0.2'
+          );
+        } else {
+          // Original animation for other elements
+          const fromProps: gsap.TweenVars = { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          };
+          
+          const toProps: gsap.TweenVars = {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+          };
+
+          gsap.fromTo(
+            target,
+            fromProps,
+            {
+              ...toProps,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: target,
+                containerAnimation: mainTrackTimelineRef.current || undefined,
+                start: 'left 112%',
+                end: 'left 40%',
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+        }
+      });
+
+      // Typewriter effect for "Um histórico sólido de colaborações com talentos emergentes"
+      const typewriterElement = thirdSectionRef.current?.querySelector('[data-typewriter-text]') as HTMLElement;
+      if (typewriterElement) {
+        // Ensure container is visible
+        gsap.set(typewriterElement, { autoAlpha: 1 });
+        
+        const paragraph = typewriterElement.querySelector('p');
+        if (paragraph) {
+          // Get all span elements (the 3 lines)
+          const lineSpans = paragraph.querySelectorAll('span');
+          
+          if (lineSpans.length > 0) {
+            const allChars: HTMLElement[] = [];
+            
+            // Process each line span
+            lineSpans.forEach((lineSpan) => {
+              const text = lineSpan.textContent || '';
+              const chars = text.split('');
+              
+              // Clear the span and add character spans
+              lineSpan.innerHTML = '';
+              chars.forEach((char) => {
+                const charSpan = document.createElement('span');
+                charSpan.textContent = char === ' ' ? '\u00A0' : char;
+                charSpan.style.opacity = '0';
+                charSpan.style.display = 'inline';
+                lineSpan.appendChild(charSpan);
+                allChars.push(charSpan);
+              });
+            });
+            
+            // Animate characters appearing one by one with timeline (no scrub, restarts on enter/exit)
+            const totalChars = allChars.length;
+            if (totalChars > 0) {
+              const typewriterTl = gsap.timeline({
+                paused: true,
+                scrollTrigger: {
+                  trigger: typewriterElement,
+                  containerAnimation: mainTrackTimelineRef.current || undefined,
+                  start: 'left 112%',
+                  end: 'left 40%',
+                  toggleActions: 'play none none reverse', // Play on enter, reverse on leave
+                  invalidateOnRefresh: true,
+                },
+              });
+              
+              allChars.forEach((span, i) => {
+                typewriterTl.to(span, {
+                  opacity: 1,
+                  duration: 0.03,
+                  ease: 'none',
+                }, i * 0.03);
+              });
+            }
+          }
+        }
+      }
+
       requestAnimationFrame(() => ScrollTrigger.refresh());
-    }, secondSectionRef);
+    }, thirdSectionRef);
 
     return () => ctx.revert();
   }, [mainTrackReady]);
@@ -732,6 +1317,83 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
+  // Dragonfly SVG Animation Section
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!dragonflySectionRef.current || !dragonflyHeadingRef.current || !dragonflyPinRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const heading = dragonflyHeadingRef.current;
+    const pin = dragonflyPinRef.current;
+    const paths = heading.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
+
+    // 1. Prepara os caminhos do SVG (Calcula comprimento e esconde)
+    paths.forEach((path) => {
+      const length = path.getTotalLength();
+      gsap.set(path, {
+        strokeDasharray: length,
+        strokeDashoffset: length,
+      });
+    });
+
+    // Mostra o SVG após o setup inicial para evitar "flash"
+    const svg = heading.querySelector('svg');
+    if (svg) {
+      gsap.set(svg, { opacity: 1 });
+    }
+
+    const ctx = gsap.context(() => {
+      // 2. Cria o Timeline de Desenho
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: heading,
+          start: 'top center',
+          end: '+=2000',
+          scrub: true,
+          pin: pin,
+          pinSpacing: false,
+        },
+      });
+
+      // === Sequência de Animação ===
+      // Duração total do timeline é aproximadamente 4.0 segundos (0.8 + 1.2 + 1.5 + 0.5)
+
+      // Desenha a Cabeça e Tórax
+      tl.to(['#head', '#thorax'], {
+        strokeDashoffset: 0,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      }, 0);
+
+      // Desenha o Abdômen
+      tl.to('#abdomen', {
+        strokeDashoffset: 0,
+        duration: 1.2,
+        ease: 'power2.inOut',
+      }, '<0.2'); // Inicia antes do anterior terminar
+
+      // Desenha As Asas
+      tl.to('.wing', {
+        strokeDashoffset: 0,
+        duration: 1.5,
+        stagger: 0.05,
+        ease: 'power2.out',
+      }, '-=0.5'); // Inicia antes do abdômen terminar
+
+      // Efeito Visual Final (Aumenta espessura)
+      tl.to('.dragonfly-path', {
+        strokeWidth: 3.5,
+        ease: 'power1.inOut',
+        duration: 0.5,
+      });
+    }, dragonflySectionRef);
+
+    return () => {
+      if (ctx) ctx.revert();
+    };
+  }, []);
+
   // Scroll infinito removido temporariamente
 
   useEffect(() => {
@@ -963,6 +1625,94 @@ export default function Home() {
         }
       }, 50);
       return () => clearTimeout(timer);
+    }
+  }, [pathname]);
+
+  // Calculate font size for "SOBRE A MOVEO" to fill container
+  useEffect(() => {
+    const calculateSobreMoveoFontSize = () => {
+      if (!sobreMoveoContainerRef.current || !sobreMoveoTextRef.current) return;
+
+      const containerWidth = sobreMoveoContainerRef.current.offsetWidth;
+      const containerHeight = sobreMoveoContainerRef.current.offsetHeight;
+      
+      if (containerWidth === 0 || containerHeight === 0) return;
+
+      // Create temporary elements to measure both text parts
+      const sobreElement = document.createElement('span');
+      sobreElement.style.position = 'absolute';
+      sobreElement.style.visibility = 'hidden';
+      sobreElement.style.whiteSpace = 'nowrap';
+      sobreElement.style.fontFamily = "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif";
+      sobreElement.style.fontWeight = '300';
+      sobreElement.style.letterSpacing = '-0.05em';
+      sobreElement.textContent = 'SOBRE A';
+      document.body.appendChild(sobreElement);
+
+      const moveoElement = document.createElement('span');
+      moveoElement.style.position = 'absolute';
+      moveoElement.style.visibility = 'hidden';
+      moveoElement.style.whiteSpace = 'nowrap';
+      moveoElement.style.fontFamily = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif";
+      moveoElement.style.fontWeight = '700';
+      moveoElement.style.letterSpacing = '-0.05em';
+      moveoElement.textContent = 'MOVEO';
+      document.body.appendChild(moveoElement);
+
+      // Binary search to find optimal font size
+      let min = 24;
+      let max = 400;
+      let bestSize = min;
+      const lineHeight = 0.9;
+
+      for (let i = 0; i < 30; i++) {
+        const mid = (min + max) / 2;
+        sobreElement.style.fontSize = `${mid}px`;
+        moveoElement.style.fontSize = `${mid}px`;
+        
+        const sobreWidth = sobreElement.offsetWidth;
+        const moveoWidth = moveoElement.offsetWidth;
+        const maxWidth = Math.max(sobreWidth, moveoWidth); // Use max since they're stacked vertically
+        
+        const sobreHeight = sobreElement.offsetHeight * lineHeight;
+        const moveoHeight = moveoElement.offsetHeight * lineHeight;
+        const totalHeight = sobreHeight + moveoHeight;
+
+        // Check both width and height constraints, use the smaller constraint
+        const widthFits = maxWidth <= containerWidth;
+        const heightFits = totalHeight <= containerHeight;
+        
+        if (widthFits && heightFits) {
+          bestSize = mid;
+          min = mid;
+        } else {
+          max = mid;
+        }
+      }
+
+      document.body.removeChild(sobreElement);
+      document.body.removeChild(moveoElement);
+      setSobreMoveoFontSize(Math.floor(bestSize));
+    };
+
+    if (pathname === '/') {
+      const timer = setTimeout(calculateSobreMoveoFontSize, 100);
+      
+      const resizeObserver = new ResizeObserver(() => {
+        calculateSobreMoveoFontSize();
+      });
+
+      if (sobreMoveoContainerRef.current) {
+        resizeObserver.observe(sobreMoveoContainerRef.current);
+      }
+
+      window.addEventListener('resize', calculateSobreMoveoFontSize);
+
+      return () => {
+        clearTimeout(timer);
+        resizeObserver.disconnect();
+        window.removeEventListener('resize', calculateSobreMoveoFontSize);
+      };
     }
   }, [pathname]);
 
@@ -1199,7 +1949,7 @@ export default function Home() {
                     <div className="grid grid-rows-2 flex-1 min-h-0 gap-2">
                       {/* Linha superior dividida verticalmente em 2 */}
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-transparent rounded-lg p-4 flex items-end justify-start" data-second-animate>
+                        <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 pl-0 flex items-end justify-start" data-second-animate>
                           <p
                             className="text-white"
                             style={{
@@ -1223,7 +1973,7 @@ export default function Home() {
                       </div>
 
                       {/* Container maior inferior com texto */}
-                      <div className="bg-transparent rounded-lg p-4 md:p-6 flex items-end justify-start" data-second-animate>
+                      <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 pl-0 flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white"
                           style={{
@@ -1243,12 +1993,20 @@ export default function Home() {
                   </div>
 
                   <div className="flex flex-col gap-6 h-full min-h-0">
-                    <div className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex items-center justify-center flex-[1] min-h-0" data-second-animate>
-                      <div className="text-white uppercase text-center" style={{
-                        fontSize: FONT_LARGE,
-                        lineHeight: '0.9',
-                        letterSpacing: '-0.05em',
-                      }}>
+                    <div 
+                      ref={sobreMoveoContainerRef}
+                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex items-center justify-center flex-[1] min-h-0" 
+                      data-second-animate
+                    >
+                      <div 
+                        ref={sobreMoveoTextRef}
+                        className="text-white uppercase text-center" 
+                        style={{
+                          fontSize: `${sobreMoveoFontSize}px`,
+                          lineHeight: '0.9',
+                          letterSpacing: '-0.05em',
+                        }}
+                      >
                         <div
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
@@ -1320,6 +2078,7 @@ export default function Home() {
           </section>
 
           <section
+            ref={thirdSectionRef}
             className="horizontal-section relative flex-shrink-0 text-white"
             style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
           >
@@ -1328,7 +2087,7 @@ export default function Home() {
                 {/* Container Esquerdo - Dividido em 3 partes horizontais */}
                 <div className="flex flex-col h-full min-h-0">
                   {/* Container Superior */}
-                  <div className="flex-1 bg-transparent flex items-end p-4 md:p-6 lg:p-8 min-h-0">
+                  <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text>
                     <p
                       className="text-white"
                       style={{
@@ -1336,16 +2095,23 @@ export default function Home() {
                         fontWeight: 700,
                         fontSize: FONT_LARGE,
                         lineHeight: '1.2',
+                        width: '100%',
+                        maxWidth: '100%',
+                        aspectRatio: '1',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        margin: 0,
                       }}
                     >
-                      Um histórico sólido de colaborações
-                      <br />
-                      com talentos emergentes
+                      <span style={{ display: 'block', width: '100%' }}>Um histórico sólido</span>
+                      <span style={{ display: 'block', width: '100%' }}>de colaborações com</span>
+                      <span style={{ display: 'block', width: '100%' }}>talentos emergentes</span>
                     </p>
                   </div>
 
                   {/* Container Central */}
-                  <div className="flex-1 bg-transparent flex items-end p-4 md:p-6 lg:p-8 min-h-0">
+                  <div className="flex-1 bg-transparent flex items-end pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate>
                     <p
                       className="text-white"
                       style={{
@@ -1361,7 +2127,7 @@ export default function Home() {
                   {/* Container Inferior - Grid 2 linhas x 4 colunas */}
                   <div className="flex-1 grid grid-cols-4 grid-rows-4 min-h-0 gap-2">
                     {/* A1 superior */}
-                    <div className="relative overflow-hidden rounded-lg">
+                    <div className="relative overflow-hidden rounded-lg" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 8.png"
                         alt="Imagem 11"
@@ -1372,7 +2138,7 @@ export default function Home() {
                     </div>
 
                     {/* A3 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-3">
+                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-3" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 9.png"
                         alt="Imagem 12"
@@ -1383,7 +2149,7 @@ export default function Home() {
                     </div>
 
                     {/* A4 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4">
+                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 10.png"
                         alt="Imagem 13"
@@ -1394,7 +2160,7 @@ export default function Home() {
                     </div>
 
                     {/* Container mesclado: A'1, A'2, B1, B2, B'1 e B'2 */}
-                    <div className="relative overflow-hidden rounded-lg col-span-2 row-span-3 col-start-1 row-start-2">
+                    <div className="relative overflow-hidden rounded-lg col-span-2 row-span-3 col-start-1 row-start-2" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 11.png"
                         alt="Imagem 14"
@@ -1405,7 +2171,7 @@ export default function Home() {
                     </div>
 
                     {/* B4 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4 row-start-3">
+                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4 row-start-3" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 12.png"
                         alt="Imagem 15"
@@ -1418,10 +2184,32 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-5 grid-rows-5 h-full min-h-0 gap-2">
-                  {/* Container grande mesclado: A1-A4, B1-B4, C1-C4 (12 células) */}
-                  <div className="col-span-4 row-span-3 bg-transparent flex items-center justify-center p-4 md:p-6 lg:p-8 col-start-1 row-start-1">
+                  {/* Rectangle 11 - squared image - first */}
+                  <div className="relative overflow-hidden rounded-lg col-start-1 row-start-1" data-third-image>
+                    <Image
+                      src="/imagens/secao2home/Rectangle 11.png"
+                      alt="Imagem 19"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+
+                  {/* Rectangle 12 - rectangled image - second */}
+                  <div className="relative overflow-hidden rounded-lg col-span-2 col-start-1 row-start-2" data-third-image>
+                    <Image
+                      src="/imagens/secao2home/Rectangle 12.png"
+                      alt="Imagem 20"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+
+                  {/* Container grande mesclado: Text - third */}
+                  <div className="col-span-4 row-span-3 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 col-start-1 row-start-3" data-third-animate>
                     <h2
-                      className="text-white uppercase text-center"
+                      className="text-white uppercase text-left"
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
                         fontSize: FONT_HUGE,
@@ -1435,7 +2223,7 @@ export default function Home() {
                   </div>
 
                   {/* A5 */}
-                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-1">
+                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-1" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 8.png"
                       alt="Imagem 16"
@@ -1446,7 +2234,7 @@ export default function Home() {
                   </div>
 
                   {/* B5 */}
-                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-2">
+                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-2" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 9.png"
                       alt="Imagem 17"
@@ -1457,34 +2245,10 @@ export default function Home() {
                   </div>
 
                   {/* C5 e D5 mesclados */}
-                  <div className="relative overflow-hidden rounded-lg row-span-2 col-start-5 row-start-3">
+                  <div className="relative overflow-hidden rounded-lg row-span-2 col-start-5 row-start-3" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 10.png"
                       alt="Imagem 18"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-
-                  {/* D2 */}
-                  <div className="relative overflow-hidden rounded-lg col-start-2 row-start-4">
-                    <Image
-                      src="/imagens/secao2home/Rectangle 11.png"
-                      alt="Imagem 19"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-
-                  {/* D5 - já mesclado com C5 acima */}
-
-                  {/* E1 e E2 mesclados */}
-                  <div className="relative overflow-hidden rounded-lg col-span-2 col-start-1 row-start-5">
-                    <Image
-                      src="/imagens/secao2home/Rectangle 12.png"
-                      alt="Imagem 20"
                       fill
                       className="object-cover"
                       unoptimized
@@ -1495,6 +2259,185 @@ export default function Home() {
             </div>
           </section>
         </div>
+      </div>
+
+      {/* Dragonfly Animation Section - ACERVO */}
+      <div
+        ref={dragonflySectionRef}
+        className="relative bg-black text-white"
+        style={{
+          margin: '0',
+          minHeight: '100vh',
+        }}
+      >
+        <section className="hero" style={{ paddingLeft: '50px', minHeight: '100vh' }}>
+          <div ref={dragonflyHeadingRef} className="heading" style={{ position: 'relative', zIndex: 2, mixBlendMode: 'difference', perspective: '1000px', WebkitBackfaceVisibility: 'visible', backfaceVisibility: 'visible', transform: 'rotate(0.1deg)' }}>
+            <div ref={dragonflyPinRef} className="pin">
+              <h1
+                className="text-white uppercase text-center"
+                style={{
+                  position: 'relative',
+                  fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_HUGE,
+                  lineHeight: '0.85',
+                  letterSpacing: '-0.02em',
+                  fontWeight: 300,
+                }}
+              >
+                <span className="clamp" style={{ position: 'relative', zIndex: -1 }}>
+                  ACERVO
+                  <svg
+                    data-name="Libelula"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 300 200"
+                    style={{
+                      position: 'absolute',
+                      width: '112%',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      left: '-6%',
+                      opacity: 0,
+                    }}
+                  >
+                    <path
+                      id="head"
+                      className="dragonfly-path draw"
+                      d="M 150 20 C 140 35, 160 35, 150 20 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="thorax"
+                      className="dragonfly-path draw"
+                      d="M 150 35 L 145 50 L 155 50 L 150 35 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="abdomen"
+                      className="dragonfly-path draw"
+                      d="M 150 50 L 150 180"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="wing-tl"
+                      className="dragonfly-path draw wing"
+                      d="M 150 50 L 50 20 L 60 40 L 150 50 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="wing-bl"
+                      className="dragonfly-path draw wing"
+                      d="M 150 55 L 45 80 L 55 100 L 150 55 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="wing-tr"
+                      className="dragonfly-path draw wing"
+                      d="M 150 50 L 250 20 L 240 40 L 150 50 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      id="wing-br"
+                      className="dragonfly-path draw wing"
+                      d="M 150 55 L 255 80 L 245 100 L 150 55 Z"
+                      fill="none"
+                      stroke="#8486aa"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <br />
+                <span className="yt" style={{ zIndex: 3, fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>Moveo</span>
+              </h1>
+            </div>
+          </div>
+          <div
+            className="images"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr 1fr',
+              alignItems: 'stretch',
+              justifyItems: 'center',
+              marginTop: '2rem',
+              zIndex: -1,
+            }}
+          >
+            <Image
+              src="/imagens/secao2home/Rectangle 8.png"
+              alt="Imagem 1"
+              width={400}
+              height={600}
+              style={{
+                maxWidth: '100%',
+                height: '60vh',
+                objectFit: 'cover',
+              }}
+              unoptimized
+            />
+            <Image
+              src="/imagens/secao2home/Rectangle 9.png"
+              alt="Imagem 2"
+              width={400}
+              height={600}
+              style={{
+                maxWidth: '100%',
+                height: '60vh',
+                objectFit: 'cover',
+              }}
+              unoptimized
+            />
+            <Image
+              src="/imagens/secao2home/Rectangle 10.png"
+              alt="Imagem 3"
+              width={400}
+              height={600}
+              style={{
+                maxWidth: '100%',
+                height: '60vh',
+                objectFit: 'cover',
+              }}
+              unoptimized
+            />
+            <Image
+              src="/imagens/secao2home/Rectangle 11.png"
+              alt="Imagem 4"
+              width={400}
+              height={600}
+              style={{
+                maxWidth: '100%',
+                height: '60vh',
+                objectFit: 'cover',
+              }}
+              unoptimized
+            />
+          </div>
+        </section>
+        <section className="spacer" style={{ height: '100vh' }}></section>
       </div>
 
       {/* Nova Seção - Image Carousel com Parallax */}
