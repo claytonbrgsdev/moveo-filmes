@@ -1325,8 +1325,6 @@ export default function Home() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const heading = dragonflyHeadingRef.current;
-    const pin = dragonflyPinRef.current;
     const paths = dragonflySectionRef.current.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
 
     // 1. Prepara os caminhos do SVG (Calcula comprimento e esconde)
@@ -1338,32 +1336,36 @@ export default function Home() {
       });
     });
 
-    // Mostra o SVG após o setup inicial para evitar "flash"
+    // Mostra o SVG após o setup inicial para evitar "flash" - opacidade bem fraca
     const svg = dragonflySectionRef.current.querySelector('svg');
     if (svg) {
-      gsap.set(svg, { opacity: 1 });
+      gsap.set(svg, { opacity: 0.15 });
     }
 
     const ctx = gsap.context(() => {
-      // 2. Cria o Timeline de Desenho
+      // 2. Cria o Timeline de Desenho - SEM PIN (usamos CSS sticky)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: dragonflySectionRef.current,
           start: 'top top',
-          end: '+=1500',
+          end: 'bottom bottom',
           scrub: true,
-          pin: true,
-          pinSpacing: true,
         },
       });
 
       // === Sequência de Animação ===
-      // Duração total do timeline é aproximadamente 4.0 segundos (0.8 + 1.2 + 1.5 + 0.5)
 
       // Desenha a Cabeça e Tórax
       tl.to(['#head', '#thorax'], {
         strokeDashoffset: 0,
         duration: 0.8,
+        ease: 'power2.inOut',
+      }, 0);
+
+      // Desenha o Eixo Central (spine)
+      tl.to('#spine', {
+        strokeDashoffset: 0,
+        duration: 1.0,
         ease: 'power2.inOut',
       }, 0);
 
@@ -1382,26 +1384,25 @@ export default function Home() {
         ease: 'power2.out',
       }, '-=0.5'); // Inicia antes do abdômen terminar
 
-      // Efeito Visual Final (Aumenta espessura)
+      // Efeito Visual Final (Aumenta espessura levemente)
       tl.to('.dragonfly-path', {
-        strokeWidth: 2,
+        strokeWidth: 1.5,
         ease: 'power1.inOut',
         duration: 0.5,
       });
 
-      // Animação das Imagens (Parallax com data-speed)
-      const images = dragonflySectionRef.current?.querySelectorAll('.images > div'); // Agora mirando nos containers
+      // Animação das Imagens (Parallax com data-speed) - Fluxo independente
+      const images = dragonflySectionRef.current?.querySelectorAll('.images > div');
       
       if (images) {
-        // Parallax Effect (durante o scroll inicial)
         images.forEach((div) => {
           const speed = parseFloat(div.getAttribute('data-speed') || '1');
           
           gsap.to(div, {
-            y: (i, target) => (1 - speed) * 200,
+            y: () => (1 - speed) * 300,
             ease: 'none',
             scrollTrigger: {
-              trigger: dragonflySectionRef.current,
+              trigger: div,
               start: 'top bottom',
               end: 'bottom top',
               scrub: true,
@@ -1413,13 +1414,18 @@ export default function Home() {
       // Saída dos elementos de texto para cima (Transição Suave)
       const headingElements = dragonflySectionRef.current?.querySelectorAll('.heading');
       if (headingElements) {
-        tl.to(headingElements, {
-          y: '-150vh',
-          scale: 0.8,
+        gsap.to(headingElements, {
+          y: '-50vh',
+          scale: 0.9,
           opacity: 0,
-          duration: 1.0,
           ease: 'power3.in',
-        }, '+=0.2'); // Inicia logo após o desenho da libélula terminar
+          scrollTrigger: {
+            trigger: dragonflySectionRef.current,
+            start: 'center top',
+            end: 'bottom top',
+            scrub: true,
+          }
+        });
       }
     }, dragonflySectionRef);
 
@@ -2316,99 +2322,117 @@ export default function Home() {
       <div className="relative w-full">
         <section
           ref={dragonflySectionRef}
-          className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center overflow-hidden py-20"
+          className="relative bg-black text-white"
+          style={{ minHeight: '200vh' }}
         >
-          <div className="container mx-auto px-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
-          
-          {/* Heading Container */}
+          {/* Container Pinado - Título e Libélula */}
           <div 
-            ref={dragonflyHeadingRef} 
-            className="relative z-20 mix-blend-difference perspective-[1000px] w-full flex justify-center"
+            ref={dragonflyPinRef}
+            className="sticky top-0 h-screen w-full flex items-center justify-center z-10"
           >
-            <div ref={dragonflyPinRef} className="relative text-center">
-              <h1 className="relative flex flex-col items-center justify-center uppercase leading-none">
-                {/* "ACERVO" - Huge Text */}
-                <span 
-                  className="relative block z-0 mix-blend-difference"
-                  style={{ 
-                    fontSize: 'clamp(60px, 15vw, 200px)',
-                    fontFamily: "'Helvetica Neue LT Pro Light Condensed', Arial, Helvetica, sans-serif",
-                    fontWeight: 300,
-                    letterSpacing: '-0.04em'
-                  }}
-                >
-                  ACERVO
-                </span>
+            <div className="container mx-auto px-4 relative w-full h-full flex flex-col items-center justify-center">
+            
+            {/* Heading Container */}
+            <div 
+              ref={dragonflyHeadingRef} 
+              className="relative z-20 mix-blend-difference perspective-[1000px] w-full flex justify-center heading"
+            >
+              <div className="relative text-center">
+                <h1 className="relative flex flex-col items-center justify-center uppercase leading-none">
+                  {/* "ACERVO" - Huge Text */}
+                  <span 
+                    className="relative block z-0 mix-blend-difference"
+                    style={{ 
+                      fontSize: 'clamp(40px, 10vw, 135px)',
+                      fontFamily: "'Helvetica Neue LT Pro Thin Extended', Arial, Helvetica, sans-serif",
+                      fontWeight: 100,
+                      letterSpacing: '-0.02em',
+                      color: '#f5f0e6'
+                    }}
+                  >
+                    ACERVO
+                  </span>
 
-                {/* "MOVEO" - Subtitle */}
-                <span 
-                  className="relative z-10 -mt-[2vw] leading-none mix-blend-difference"
-                  style={{ 
-                    fontSize: 'clamp(32px, 10vw, 135px)',
-                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                    fontWeight: 700,
-                    letterSpacing: '-0.05em',
-                    display: 'block'
-                  }}
-                >
-                  MOVEO
-                </span>
-              </h1>
+                  {/* "MOVEO" - Subtitle */}
+                  <span 
+                    className="relative z-10 -mt-[2vw] leading-none mix-blend-difference"
+                    style={{ 
+                      fontSize: 'clamp(32px, 10vw, 135px)',
+                      fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                      fontWeight: 700,
+                      letterSpacing: '-0.05em',
+                      display: 'block',
+                      color: '#f5f0e6'
+                    }}
+                  >
+                    MOVEO
+                  </span>
+                </h1>
+              </div>
+            </div>
+            
+            {/* SVG Overlay - Posicionado para transpassar ambas seções */}
+            <svg
+              data-name="Libelula"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 300 200"
+              className="absolute top-[130%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300%] opacity-0 pointer-events-none z-50"
+              style={{ maxWidth: '200vw', maxHeight: '200vh' }}
+            >
+              {/* Eixo central - cilindro elegante */}
+              <line id="spine" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" x1="150" y1="5" x2="150" y2="195" strokeLinecap="round" />
+              
+              <path id="head" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
+              <path id="thorax" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
+              <path id="abdomen" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 50 L 150 180" /> 
+              <path id="wing-tl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
+              <path id="wing-bl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
+              <path id="wing-tr" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
+              <path id="wing-br" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
+            </svg>
+
             </div>
           </div>
-          
-          {/* SVG Overlay - Posicionado absolutamente no centro da seção */}
-          <svg
-            data-name="Libelula"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 300 200"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] opacity-0 pointer-events-none z-0"
-            style={{ maxWidth: '100vw', maxHeight: '80vh' }}
-          >
-            <path id="head" className="dragonfly-path draw" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
-            <path id="thorax" className="dragonfly-path draw" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
-            <path id="abdomen" className="dragonfly-path draw" d="M 150 50 L 150 180" /> 
-            <path id="wing-tl" className="dragonfly-path draw wing" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
-            <path id="wing-bl" className="dragonfly-path draw wing" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
-            <path id="wing-tr" className="dragonfly-path draw wing" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
-            <path id="wing-br" className="dragonfly-path draw wing" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
-          </svg>
 
-          {/* Images Grid */}
+          {/* Images Grid - Fluxo independente */}
           <div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-20 w-full max-w-6xl z-0 images"
+            className="relative z-0 w-full px-4"
+            style={{ marginTop: '-50vh' }}
           >
-            {[
-              { src: '/imagens/secao2home/Rectangle 10.png', speed: '2.4' },
-              { src: '/imagens/secao2home/Rectangle 8.png', speed: '1.8' },
-              { src: '/imagens/secao2home/Rectangle 9.png', speed: '2.2' },
-              { src: '/imagens/secao2home/Rectangle 11.png', speed: '1.5' }
-            ].map((item, index) => (
-              <div 
-                key={index} 
-                className="relative w-full aspect-[3/4] overflow-hidden border border-white"
-                data-speed={item.speed}
-              >
-                <Image
-                  src={item.src}
-                  alt={`Acervo image ${index + 1}`}
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700 images-img"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  unoptimized
-                />
-              </div>
-            ))}
+            <div 
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-6xl mx-auto images"
+            >
+              {[
+                { src: '/imagens/secao2home/Rectangle 10.png', speed: '2.4' },
+                { src: '/imagens/secao2home/Rectangle 8.png', speed: '1.8' },
+                { src: '/imagens/secao2home/Rectangle 9.png', speed: '2.2' },
+                { src: '/imagens/secao2home/Rectangle 11.png', speed: '1.5' }
+              ].map((item, index) => (
+                <div 
+                  key={index} 
+                  className="relative w-full aspect-[3/4] overflow-hidden border border-white"
+                  data-speed={item.speed}
+                >
+                  <Image
+                    src={item.src}
+                    alt={`Acervo image ${index + 1}`}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-700 images-img"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
-          </div>
         </section>
       </div>
 
       {/* Nova Seção - Image Carousel com Parallax */}
       <div
         ref={imageCarouselSectionRef}
-        className="relative bg-black text-white"
+        className="relative bg-transparent text-white"
         style={{
           marginLeft: '0',
           marginRight: '0',
@@ -2417,7 +2441,7 @@ export default function Home() {
         }}
       >
         <section
-          className="relative"
+          className="relative bg-transparent"
           data-pin-animate
           style={{ height: '100vh', display: 'flex', alignItems: 'center' }}
         >
@@ -2730,6 +2754,7 @@ export default function Home() {
                         ESTREIAS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2847,6 +2872,7 @@ export default function Home() {
                         PRÊMIOS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2866,6 +2892,7 @@ export default function Home() {
                     {/* Container de Estreias (base) */}
                     <div className="flex-shrink-0 mt-auto">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(11px, 0.95vw, 14px)',
@@ -2878,6 +2905,7 @@ export default function Home() {
                         ESTREIAS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(10px, 0.85vw, 13px)',
@@ -3013,7 +3041,7 @@ export default function Home() {
 
                 {/* Bloco vertical médio */}
                 <div className="col-span-2 row-span-4 bg-transparent min-h-0">
-                  <p className="font-light text-sm leading-relaxed text-white" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
+                  <p className="font-light text-sm leading-relaxed text-white mix-blend-difference" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
                     {""}
                   </p>
                 </div>

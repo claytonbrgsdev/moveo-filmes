@@ -56,6 +56,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Helvetica Neue LT Pro Thin Extended';
+  src: url('/HELVETICA_NEUE_PRO_59_FONTS/HelveticaNeueLTPro-ThEx.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #000000;
   --foreground: #ffffff;
@@ -84,12 +92,14 @@ body {
 
 /* Dragonfly animation styles */
 .dragonfly-path {
-  fill: none;
-  stroke: #F8F1D1;
-  stroke-width: 1.5;
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: opacity 0.3s;
+  vector-effect: non-scaling-stroke;
+  mix-blend-mode: exclusion;
 }
 
 /* Ensure SVG doesn't appear before GSAP initialization */
