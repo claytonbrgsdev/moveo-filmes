@@ -1338,10 +1338,10 @@ export default function Home() {
       });
     });
 
-    // Mostra o SVG após o setup inicial para evitar "flash"
+    // Mostra o SVG após o setup inicial para evitar "flash" - opacidade bem fraca
     const svg = dragonflySectionRef.current.querySelector('svg');
     if (svg) {
-      gsap.set(svg, { opacity: 1 });
+      gsap.set(svg, { opacity: 0.15 });
     }
 
     const ctx = gsap.context(() => {
@@ -1382,9 +1382,9 @@ export default function Home() {
         ease: 'power2.out',
       }, '-=0.5'); // Inicia antes do abdômen terminar
 
-      // Efeito Visual Final (Aumenta espessura)
+      // Efeito Visual Final (Aumenta espessura levemente)
       tl.to('.dragonfly-path', {
-        strokeWidth: 2,
+        strokeWidth: 1.5,
         ease: 'power1.inOut',
         duration: 0.5,
       });
@@ -2316,7 +2316,7 @@ export default function Home() {
       <div className="relative w-full">
         <section
           ref={dragonflySectionRef}
-          className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center overflow-hidden py-20"
+          className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center py-20"
         >
           <div className="container mx-auto px-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
           
@@ -2331,10 +2331,11 @@ export default function Home() {
                 <span 
                   className="relative block z-0 mix-blend-difference"
                   style={{ 
-                    fontSize: 'clamp(60px, 15vw, 200px)',
-                    fontFamily: "'Helvetica Neue LT Pro Light Condensed', Arial, Helvetica, sans-serif",
-                    fontWeight: 300,
-                    letterSpacing: '-0.04em'
+                    fontSize: 'clamp(40px, 10vw, 135px)',
+                    fontFamily: "'Helvetica Neue LT Pro Thin Extended', Arial, Helvetica, sans-serif",
+                    fontWeight: 100,
+                    letterSpacing: '-0.02em',
+                    color: '#f5f0e6'
                   }}
                 >
                   ACERVO
@@ -2348,7 +2349,8 @@ export default function Home() {
                     fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                     fontWeight: 700,
                     letterSpacing: '-0.05em',
-                    display: 'block'
+                    display: 'block',
+                    color: '#f5f0e6'
                   }}
                 >
                   MOVEO
@@ -2357,21 +2359,24 @@ export default function Home() {
             </div>
           </div>
           
-          {/* SVG Overlay - Posicionado absolutamente no centro da seção */}
+          {/* SVG Overlay - Posicionado para transpassar ambas seções */}
           <svg
             data-name="Libelula"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 300 200"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] opacity-0 pointer-events-none z-0"
-            style={{ maxWidth: '100vw', maxHeight: '80vh' }}
+            className="absolute top-[130%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300%] opacity-0 pointer-events-none z-50"
+            style={{ maxWidth: '200vw', maxHeight: '200vh' }}
           >
-            <path id="head" className="dragonfly-path draw" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
-            <path id="thorax" className="dragonfly-path draw" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
-            <path id="abdomen" className="dragonfly-path draw" d="M 150 50 L 150 180" /> 
-            <path id="wing-tl" className="dragonfly-path draw wing" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
-            <path id="wing-bl" className="dragonfly-path draw wing" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
-            <path id="wing-tr" className="dragonfly-path draw wing" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
-            <path id="wing-br" className="dragonfly-path draw wing" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
+            {/* Eixo central - cilindro elegante */}
+            <line id="spine" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" x1="150" y1="5" x2="150" y2="195" strokeLinecap="round" />
+            
+            <path id="head" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
+            <path id="thorax" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
+            <path id="abdomen" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 50 L 150 180" /> 
+            <path id="wing-tl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
+            <path id="wing-bl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
+            <path id="wing-tr" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
+            <path id="wing-br" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
           </svg>
 
           {/* Images Grid */}
@@ -2408,7 +2413,7 @@ export default function Home() {
       {/* Nova Seção - Image Carousel com Parallax */}
       <div
         ref={imageCarouselSectionRef}
-        className="relative bg-black text-white"
+        className="relative bg-transparent text-white"
         style={{
           marginLeft: '0',
           marginRight: '0',
@@ -2417,7 +2422,7 @@ export default function Home() {
         }}
       >
         <section
-          className="relative"
+          className="relative bg-transparent"
           data-pin-animate
           style={{ height: '100vh', display: 'flex', alignItems: 'center' }}
         >
@@ -2730,6 +2735,7 @@ export default function Home() {
                         ESTREIAS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2847,6 +2853,7 @@ export default function Home() {
                         PRÊMIOS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2866,6 +2873,7 @@ export default function Home() {
                     {/* Container de Estreias (base) */}
                     <div className="flex-shrink-0 mt-auto">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(11px, 0.95vw, 14px)',
@@ -2878,6 +2886,7 @@ export default function Home() {
                         ESTREIAS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(10px, 0.85vw, 13px)',
@@ -3013,7 +3022,7 @@ export default function Home() {
 
                 {/* Bloco vertical médio */}
                 <div className="col-span-2 row-span-4 bg-transparent min-h-0">
-                  <p className="font-light text-sm leading-relaxed text-white" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
+                  <p className="font-light text-sm leading-relaxed text-white mix-blend-difference" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
                     {""}
                   </p>
                 </div>
