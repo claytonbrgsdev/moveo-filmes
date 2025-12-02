@@ -55,9 +55,9 @@ export function MainLayout({ children }: MainLayoutProps) {
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
       >
         <div className="flex items-center gap-2">
-          <span className={language === 'pt' ? 'font-bold' : 'opacity-50'}>PT</span>
+          <span suppressHydrationWarning className={language === 'pt' ? 'font-bold' : 'opacity-50'}>PT</span>
           <span className="opacity-50">|</span>
-          <span className={language === 'en' ? 'font-bold' : 'opacity-50'}>EN</span>
+          <span suppressHydrationWarning className={language === 'en' ? 'font-bold' : 'opacity-50'}>EN</span>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MainLayout } from './components/MainLayout';
+import { ScrollHint } from './components/ScrollHint';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import {
   getMarkerPosition,
@@ -53,7 +54,7 @@ export default function Home() {
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [produtoraFontSize, setProdutoraFontSize] = useState<number>(100);
+  // const [produtoraFontSize, setProdutoraFontSize] = useState<number>(100); // Removed
   const produtoraTextRef = useRef<HTMLDivElement>(null);
   const produtoraContainerRef = useRef<HTMLDivElement>(null);
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
@@ -1326,7 +1327,7 @@ export default function Home() {
 
     const heading = dragonflyHeadingRef.current;
     const pin = dragonflyPinRef.current;
-    const paths = heading.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
+    const paths = dragonflySectionRef.current.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
 
     // 1. Prepara os caminhos do SVG (Calcula comprimento e esconde)
     paths.forEach((path) => {
@@ -1338,7 +1339,7 @@ export default function Home() {
     });
 
     // Mostra o SVG após o setup inicial para evitar "flash"
-    const svg = heading.querySelector('svg');
+    const svg = dragonflySectionRef.current.querySelector('svg');
     if (svg) {
       gsap.set(svg, { opacity: 1 });
     }
@@ -1347,12 +1348,12 @@ export default function Home() {
       // 2. Cria o Timeline de Desenho
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: heading,
-          start: 'top center',
-          end: '+=2000',
+          trigger: dragonflySectionRef.current,
+          start: 'top top',
+          end: '+=1500',
           scrub: true,
-          pin: pin,
-          pinSpacing: false,
+          pin: true,
+          pinSpacing: true,
         },
       });
 
@@ -1387,6 +1388,39 @@ export default function Home() {
         ease: 'power1.inOut',
         duration: 0.5,
       });
+
+      // Animação das Imagens (Parallax com data-speed)
+      const images = dragonflySectionRef.current?.querySelectorAll('.images > div'); // Agora mirando nos containers
+      
+      if (images) {
+        // Parallax Effect (durante o scroll inicial)
+        images.forEach((div) => {
+          const speed = parseFloat(div.getAttribute('data-speed') || '1');
+          
+          gsap.to(div, {
+            y: (i, target) => (1 - speed) * 200,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: dragonflySectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            }
+          });
+        });
+      }
+
+      // Saída dos elementos de texto para cima (Transição Suave)
+      const headingElements = dragonflySectionRef.current?.querySelectorAll('.heading');
+      if (headingElements) {
+        tl.to(headingElements, {
+          y: '-150vh',
+          scale: 0.8,
+          opacity: 0,
+          duration: 1.0,
+          ease: 'power3.in',
+        }, '+=0.2'); // Inicia logo após o desenho da libélula terminar
+      }
     }, dragonflySectionRef);
 
     return () => {
@@ -1404,10 +1438,7 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [newsSlides.length]);
 
-  useEffect(() => {
-    let resizeObserver: ResizeObserver | null = null;
-    let rafId: number | null = null;
-
+    // Função auxiliar movida para fora dos useEffects para ser acessível globalmente no escopo do componente
     const calculateDynamicFontSize = () => {
       if (!containerRef.current || typeof window === 'undefined') return;
       const targetWidth = containerRef.current.offsetWidth;
@@ -1428,6 +1459,11 @@ export default function Home() {
       document.body.removeChild(measureElement);
       setDynamicFontSize(calculatedFontSize);
     };
+
+  useEffect(() => {
+
+    let resizeObserver: ResizeObserver | null = null;
+    let rafId: number | null = null;
 
     const runCalculation = () => {
       rafId = requestAnimationFrame(() => {
@@ -1511,71 +1547,64 @@ export default function Home() {
     let resizeObserver: ResizeObserver | null = null;
     let rafId: number | null = null;
 
+    // Remove calculation loop
+    /*
     const calculateProdutoraFontSize = () => {
-      if (!produtoraContainerRef.current || !produtoraTextRef.current || typeof window === 'undefined') return;
-
-      const targetWidth = produtoraContainerRef.current.offsetWidth;
-      const targetHeight = produtoraContainerRef.current.offsetHeight;
-      if (targetWidth === 0 || targetHeight === 0) return;
-
-      const measureElement = document.createElement('div');
-      measureElement.style.position = 'absolute';
-      measureElement.style.visibility = 'hidden';
-      measureElement.style.width = `${targetWidth}px`;
-      measureElement.style.fontFamily = "'Helvetica Neue LT Pro Medium Extended', Arial, Helvetica, sans-serif";
-      measureElement.style.lineHeight = '90%';
-      measureElement.style.fontSize = '100px';
-      measureElement.innerHTML = 'Produtora boutique<br />De filmes independentes';
-      document.body.appendChild(measureElement);
-
-      const baseWidth = measureElement.offsetWidth;
-      const baseHeight = measureElement.offsetHeight;
-      const widthBasedSize = (targetWidth / baseWidth) * 100;
-      const heightBasedSize = (targetHeight / baseHeight) * 100;
-      const calculatedFontSize = Math.min(widthBasedSize, heightBasedSize);
-
-      document.body.removeChild(measureElement);
-      setProdutoraFontSize(calculatedFontSize);
+      // ... removed dynamic calculation ...
     };
+    */
+    
+    // Cleanup unused vars
+    // setProdutoraFontSize not used anymore
+
 
     const runCalculation = () => {
       rafId = requestAnimationFrame(() => {
-        if (
-          produtoraContainerRef.current &&
-          produtoraContainerRef.current.offsetWidth > 0 &&
-          produtoraContainerRef.current.offsetHeight > 0
-        ) {
-          calculateProdutoraFontSize();
-
-          if (produtoraContainerRef.current && !resizeObserver) {
-            resizeObserver = new ResizeObserver(() => {
-              calculateProdutoraFontSize();
-            });
-            resizeObserver.observe(produtoraContainerRef.current);
-          }
-        } else {
-          setTimeout(runCalculation, 10);
+      // Removido cálculo dinâmico de produtoraFontSize para usar tamanho fixo padronizado
+      /*
+      if (
+        produtoraContainerRef.current &&
+        produtoraContainerRef.current.offsetWidth > 0 &&
+        produtoraContainerRef.current.offsetHeight > 0
+      ) {
+        // calculateProdutoraFontSize();
+        
+        if (produtoraContainerRef.current && !resizeObserver) {
+          resizeObserver = new ResizeObserver(() => {
+            // calculateProdutoraFontSize();
+          });
+          resizeObserver.observe(produtoraContainerRef.current);
         }
+      }
+      */
+      // Mantendo estrutura apenas para não quebrar lógica existente se houver dependências, mas vazio.
+      if (produtoraContainerRef.current && !resizeObserver) {
+          resizeObserver = new ResizeObserver(() => {});
+          resizeObserver.observe(produtoraContainerRef.current);
+      }
       });
     };
 
     runCalculation();
 
     const handleResize = () => {
-      calculateProdutoraFontSize();
+      calculateDynamicFontSize();
+      // calculateProdutoraFontSize(); // Removed
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         setTimeout(() => {
-          calculateProdutoraFontSize();
+          calculateDynamicFontSize();
+          // calculateProdutoraFontSize(); // Removed
         }, 100);
       }
     };
 
     const handlePageShow = () => {
       setTimeout(() => {
-        calculateProdutoraFontSize();
+        calculateDynamicFontSize();
+        // calculateProdutoraFontSize(); // Removed
       }, 100);
     };
 
@@ -1604,6 +1633,7 @@ export default function Home() {
           produtoraContainerRef.current.offsetWidth > 0 &&
           produtoraContainerRef.current.offsetHeight > 0
         ) {
+          /*
           const targetWidth = produtoraContainerRef.current.offsetWidth;
           const targetHeight = produtoraContainerRef.current.offsetHeight;
           const measureElement = document.createElement('div');
@@ -1622,6 +1652,7 @@ export default function Home() {
           const calculatedFontSize = Math.min(widthBasedSize, heightBasedSize);
           document.body.removeChild(measureElement);
           setProdutoraFontSize(calculatedFontSize);
+          */
         }
       }, 50);
       return () => clearTimeout(timer);
@@ -1719,6 +1750,26 @@ export default function Home() {
   return (
 
     <MainLayout>
+      {/* Scroll Hint Indicator */}
+      <div 
+        className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-500 mix-blend-difference text-white"
+        ref={(el) => {
+          if (el) {
+            // Initial check
+            if (window.scrollY > 50) {
+              el.style.opacity = '0';
+            } else {
+              el.style.opacity = '1';
+            }
+          }
+        }}
+        // Use inline style for initial state only, but controlled by effect below via ref/class if needed.
+        // Or better, use a data attribute or just class.
+        // But to keep it simple and robust with proper cleanup:
+      >
+        <ScrollHint />
+      </div>
+
       {/* Debug: Indicador de scroll progress */}
       <div
         className="fixed top-0 left-0 h-1 bg-red-500 z-[9999]"
@@ -1782,7 +1833,7 @@ export default function Home() {
             <div
               ref={textRef}
               data-first-animate
-              className="absolute text-white uppercase z-30"
+              className="absolute text-white uppercase z-30 mix-blend-difference"
               style={{
                 left: 0,
                 bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 50px)`,
@@ -1812,13 +1863,13 @@ export default function Home() {
               <div
                 ref={produtoraTextRef}
                 data-animate
-                className="absolute text-white"
+                className="absolute text-white mix-blend-difference"
                 style={{
                   left: '0',
                   top: '25%',
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                   fontWeight: 700,
-                  fontSize: `${produtoraFontSize}px`,
+                  fontSize: FONT_LARGE,
                   lineHeight: '90%',
                   margin: 0,
                   padding: 0,
@@ -1872,7 +1923,7 @@ export default function Home() {
             style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
           >
             <div className="w-full h-full p-[50px] box-border">
-              <div className="max-w-7xl mx-auto h-full">
+              <div className="w-full h-full">
                 <div className="grid md:grid-cols-2 gap-6 h-full">
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="grid grid-cols-4 grid-rows-3 flex-1 min-h-0 gap-2">
@@ -1951,7 +2002,7 @@ export default function Home() {
                       <div className="grid grid-cols-2 gap-2">
                         <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 pl-0 flex items-end justify-start" data-second-animate>
                           <p
-                            className="text-white"
+                            className="text-white mix-blend-difference"
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                               fontSize: FONT_SMALL,
@@ -1975,7 +2026,7 @@ export default function Home() {
                       {/* Container maior inferior com texto */}
                       <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 pl-0 flex items-end justify-start" data-second-animate>
                         <p
-                          className="text-white"
+                          className="text-white mix-blend-difference"
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                             fontSize: FONT_MEDIUM,
@@ -2000,7 +2051,7 @@ export default function Home() {
                     >
                       <div 
                         ref={sobreMoveoTextRef}
-                        className="text-white uppercase text-center" 
+                        className="text-white uppercase text-center mix-blend-difference" 
                         style={{
                           fontSize: `${sobreMoveoFontSize}px`,
                           lineHeight: '0.9',
@@ -2031,7 +2082,7 @@ export default function Home() {
                       {/* Container esquerdo (esquerda + centro mesclados) */}
                       <div className="col-span-2 bg-transparent rounded-lg p-4 md:p-6 flex items-end justify-start" data-second-animate>
                         <p
-                          className="text-white"
+                          className="text-white mix-blend-difference"
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 700,
@@ -2083,13 +2134,13 @@ export default function Home() {
             style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
           >
             <div className="w-full h-full p-[50px] box-border">
-              <div className="max-w-7xl mx-auto w-full h-full grid md:grid-cols-2 gap-6">
+              <div className="w-full h-full grid md:grid-cols-2 gap-6">
                 {/* Container Esquerdo - Dividido em 3 partes horizontais */}
                 <div className="flex flex-col h-full min-h-0">
                   {/* Container Superior */}
                   <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text>
                     <p
-                      className="text-white"
+                      className="text-white mix-blend-difference"
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
@@ -2113,7 +2164,7 @@ export default function Home() {
                   {/* Container Central */}
                   <div className="flex-1 bg-transparent flex items-end pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate>
                     <p
-                      className="text-white"
+                      className="text-white mix-blend-difference"
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                         fontSize: FONT_MEDIUM,
@@ -2209,7 +2260,7 @@ export default function Home() {
                   {/* Container grande mesclado: Text - third */}
                   <div className="col-span-4 row-span-3 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 col-start-1 row-start-3" data-third-animate>
                     <h2
-                      className="text-white uppercase text-left"
+                      className="text-white uppercase text-left mix-blend-difference"
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
                         fontSize: FONT_HUGE,
@@ -2262,189 +2313,95 @@ export default function Home() {
       </div>
 
       {/* Dragonfly Animation Section - ACERVO */}
-      <div
-        ref={dragonflySectionRef}
-        className="relative bg-black text-white"
-        style={{
-          margin: '0',
-          minHeight: '100vh',
-        }}
-      >
-        <section className="hero" style={{ paddingLeft: '50px', minHeight: '100vh' }}>
-          <div ref={dragonflyHeadingRef} className="heading" style={{ position: 'relative', zIndex: 2, mixBlendMode: 'difference', perspective: '1000px', WebkitBackfaceVisibility: 'visible', backfaceVisibility: 'visible', transform: 'rotate(0.1deg)' }}>
-            <div ref={dragonflyPinRef} className="pin">
-              <h1
-                className="text-white uppercase text-center"
-                style={{
-                  position: 'relative',
-                  fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
-                  fontSize: FONT_HUGE,
-                  lineHeight: '0.85',
-                  letterSpacing: '-0.02em',
-                  fontWeight: 300,
-                }}
-              >
-                <span className="clamp" style={{ position: 'relative', zIndex: -1 }}>
+      <div className="relative w-full">
+        <section
+          ref={dragonflySectionRef}
+          className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center overflow-hidden py-20"
+        >
+          <div className="container mx-auto px-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
+          
+          {/* Heading Container */}
+          <div 
+            ref={dragonflyHeadingRef} 
+            className="relative z-20 mix-blend-difference perspective-[1000px] w-full flex justify-center"
+          >
+            <div ref={dragonflyPinRef} className="relative text-center">
+              <h1 className="relative flex flex-col items-center justify-center uppercase leading-none">
+                {/* "ACERVO" - Huge Text */}
+                <span 
+                  className="relative block z-0 mix-blend-difference"
+                  style={{ 
+                    fontSize: 'clamp(60px, 15vw, 200px)',
+                    fontFamily: "'Helvetica Neue LT Pro Light Condensed', Arial, Helvetica, sans-serif",
+                    fontWeight: 300,
+                    letterSpacing: '-0.04em'
+                  }}
+                >
                   ACERVO
-                  <svg
-                    data-name="Libelula"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 300 200"
-                    style={{
-                      position: 'absolute',
-                      width: '112%',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      left: '-6%',
-                      opacity: 0,
-                    }}
-                  >
-                    <path
-                      id="head"
-                      className="dragonfly-path draw"
-                      d="M 150 20 C 140 35, 160 35, 150 20 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="thorax"
-                      className="dragonfly-path draw"
-                      d="M 150 35 L 145 50 L 155 50 L 150 35 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="abdomen"
-                      className="dragonfly-path draw"
-                      d="M 150 50 L 150 180"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="wing-tl"
-                      className="dragonfly-path draw wing"
-                      d="M 150 50 L 50 20 L 60 40 L 150 50 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="wing-bl"
-                      className="dragonfly-path draw wing"
-                      d="M 150 55 L 45 80 L 55 100 L 150 55 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="wing-tr"
-                      className="dragonfly-path draw wing"
-                      d="M 150 50 L 250 20 L 240 40 L 150 50 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      id="wing-br"
-                      className="dragonfly-path draw wing"
-                      d="M 150 55 L 255 80 L 245 100 L 150 55 Z"
-                      fill="none"
-                      stroke="#8486aa"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
                 </span>
-                <br />
-                <span className="yt" style={{ zIndex: 3, fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>Moveo</span>
+
+                {/* "MOVEO" - Subtitle */}
+                <span 
+                  className="relative z-10 -mt-[2vw] leading-none mix-blend-difference"
+                  style={{ 
+                    fontSize: 'clamp(32px, 10vw, 135px)',
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                    fontWeight: 700,
+                    letterSpacing: '-0.05em',
+                    display: 'block'
+                  }}
+                >
+                  MOVEO
+                </span>
               </h1>
             </div>
           </div>
-          <div
-            className="images"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr 1fr',
-              alignItems: 'stretch',
-              justifyItems: 'center',
-              marginTop: '2rem',
-              zIndex: -1,
-            }}
+          
+          {/* SVG Overlay - Posicionado absolutamente no centro da seção */}
+          <svg
+            data-name="Libelula"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 300 200"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[112%] opacity-0 pointer-events-none z-0"
+            style={{ maxWidth: '100vw', maxHeight: '80vh' }}
           >
-            <Image
-              src="/imagens/secao2home/Rectangle 8.png"
-              alt="Imagem 1"
-              width={400}
-              height={600}
-              style={{
-                maxWidth: '100%',
-                height: '60vh',
-                objectFit: 'cover',
-              }}
-              unoptimized
-            />
-            <Image
-              src="/imagens/secao2home/Rectangle 9.png"
-              alt="Imagem 2"
-              width={400}
-              height={600}
-              style={{
-                maxWidth: '100%',
-                height: '60vh',
-                objectFit: 'cover',
-              }}
-              unoptimized
-            />
-            <Image
-              src="/imagens/secao2home/Rectangle 10.png"
-              alt="Imagem 3"
-              width={400}
-              height={600}
-              style={{
-                maxWidth: '100%',
-                height: '60vh',
-                objectFit: 'cover',
-              }}
-              unoptimized
-            />
-            <Image
-              src="/imagens/secao2home/Rectangle 11.png"
-              alt="Imagem 4"
-              width={400}
-              height={600}
-              style={{
-                maxWidth: '100%',
-                height: '60vh',
-                objectFit: 'cover',
-              }}
-              unoptimized
-            />
+            <path id="head" className="dragonfly-path draw" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
+            <path id="thorax" className="dragonfly-path draw" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
+            <path id="abdomen" className="dragonfly-path draw" d="M 150 50 L 150 180" /> 
+            <path id="wing-tl" className="dragonfly-path draw wing" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
+            <path id="wing-bl" className="dragonfly-path draw wing" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
+            <path id="wing-tr" className="dragonfly-path draw wing" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
+            <path id="wing-br" className="dragonfly-path draw wing" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
+          </svg>
+
+          {/* Images Grid */}
+          <div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-20 w-full max-w-6xl z-0 images"
+          >
+            {[
+              { speed: '2.4' },
+              { speed: '1.8' },
+              { speed: '2.2' },
+              { speed: '1.5' }
+            ].map((item, index) => (
+              <div 
+                key={index} 
+                className="relative w-full aspect-[3/4] overflow-hidden border border-white"
+                data-speed={item.speed}
+              >
+                {/* Image removed as requested */}
+              </div>
+            ))}
+          </div>
+
           </div>
         </section>
-        <section className="spacer" style={{ height: '100vh' }}></section>
       </div>
 
       {/* Nova Seção - Image Carousel com Parallax */}
       <div
         ref={imageCarouselSectionRef}
         className="relative bg-black text-white"
-        data-pin-block
         style={{
           marginLeft: '0',
           marginRight: '0',
@@ -2535,6 +2492,7 @@ export default function Home() {
                     {/* Container do Título */}
                     <div className="flex flex-col justify-start mb-6">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                           fontSize: FONT_LARGE,
@@ -2549,6 +2507,7 @@ export default function Home() {
                         <span style={{ display: 'block' }}>Coisas Invisíveis</span>
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2564,6 +2523,7 @@ export default function Home() {
                     {/* Container de Informações Técnicas */}
                     <div className="flex-shrink-0 mt-auto">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2592,6 +2552,7 @@ export default function Home() {
                     {/* Container de Estreias */}
                     <div className="flex-shrink-0">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2604,6 +2565,7 @@ export default function Home() {
                         ESTREIAS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2631,6 +2593,7 @@ export default function Home() {
                     {/* Container de Prêmios */}
                     <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2643,6 +2606,7 @@ export default function Home() {
                         PRÊMIOS
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2687,6 +2651,7 @@ export default function Home() {
                     {/* Container de Informações Técnicas (topo) */}
                     <div className="flex-shrink-0">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(9px, 0.75vw, 11px)',
@@ -2712,6 +2677,7 @@ export default function Home() {
                     {/* Container do Título (base) */}
                     <div className="flex flex-col justify-start mt-auto" style={{ paddingBottom: '4vh' }}>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                           fontSize: FONT_LARGE,
@@ -2725,6 +2691,7 @@ export default function Home() {
                         As Miçangas
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2743,6 +2710,7 @@ export default function Home() {
                     {/* Container de Estreias */}
                     <div className="flex-shrink-0 mt-auto">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2800,6 +2768,7 @@ export default function Home() {
                     {/* Container do Título */}
                     <div className="flex flex-col justify-start">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                           fontSize: FONT_LARGE,
@@ -2813,6 +2782,7 @@ export default function Home() {
                         O Mistério da Carne
                       </div>
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2828,6 +2798,7 @@ export default function Home() {
                     {/* Container de Informações Técnicas */}
                     <div className="flex-shrink-0 mt-auto">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2856,6 +2827,7 @@ export default function Home() {
                     {/* Container de Prêmios (topo) */}
                     <div className="flex-shrink-0">
                       <div
+                        className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -3045,7 +3017,7 @@ export default function Home() {
                   style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
                   <p
-                    className="text-white font-bold"
+                    className="text-white font-bold mix-blend-difference"
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3072,7 +3044,7 @@ export default function Home() {
                 {/* Bloco final inferior direito */}
                 <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                   <p
-                    className="text-white font-bold"
+                    className="text-white font-bold mix-blend-difference"
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3122,7 +3094,7 @@ export default function Home() {
                   style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
                   <h1
-                    className="font-black tracking-tighter leading-none text-white"
+                    className="font-black tracking-tighter leading-none text-white mix-blend-difference"
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3151,7 +3123,7 @@ export default function Home() {
                   style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
                   <p
-                    className="text-white font-light leading-tight"
+                    className="text-white font-light leading-tight mix-blend-difference"
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_MEDIUM,
@@ -3170,7 +3142,7 @@ export default function Home() {
                   style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
                   <p
-                    className="text-white font-light leading-relaxed"
+                    className="text-white font-light leading-relaxed mix-blend-difference"
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
@@ -3248,7 +3220,7 @@ export default function Home() {
                           unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                        <div className="absolute top-5 left-5 flex items-center gap-3 z-10">
+                        <div className="absolute top-5 left-5 flex items-center gap-3 z-10 mix-blend-difference">
                           <span
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
@@ -3271,7 +3243,7 @@ export default function Home() {
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-10 space-y-3">
                           <p
-                            className="text-white font-bold"
+                            className="text-white font-bold mix-blend-difference"
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                               fontSize: FONT_LARGE,
@@ -3283,7 +3255,7 @@ export default function Home() {
                             {item.title}
                           </p>
                           <p
-                            className="text-white"
+                            className="text-white mix-blend-difference"
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                               fontSize: FONT_SMALL,
