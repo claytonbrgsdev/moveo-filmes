@@ -1384,7 +1384,7 @@ export default function Home() {
 
       // Efeito Visual Final (Aumenta espessura)
       tl.to('.dragonfly-path', {
-        strokeWidth: 3.5,
+        strokeWidth: 2,
         ease: 'power1.inOut',
         duration: 0.5,
       });
@@ -2362,7 +2362,7 @@ export default function Home() {
             data-name="Libelula"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 300 200"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[112%] opacity-0 pointer-events-none z-0"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] opacity-0 pointer-events-none z-0"
             style={{ maxWidth: '100vw', maxHeight: '80vh' }}
           >
             <path id="head" className="dragonfly-path draw" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
@@ -2379,17 +2379,24 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-20 w-full max-w-6xl z-0 images"
           >
             {[
-              { speed: '2.4' },
-              { speed: '1.8' },
-              { speed: '2.2' },
-              { speed: '1.5' }
+              { src: '/imagens/secao2home/Rectangle 10.png', speed: '2.4' },
+              { src: '/imagens/secao2home/Rectangle 8.png', speed: '1.8' },
+              { src: '/imagens/secao2home/Rectangle 9.png', speed: '2.2' },
+              { src: '/imagens/secao2home/Rectangle 11.png', speed: '1.5' }
             ].map((item, index) => (
               <div 
                 key={index} 
                 className="relative w-full aspect-[3/4] overflow-hidden border border-white"
                 data-speed={item.speed}
               >
-                {/* Image removed as requested */}
+                <Image
+                  src={item.src}
+                  alt={`Acervo image ${index + 1}`}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700 images-img"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  unoptimized
+                />
               </div>
             ))}
           </div>
