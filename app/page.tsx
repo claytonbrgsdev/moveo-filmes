@@ -2846,6 +2846,324 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Seção Adicional 1 - A Natureza das Coisas Invisíveis */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+          >
+            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
+              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
+                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
+                  {/* Coluna Esquerda - Título e Informações Técnicas */}
+                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container do Título */}
+                    <div className="flex flex-col justify-start mb-6">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_LARGE,
+                          lineHeight: '0.95',
+                          fontWeight: 700,
+                          letterSpacing: '-0.02em',
+                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
+                          color: 'white',
+                        }}
+                      >
+                        <span style={{ display: 'block' }}>A Natureza das</span>
+                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          lineHeight: '1',
+                          opacity: 0.7,
+                          color: 'white',
+                        }}
+                      >
+                        (2015)
+                      </div>
+                    </div>
+
+                    {/* Container de Informações Técnicas */}
+                    <div className="flex-shrink-0 mt-auto">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.4,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Coprodução Brasil-Chile
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Lançamento no Brasil: 27/11/2025
+                        </div>
+                        <div>
+                          Produção: Moveo Filmes
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Coluna Direita - Estreias e Prêmios */}
+                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container de Estreias */}
+                    <div className="flex-shrink-0">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        ESTREIAS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                          maxWidth: '180px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>México:</strong> 40º Guadalajara International Film Festival
+                        </div>
+                        <div>
+                          <strong>EUA:</strong> 51º Seattle International Film Festival
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Container de Prêmios */}
+                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        PRÊMIOS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                          maxWidth: '180px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          Menção Especial do Júri — 51º Seattle International Film Festival
+                        </div>
+                        <div>
+                          Outstanding First Feature (Jury Prize) — Frameline49
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Seção Adicional 2 - A Natureza das Coisas Invisíveis */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+          >
+            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
+              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
+                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
+                  {/* Coluna Esquerda - Título e Informações Técnicas */}
+                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container do Título */}
+                    <div className="flex flex-col justify-start mb-6">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_LARGE,
+                          lineHeight: '0.95',
+                          fontWeight: 700,
+                          letterSpacing: '-0.02em',
+                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
+                          color: 'white',
+                        }}
+                      >
+                        <span style={{ display: 'block' }}>A Natureza das</span>
+                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          lineHeight: '1',
+                          opacity: 0.7,
+                          color: 'white',
+                        }}
+                      >
+                        (2015)
+                      </div>
+                    </div>
+
+                    {/* Container de Informações Técnicas */}
+                    <div className="flex-shrink-0 mt-auto">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.4,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Coprodução Brasil-Chile
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Lançamento no Brasil: 27/11/2025
+                        </div>
+                        <div>
+                          Produção: Moveo Filmes
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Coluna Direita - Estreias e Prêmios */}
+                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container de Estreias */}
+                    <div className="flex-shrink-0">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        ESTREIAS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                          maxWidth: '180px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>México:</strong> 40º Guadalajara International Film Festival
+                        </div>
+                        <div>
+                          <strong>EUA:</strong> 51º Seattle International Film Festival
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Container de Prêmios */}
+                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        PRÊMIOS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                          maxWidth: '180px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          Menção Especial do Júri — 51º Seattle International Film Festival
+                        </div>
+                        <div>
+                          Outstanding First Feature (Jury Prize) — Frameline49
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Seção - AS MIÇANGAS */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
@@ -2964,7 +3282,273 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Seção Adicional 1 - AS MIÇANGAS */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+          >
+            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
+              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
+                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
+                  {/* Coluna Esquerda - Título e Informações Técnicas */}
+                  <div className="md:col-span-7 flex flex-col h-full" style={{ overflow: 'visible' }}>
+                    {/* Container de Informações Técnicas (topo) */}
+                    <div className="flex-shrink-0">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: 'clamp(9px, 0.75vw, 11px)',
+                          lineHeight: 1.4,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          FAC-DF
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Edital Cardume
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Distribuição: Agência Freak / Moveo Filmes
+                        </div>
+                        <div>
+                          Produção: Moveo Filmes
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Container do Título (base) */}
+                    <div className="flex flex-col justify-start mt-auto" style={{ paddingBottom: '4vh' }}>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_LARGE,
+                          lineHeight: '0.95',
+                          fontWeight: 700,
+                          letterSpacing: '-0.02em',
+                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
+                          color: 'white',
+                        }}
+                      >
+                        As Miçangas
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          lineHeight: '1',
+                          opacity: 0.7,
+                          color: 'white',
+                        }}
+                      >
+                        (2023)
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Coluna Direita - Estreias (base) */}
+                  <div className="md:col-span-5 flex flex-col h-full justify-end" style={{ overflow: 'visible' }}>
+                    {/* Container de Estreias */}
+                    <div className="flex-shrink-0 mt-auto">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        ESTREIAS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Mundial:</strong> 73ª Berlinale
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Asiática:</strong> 47ª Hong Kong
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Latino:</strong> 41º Uruguay
+                        </div>
+                        <div>
+                          <strong>EUA:</strong> 29º Palm Springs
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Seção - O Mistério da Carne */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+          >
+            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
+              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
+                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
+                  {/* Coluna Esquerda - Título e Informações Técnicas */}
+                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container do Título */}
+                    <div className="flex flex-col justify-start">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_LARGE,
+                          lineHeight: '0.95',
+                          fontWeight: 700,
+                          letterSpacing: '-0.02em',
+                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
+                          color: 'white',
+                        }}
+                      >
+                        O Mistério da Carne
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          lineHeight: '1',
+                          opacity: 0.7,
+                          color: 'white',
+                        }}
+                      >
+                        (2019)
+                      </div>
+                    </div>
+
+                    {/* Container de Informações Técnicas */}
+                    <div className="flex-shrink-0 mt-auto">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.4,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          FAC-DF
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          1º Edital de Curtas da Cardume
+                        </div>
+                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
+                          Distribuição: Agência Freak (Mundo) e Moveo Filmes (Brasil)
+                        </div>
+                        <div>
+                          Produção: Moveo Filmes
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Coluna Direita - Estreias e Prêmios */}
+                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
+                    {/* Container de Prêmios (topo) */}
+                    <div className="flex-shrink-0">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_MEDIUM,
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        PRÊMIOS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: FONT_SMALL,
+                          lineHeight: 1.5,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          Melhor Filme — Biarritz Amérique Latine
+                        </div>
+                        <div>
+                          Melhor Filme — New Directors / New Films
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Container de Estreias (base) */}
+                    <div className="flex-shrink-0 mt-auto">
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: 'clamp(11px, 0.95vw, 14px)',
+                          fontWeight: 'bold',
+                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
+                          color: 'white',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        ESTREIAS
+                      </div>
+                      <div
+                        className="mix-blend-difference"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: 'clamp(10px, 0.85vw, 13px)',
+                          lineHeight: 1.5,
+                          color: 'white',
+                        }}
+                      >
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Mundial:</strong> Sundance Film Festival (2019)
+                        </div>
+                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                          <strong>Europa:</strong> Biarritz Amérique Latine
+                        </div>
+                        <div>
+                          <strong>EUA:</strong> New Directors / New Films
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Seção Adicional 1 - O Mistério da Carne */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             style={{
