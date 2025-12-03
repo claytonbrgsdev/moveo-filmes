@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,6 +15,12 @@ import {
   getWidthBetweenMarkers,
   getHeightBetweenLines,
 } from '@/lib/utils/gridCoordinates';
+import {
+  useMagneticElements,
+  use3DCardTilt,
+  useFloatingElements,
+  useScrollProgress,
+} from './hooks/useSpectacularAnimations';
 
 const newsHighlights = [
   {
@@ -80,6 +86,23 @@ export default function Home() {
   const dragonflySectionRef = useRef<HTMLDivElement>(null);
   const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
   const dragonflyPinRef = useRef<HTMLDivElement>(null);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+
+  // Activate spectacular animation hooks
+  useMagneticElements();
+  use3DCardTilt();
+  useFloatingElements();
+  useScrollProgress();
+
+  // Cursor glow effect
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    setCursorPosition({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
 
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition('F')} - ${getHorizontalLinePosition('E')}) / 2)`;
   const centerLeft = `calc(${getMarkerPosition(7)} + (${getMarkerPosition(8)} - ${getMarkerPosition(7)}) / 2)`;
@@ -146,12 +169,6 @@ export default function Home() {
       mainTrackTimelineRef.current = tl;
       setMainTrackReady(true);
 
-      // Debug: Log para verificar dimensões
-      console.log('Track width:', track.scrollWidth);
-      console.log('Wrapper width:', wrapper.offsetWidth);
-      console.log('Distance:', track.scrollWidth - wrapper.offsetWidth);
-      console.log('Number of sections:', track.children.length);
-
       // Forçar atualização imediata do ScrollTrigger
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
@@ -165,15 +182,9 @@ export default function Home() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      // Limpar ScrollTrigger específico antes de reverter o contexto
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id === 'horizontal-main-track' || st.trigger === wrapper) {
-          st.kill();
-        }
-      });
       mainTrackTimelineRef.current = null;
       setMainTrackReady(false);
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -213,12 +224,7 @@ export default function Home() {
     }, horizontalWrapperRef);
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id === 'second-section-pin') {
-          st.kill();
-        }
-      });
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, [mainTrackReady]);
 
@@ -260,17 +266,11 @@ export default function Home() {
     }, horizontalWrapperRef);
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => {
-        const vars = st.vars as { id?: string };
-        if (vars?.id === 'third-section-pin') {
-          st.kill();
-        }
-      });
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, [mainTrackReady]);
 
-  // Unique scroll trigger effects for first section elements
+  // Spectacular entrance animation for first section
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!firstSectionRef.current) return;
@@ -278,10 +278,10 @@ export default function Home() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const allTargets = gsap.utils.toArray<HTMLElement>('[data-first-animate]');
+      const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
       if (!allTargets.length) return;
 
-      // Find specific elements by checking their content and structure
+      // Find specific elements
       const moveoElement = allTargets.find((el) => {
         const text = el.textContent?.trim();
         return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
@@ -299,66 +299,162 @@ export default function Home() {
         return hasImage || el.classList.contains('overflow-hidden');
       }) as HTMLElement;
 
-      // Animation for MOVEO - Minimal fade with subtle vertical slide
+      const exploreElement = firstSectionRef.current?.querySelector('[data-explore-hint]') as HTMLElement;
+      const scrollLineElement = firstSectionRef.current?.querySelector('[data-scroll-line]') as HTMLElement;
+      const decorativeLines = Array.from(firstSectionRef.current?.querySelectorAll('[data-decor-line]') || []) as HTMLElement[];
+
+      // ENTRANCE TIMELINE - dramatic reveal
+      const entranceTl = gsap.timeline({ 
+        defaults: { ease: 'power3.out' },
+        delay: 0.3 
+      });
+
+      // 1. Split MOVEO into characters and animate each
       if (moveoElement) {
-        gsap.set(moveoElement, { 
-          opacity: 0,
-          y: 60,
-        });
+        const text = moveoElement.textContent || '';
+        moveoElement.innerHTML = text.split('').map(char => 
+          `<span style="display: inline-block; will-change: transform, opacity;">${char}</span>`
+        ).join('');
         
-        gsap.to(moveoElement, {
+        const chars = Array.from(moveoElement.querySelectorAll('span'));
+        
+        gsap.set(chars, { 
+          opacity: 0,
+          y: 150,
+          rotationX: -90,
+          transformOrigin: '50% 50%',
+        });
+
+        entranceTl.to(chars, {
           opacity: 1,
           y: 0,
-          ease: 'power1.out',
+          rotationX: 0,
+          duration: 1.2,
+          stagger: {
+            each: 0.08,
+            from: 'start',
+            ease: 'power2.out',
+          },
+          ease: 'back.out(1.4)',
+        });
+      }
+
+      // 2. Decorative lines fly in
+      if (decorativeLines.length) {
+        gsap.set(decorativeLines, { scaleX: 0, transformOrigin: 'left center' });
+        entranceTl.to(decorativeLines, {
+          scaleX: 1,
+          duration: 1,
+          stagger: 0.1,
+          ease: 'power4.out',
+        }, '-=0.8');
+      }
+
+      // 3. Produtora text slides in
+      if (produtoraElement) {
+        gsap.set(produtoraElement, { 
+          opacity: 0,
+          x: -100,
+          filter: 'blur(10px)',
+        });
+        
+        entranceTl.to(produtoraElement, {
+          opacity: 1,
+          x: 0,
+          filter: 'blur(0px)',
+          duration: 1,
+          ease: 'power3.out',
+        }, '-=0.6');
+      }
+
+      // 4. Image fades in with scale
+      if (imageElement) {
+        gsap.set(imageElement, { 
+          opacity: 0,
+          scale: 1.1,
+        });
+        
+        entranceTl.to(imageElement, {
+          opacity: 1,
+          scale: 1,
+          duration: 1.5,
+          ease: 'power2.out',
+        }, '-=0.8');
+      }
+
+      // 5. EXPLORE hint bounces in
+      if (exploreElement) {
+        gsap.set(exploreElement, { 
+          opacity: 0,
+          y: -30,
+          scale: 0.8,
+        });
+        
+        entranceTl.to(exploreElement, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: 'elastic.out(1, 0.6)',
+        }, '-=0.4');
+
+        // Continuous pulsing animation
+        gsap.to(exploreElement, {
+          y: -10,
+          duration: 1.5,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+
+      // 6. Scroll line animates
+      if (scrollLineElement) {
+        gsap.set(scrollLineElement, { scaleY: 0, transformOrigin: 'top center' });
+        entranceTl.to(scrollLineElement, {
+          scaleY: 1,
+          duration: 1,
+          ease: 'power2.out',
+        }, '-=0.6');
+
+        // Continuous growing/shrinking animation
+        gsap.to(scrollLineElement, {
+          scaleY: 0.7,
+          duration: 1.8,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+
+      // SCROLL OUT ANIMATIONS - subtle fade as user scrolls
+      if (exploreElement) {
+        gsap.to(exploreElement, {
+          opacity: 0,
+          y: -50,
+          ease: 'power1.in',
           scrollTrigger: {
             trigger: firstSectionRef.current,
             start: 'top top',
             end: '+=200',
             scrub: true,
-            invalidateOnRefresh: true,
           },
         });
       }
 
-      // Animation for Produtora boutique - Simple horizontal slide in
-      if (produtoraElement) {
-        gsap.set(produtoraElement, { 
-          opacity: 0,
-          x: -80,
-        });
-        
-        gsap.to(produtoraElement, {
-          opacity: 1,
-          x: 0,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=250',
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        });
-      }
-
-      // Animation for Capa Home image - Simple fade in
-      if (imageElement) {
-        gsap.set(imageElement, { 
-          opacity: 0,
-        });
-        
-        gsap.to(imageElement, {
-          opacity: 1,
-          ease: 'power1.out',
+      if (moveoElement) {
+        gsap.to(moveoElement, {
+          y: -40,
+          ease: 'none',
           scrollTrigger: {
             trigger: firstSectionRef.current,
             start: 'top top',
             end: '+=300',
             scrub: true,
-            invalidateOnRefresh: true,
           },
         });
       }
+
     }, firstSectionRef);
 
     return () => ctx.revert();
@@ -1204,12 +1300,7 @@ export default function Home() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id?.toString().startsWith('image-carousel') || st.trigger === section) {
-          st.kill();
-        }
-      });
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -1276,7 +1367,7 @@ export default function Home() {
 
     const ctx = gsap.context(() => {
       sections.forEach((section, index) => {
-        const targets = gsap.utils.toArray<HTMLElement>(section.querySelectorAll('[data-pin-animate]'));
+        const targets = Array.from(section.querySelectorAll('[data-pin-animate]')) as HTMLElement[];
         if (!targets.length) return;
 
         gsap.set(targets, { autoAlpha: 0, y: 60 });
@@ -1377,19 +1468,25 @@ export default function Home() {
       }, '<0.2'); // Inicia antes do anterior terminar
 
       // Desenha As Asas
-      tl.to('.wing', {
-        strokeDashoffset: 0,
-        duration: 1.5,
-        stagger: 0.05,
-        ease: 'power2.out',
-      }, '-=0.5'); // Inicia antes do abdômen terminar
+      const wings = Array.from(dragonflySectionRef.current?.querySelectorAll('.wing') || []) as SVGPathElement[];
+      if (wings.length) {
+        tl.to(wings, {
+          strokeDashoffset: 0,
+          duration: 1.5,
+          stagger: 0.05,
+          ease: 'power2.out',
+        }, '-=0.5'); // Inicia antes do abdômen terminar
+      }
 
       // Efeito Visual Final (Aumenta espessura levemente)
-      tl.to('.dragonfly-path', {
-        strokeWidth: 1.5,
-        ease: 'power1.inOut',
-        duration: 0.5,
-      });
+      const dragonflyPaths = Array.from(dragonflySectionRef.current?.querySelectorAll('.dragonfly-path') || []) as SVGPathElement[];
+      if (dragonflyPaths.length) {
+        tl.to(dragonflyPaths, {
+          strokeWidth: 1.5,
+          ease: 'power1.inOut',
+          duration: 0.5,
+        });
+      }
 
       // Animação das Imagens (Parallax com data-speed) - Fluxo independente
       const images = dragonflySectionRef.current?.querySelectorAll('.images > div');
@@ -1412,8 +1509,8 @@ export default function Home() {
       }
 
       // Saída dos elementos de texto para cima (Transição Suave)
-      const headingElements = dragonflySectionRef.current?.querySelectorAll('.heading');
-      if (headingElements) {
+      const headingElements = Array.from(dragonflySectionRef.current?.querySelectorAll('.heading') || []) as HTMLElement[];
+      if (headingElements.length) {
         gsap.to(headingElements, {
           y: '-50vh',
           scale: 0.9,
@@ -1430,7 +1527,7 @@ export default function Home() {
     }, dragonflySectionRef);
 
     return () => {
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -1756,6 +1853,22 @@ export default function Home() {
   return (
 
     <MainLayout>
+      {/* Global Visual Effects */}
+      {/* Scroll Progress Bar */}
+      <div data-scroll-progress className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-white via-white/50 to-transparent z-[9999] pointer-events-none" />
+      
+      {/* Cursor Glow Effect */}
+      <div 
+        className="cursor-glow hidden md:block"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+        }}
+      />
+      
+      {/* Subtle Noise Overlay */}
+      <div className="noise-overlay grain-animation" />
+
       {/* Scroll Hint Indicator */}
       <div 
         className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-500 mix-blend-difference text-white"
@@ -1778,7 +1891,7 @@ export default function Home() {
 
       {/* Debug: Indicador de scroll progress */}
       <div
-        className="fixed top-0 left-0 h-1 bg-red-500 z-[9999]"
+        className="fixed top-0 left-0 h-1 bg-red-500 z-[9999] hidden"
         style={{
           width: '0%',
           transition: 'width 0.1s ease-out'
@@ -1907,6 +2020,74 @@ export default function Home() {
               />
             </div>
 
+            {/* Decorative Lines */}
+            <div
+              data-decor-line
+              className="absolute z-20"
+              style={{
+                left: 0,
+                bottom: '40%',
+                width: '25%',
+                height: '2px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%)',
+              }}
+            />
+            <div
+              data-decor-line
+              className="absolute z-20"
+              style={{
+                left: 0,
+                bottom: '35%',
+                width: '15%',
+                height: '1px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
+              }}
+            />
+
+            {/* EXPLORE hint */}
+            <div
+              data-explore-hint
+              className="absolute z-50 pointer-events-none"
+              style={{
+                right: '80px',
+                bottom: '100px',
+              }}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="text-white uppercase mix-blend-difference"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 14px)',
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    writingMode: 'vertical-rl',
+                    textOrientation: 'mixed',
+                  }}
+                >
+                  EXPLORE
+                </div>
+                <div
+                  data-scroll-line
+                  style={{
+                    width: '2px',
+                    height: '60px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  }}
+                />
+                <div
+                  style={{
+                    width: 0,
+                    height: 0,
+                    borderLeft: '6px solid transparent',
+                    borderRight: '6px solid transparent',
+                    borderTop: '10px solid rgba(255, 255, 255, 0.6)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Grid Guide Point */}
             <div
               className="absolute z-50 pointer-events-none transition-opacity duration-150"
               style={{
@@ -2410,14 +2591,15 @@ export default function Home() {
               ].map((item, index) => (
                 <div 
                   key={index} 
-                  className="relative w-full aspect-[3/4] overflow-hidden border border-white"
+                  className="relative w-full aspect-[3/4] overflow-hidden border border-white group cursor-pointer"
                   data-speed={item.speed}
+                  data-tilt-card
                 >
                   <Image
                     src={item.src}
                     alt={`Acervo image ${index + 1}`}
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-700 images-img"
+                    className="object-cover transition-transform duration-700 ease-out images-img group-hover:scale-110"
                     sizes="(max-width: 768px) 50vw, 25vw"
                     unoptimized
                   />

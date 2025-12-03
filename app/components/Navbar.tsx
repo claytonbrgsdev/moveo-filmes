@@ -69,6 +69,7 @@ export default function Navbar() {
               fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
             }}
             onClick={handleMenuClick}
+            data-magnetic
           >
             MENU
           </div>
@@ -89,8 +90,9 @@ export default function Navbar() {
             {menuItems.map((item, index) => (
               <div
                 key={index}
-                className="cursor-pointer hover:opacity-70 transition-opacity"
+                className="cursor-pointer hover:opacity-70 transition-opacity animated-underline"
                 onClick={() => handleMenuItemClick(item.path)}
+                data-magnetic
               >
                 {item.label}
               </div>
