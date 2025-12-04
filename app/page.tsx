@@ -54,6 +54,32 @@ const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
 
+// High-quality placeholder images for featured films
+const PLACEHOLDER_IMAGES = {
+  natureza: [
+    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80', // Cinema
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80', // Movie theater
+    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&q=80', // Film reel
+    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80', // Cinema screen
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80', // Film production
+    'https://images.unsplash.com/photo-1542204165-6bfe6a7b3c73?w=800&q=80', // Director
+  ],
+  micangas: [
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mountain landscape
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic landscape
+    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Nature
+    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Forest
+  ],
+  misterio: [
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mysterious landscape
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic scene
+    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Atmospheric
+    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Dark forest
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Repeat for variety
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+  ],
+};
+
 export default function Home() {
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
@@ -74,9 +100,8 @@ export default function Home() {
   const horizontalThirdTrackRef = useRef<HTMLDivElement>(null);
   const verticalReverseWrapperRef = useRef<HTMLDivElement>(null);
   const verticalReverseContentRef = useRef<HTMLDivElement>(null);
-  const imageCarouselSectionRef = useRef<HTMLDivElement>(null);
-  const imageCarouselContainerRef = useRef<HTMLDivElement>(null);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const carouselContainerRef = useRef<HTMLDivElement>(null);
+  const carouselScrollDistRef = useRef<HTMLDivElement>(null);
   const [mainTrackReady, setMainTrackReady] = useState(false);
   const mainTrackTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const [newsIndex, setNewsIndex] = useState(0);
@@ -456,6 +481,529 @@ export default function Home() {
       }
 
     }, firstSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Animações para seções de "AS MIÇANGAS" - Scroll Acceleration
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!horizontalSecondTrackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      // Scroll Acceleration para primeira seção (galeria)
+      const firstPanel = panels[0];
+      if (firstPanel) {
+        const cols = Array.from(firstPanel.querySelectorAll('.data-micangas-col')) as HTMLElement[];
+        const st = ScrollTrigger.getById('horizontal-second-track');
+        
+        if (st && cols.length) {
+          const additionalY = { val: 0 };
+          let additionalYAnim: gsap.core.Tween | null = null;
+          let offset = 0;
+
+          cols.forEach((col, i) => {
+            const images = Array.from(col.querySelectorAll('.data-micangas-image')) as HTMLElement[];
+            if (!images.length) return;
+
+            // Duplicate images for seamless loop
+            images.forEach((image) => {
+              const clone = image.cloneNode(true) as HTMLElement;
+              col.appendChild(clone);
+            });
+
+            // Set animation with different directions
+            const direction = i % 2 !== 0 ? '+=' : '-='; // Odd columns move down, even move up
+            const columnHeight = col.scrollHeight;
+
+            images.forEach((item) => {
+              gsap.to(item, {
+                y: direction + (columnHeight / 2),
+                duration: 20,
+                repeat: -1,
+                ease: 'none',
+                modifiers: {
+                  y: gsap.utils.unitize((y) => {
+                    if (direction === '+=') {
+                      offset += additionalY.val;
+                      y = (parseFloat(y) - offset) % (columnHeight * 0.5);
+                    } else {
+                      offset += additionalY.val;
+                      y = (parseFloat(y) + offset) % -(columnHeight * 0.5);
+                    }
+                    return y;
+                  })
+                }
+              });
+            });
+          });
+
+          // Scroll velocity acceleration
+          ScrollTrigger.create({
+            trigger: firstPanel,
+            start: 'left 100%',
+            end: 'left 0%',
+            containerAnimation: st,
+            onUpdate: (self) => {
+              const velocity = self.getVelocity();
+              if (velocity > 0) {
+                if (additionalYAnim) additionalYAnim.kill();
+                additionalY.val = -velocity / 2000;
+                additionalYAnim = gsap.to(additionalY, { val: 0 });
+              }
+              if (velocity < 0) {
+                if (additionalYAnim) additionalYAnim.kill();
+                additionalY.val = -velocity / 3000;
+                additionalYAnim = gsap.to(additionalY, { val: 0 });
+              }
+            },
+          });
+        }
+      }
+
+      // Split text animation for all panels
+      const splitTexts = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('.split-text')) as HTMLElement[];
+      splitTexts.forEach((textEl) => {
+        const text = textEl.textContent || '';
+        const words = text.split(' ');
+        textEl.innerHTML = words.map(word => `<span class="word" style="display: inline-block; opacity: 0; transform: translateY(15px);">${word}</span>`).join(' ');
+      });
+
+      // Animate other panels - Individual animations
+      panels.forEach((panel, index) => {
+        if (index === 0) {
+          // Title animation for first panel - Individual
+          const title = panel.querySelector('.data-micangas-title') as HTMLElement;
+          if (title) {
+            gsap.fromTo(title,
+              { 
+                opacity: 0, 
+                scale: 0.6,
+                rotation: -5,
+                y: 50,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 1.4,
+                ease: 'back.out(1.5)',
+                scrollTrigger: {
+                  trigger: panel,
+                  start: 'left 80%',
+                  end: 'left 20%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          }
+          return;
+        }
+
+        const content = panel.querySelector('.data-micangas-content') as HTMLElement;
+        const title = panel.querySelector('.data-micangas-title') as HTMLElement;
+        const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
+
+        // Title animation - Individual
+        if (title) {
+          gsap.fromTo(title,
+            { 
+              opacity: 0, 
+              scale: 0.7,
+              x: -50,
+              rotation: -3,
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              x: 0,
+              rotation: 0,
+              duration: 1.3,
+              ease: 'back.out(1.2)',
+              scrollTrigger: {
+                trigger: title,
+                start: 'left 85%',
+                end: 'left 15%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Content fade in - Individual
+        if (content) {
+          gsap.fromTo(content,
+            { 
+              opacity: 0, 
+              y: 40,
+              scale: 0.95,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 1,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: content,
+                start: 'left 85%',
+                end: 'left 15%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Words stagger animation - Individual
+        if (words.length) {
+          words.forEach((word, index) => {
+            gsap.to(word,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                delay: index * 0.04,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: word,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Individual image animations for AS MIÇANGAS
+        const images = Array.from(panel.querySelectorAll('.data-micangas-image')) as HTMLElement[];
+        if (images.length) {
+          images.forEach((img, index) => {
+            gsap.fromTo(img,
+              { 
+                opacity: 0, 
+                scale: 0.8,
+                rotation: index % 2 === 0 ? -5 : 5,
+                y: 30,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 0.9,
+                delay: index * 0.06,
+                ease: 'back.out(1.1)',
+                scrollTrigger: {
+                  trigger: img,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+      });
+
+      // Parallax effect for background images
+      const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-parallax]') || []) as HTMLElement[];
+      const st = ScrollTrigger.getById('horizontal-second-track');
+      
+      if (st && parallaxImages.length) {
+        const updateParallax = () => {
+          const progress = st.progress;
+          parallaxImages.forEach((img) => {
+            const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
+            const moveX = -progress * 200 * speed;
+            gsap.set(img, { x: moveX });
+          });
+        };
+
+        ScrollTrigger.create({
+          trigger: horizontalSecondWrapperRef.current,
+          start: 'top 50px',
+          end: () => {
+            if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
+            return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
+          },
+          onUpdate: updateParallax,
+        });
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // 3D Carousel Animation - Catálogo Section
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!carouselContainerRef.current || !carouselScrollDistRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const container = carouselContainerRef.current;
+    const scrollDist = carouselScrollDistRef.current;
+    const boxes: HTMLDivElement[] = [];
+    const numBoxes = 24;
+
+    // Images array - using existing placeholder images
+    // Note: Using the same image paths as used elsewhere in the codebase
+    const images = [
+      '/imagens/secao2home/Rectangle 8.png',
+      '/imagens/secao2home/Rectangle 9.png',
+      '/imagens/secao2home/Rectangle 10.png',
+      '/imagens/secao2home/Rectangle 11.png',
+      '/imagens/secao2home/Rectangle 122.png',
+    ];
+
+    // Create boxes
+    for (let i = 0; i < numBoxes; i++) {
+      const box = document.createElement('div');
+      box.style.position = 'absolute';
+      box.style.userSelect = 'none';
+      box.style.cursor = 'pointer';
+      boxes.push(box);
+      container.appendChild(box);
+    }
+
+    const ctx = gsap.context(() => {
+      // Preload images
+      const imagePromises = images.map((src) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = src;
+        });
+      });
+
+      // Initial setup for container
+      gsap.set(container, {
+        perspective: 600,
+        transformStyle: 'preserve-3d',
+      });
+
+      // Wait for images to load, then setup boxes
+      Promise.allSettled(imagePromises).then(() => {
+        // Initial setup for each box
+        boxes.forEach((box, i) => {
+          const imageIndex = i % images.length;
+          const imageUrl = images[imageIndex];
+          
+          // First set GSAP properties
+          gsap.set(box, {
+            left: '50%',
+            top: '50%',
+            xPercent: -50,
+            yPercent: -50,
+            width: 180,
+            height: 180,
+            borderRadius: '8px',
+            backfaceVisibility: 'hidden',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+            transformStyle: 'preserve-3d',
+            zIndex: 10 + i,
+            backgroundColor: '#1a1a1a', // Fallback color while image loads
+            opacity: 1,
+          });
+          
+          // Then set background image directly on the element (after GSAP.set to ensure it's not overwritten)
+          // Use requestAnimationFrame to ensure GSAP has finished applying styles
+          requestAnimationFrame(() => {
+            box.style.setProperty('background-image', `url(${imageUrl})`, 'important');
+            box.style.setProperty('background-size', 'cover', 'important');
+            box.style.setProperty('background-position', 'center', 'important');
+            box.style.setProperty('background-repeat', 'no-repeat', 'important');
+          });
+
+          // Create timeline for each box
+          const tl = gsap.timeline({ paused: true, defaults: { immediateRender: true } })
+            .fromTo(box, {
+              scale: 0.3,
+              rotationX: (i / numBoxes) * 360,
+              transformOrigin: '50% 50% -500px',
+            }, {
+              rotationX: '+=360',
+              ease: 'none',
+            })
+            .timeScale(0.05);
+
+          // Store timeline on the element
+          (box as any).tl = tl;
+
+          // Hover effects
+          box.addEventListener('mouseenter', () => {
+            gsap.to(box, { 
+              opacity: 0.8, 
+              scale: 0.35, 
+              duration: 0.4, 
+              ease: 'expo.out',
+              boxShadow: '0 15px 60px rgba(255, 255, 255, 0.2)',
+              zIndex: 100,
+            });
+          });
+
+          box.addEventListener('mouseleave', () => {
+            gsap.to(box, { 
+              opacity: 1, 
+              scale: 0.3, 
+              duration: 0.2, 
+              ease: 'back.out(3)', 
+              overwrite: 'auto',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              zIndex: 10 + i,
+            });
+          });
+        });
+
+        // Setup ScrollTriggers after boxes are ready
+        // Entrance animation - Big spin when section enters viewport
+        ScrollTrigger.create({
+          trigger: container,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            // Animate container with a dramatic entrance spin
+            gsap.fromTo(container, 
+              {
+                rotationY: -180,
+                opacity: 0,
+              },
+              {
+                rotationY: 0,
+                opacity: 1,
+                duration: 2,
+                ease: 'power3.out',
+              }
+            );
+
+            // Stagger the boxes appearing
+            boxes.forEach((box, i) => {
+              gsap.from(box, {
+                opacity: 0,
+                scale: 0,
+                duration: 1,
+                delay: i * 0.03,
+                ease: 'back.out(2)',
+              });
+            });
+          },
+        });
+
+        // ScrollTrigger for continuous rotation during scroll
+        ScrollTrigger.create({
+          trigger: scrollDist,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            boxes.forEach((box) => {
+              const tl = (box as any).tl;
+              if (tl) {
+                tl.progress(progress);
+              }
+            });
+          },
+          invalidateOnRefresh: true,
+        });
+      });
+    }, carouselContainerRef);
+
+    return () => {
+      // Clean up boxes
+      boxes.forEach((box) => box.remove());
+      ctx.revert();
+    };
+  }, []);
+
+  // Animações para seções de "O Mistério da Carne"
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!horizontalSecondTrackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-misterio-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      // Animate each panel when it enters viewport
+      panels.forEach((panel) => {
+        const title = panel.querySelector('.data-misterio-title') as HTMLElement;
+        const galleryItems = Array.from(panel.querySelectorAll('.data-misterio-gallery-item')) as HTMLElement[];
+
+        // Title animation - Individual
+        if (title) {
+          gsap.fromTo(title,
+            { 
+              opacity: 0, 
+              scale: 0.6,
+              rotation: 5,
+              y: 50,
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              rotation: 0,
+              y: 0,
+              duration: 1.4,
+              ease: 'back.out(1.5)',
+              scrollTrigger: {
+                trigger: title,
+                start: 'left 85%',
+                end: 'left 15%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Gallery items fade in - Individual animations
+        if (galleryItems.length) {
+          galleryItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                scale: 0.7,
+                rotation: index % 2 === 0 ? -8 : 8,
+                y: 50,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 1,
+                delay: index * 0.1,
+                ease: 'back.out(1.3)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+      });
+    }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
   }, []);
@@ -1170,138 +1718,233 @@ export default function Home() {
     };
   }, []);
 
-  // ScrollTrigger para Image Carousel com Parallax
+  // Animações para seções de "A Natureza das Coisas Invisíveis"
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!imageCarouselSectionRef.current || !imageCarouselContainerRef.current) return;
-    if (imageRefs.current.length === 0) return;
+    if (!horizontalSecondTrackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const section = imageCarouselSectionRef.current;
-    const container = imageCarouselContainerRef.current;
-    const images = imageRefs.current.filter(Boolean) as HTMLDivElement[];
-    const totalImages = images.length;
-
-    // Limpar ScrollTriggers existentes
-    ScrollTrigger.getAll().forEach((st) => {
-      if (st.trigger === section || (st.vars?.trigger && st.vars.trigger === section)) {
-        st.kill();
-      }
-    });
-
     const ctx = gsap.context(() => {
-      // Configurar estado inicial de todas as imagens
-      images.forEach((img, i) => {
-        if (!img) return;
-        gsap.set(img, {
-          opacity: i === 0 ? 1 : 0,
-          y: 0,
-          scale: 1,
-        });
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      // Split text animation
+      const splitTexts = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('.split-text') || []);
+      splitTexts.forEach((textEl) => {
+        const text = textEl.textContent || '';
+        const words = text.split(' ');
+        textEl.innerHTML = words.map(word => `<span class="word" style="display: inline-block; opacity: 0; transform: translateY(15px);">${word}</span>`).join(' ');
       });
 
-      // Estado inicial do container - fechado
-      gsap.set(container, {
-        height: '10vh',
-        clipPath: 'inset(45% 0% 45% 0%)',
-      });
+      // Animate each panel when it enters viewport
+      panels.forEach((panel) => {
+        const content = panel.querySelector('.data-natureza-content') as HTMLElement;
+        const megaText = panel.querySelector('.data-natureza-mega-text') as HTMLElement;
+        const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
+        const credits = panel.querySelector('.data-natureza-credits') as HTMLElement;
+        const festivals = panel.querySelector('.data-natureza-festivals') as HTMLElement;
+        const infoGrid = panel.querySelector('.data-natureza-info-grid') as HTMLElement;
 
-      // Animação de abertura/fechamento do container
-      // Abre quando o centro do container está no centro da viewport
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top bottom', // Quando o topo da seção aparece
-        end: 'bottom top', // Quando o bottom do container chega ao topo da viewport
-        scrub: true,
-        onUpdate: () => {
-          // Calcular a posição do centro do container em relação à viewport
-          const containerRect = container.getBoundingClientRect();
-          const containerCenter = containerRect.top + (containerRect.height / 2);
-          const viewportCenter = window.innerHeight / 2;
-          const distanceFromCenter = Math.abs(containerCenter - viewportCenter);
-
-          // Quando o container está no centro, está 100% aberto
-          // Quando está longe do centro, está fechado
-          // Usar uma curva suave para a transição
-          const maxDistance = window.innerHeight * 0.6; // Distância para considerar completamente fechado
-          const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1);
-
-          // Curva suave usando easeOut
-          const openProgress = 1 - Math.pow(normalizedDistance, 1.5);
-
-          // Altura: 10vh (fechado) a 40vh (aberto)
-          const heightPercent = 10 + (openProgress * 30);
-          // Clip: 45% (fechado) a 0% (aberto)
-          const clipAmount = 45 - (openProgress * 45);
-
-          gsap.set(container, {
-            height: `${heightPercent}vh`,
-            clipPath: `inset(${clipAmount}% 0% ${clipAmount}% 0%)`,
-          });
-        },
-        invalidateOnRefresh: true,
-        id: 'container-open-close',
-      });
-
-      // Animação principal de transição entre imagens com parallax suave
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
-        onUpdate: (self) => {
-          const progress = Math.max(0, Math.min(1, self.progress));
-          const normalizedProgress = progress * (totalImages - 1);
-          const imageIndex = Math.floor(normalizedProgress);
-          const currentImageProgress = normalizedProgress - imageIndex;
-
-          images.forEach((img, i) => {
-            if (!img) return;
-
-            if (i === imageIndex) {
-              // Imagem atual - fade out suave
-              const opacity = 1 - currentImageProgress;
-              const parallaxY = -currentImageProgress * 20; // Parallax mais sutil
-              gsap.set(img, {
-                opacity: opacity,
-                y: parallaxY,
-              });
-            } else if (i === imageIndex + 1 && imageIndex + 1 < totalImages) {
-              // Próxima imagem - fade in suave
-              const opacity = currentImageProgress;
-              const parallaxY = -(1 - currentImageProgress) * 20; // Parallax mais sutil
-              gsap.set(img, {
-                opacity: opacity,
-                y: parallaxY,
-              });
-            } else {
-              // Outras imagens - completamente ocultas
-              gsap.set(img, {
-                opacity: 0,
-                y: 0,
-              });
+        // Content fade in
+        if (content) {
+          gsap.fromTo(content,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
             }
+          );
+        }
+
+        // Mega text animation
+        if (megaText) {
+          gsap.fromTo(megaText,
+            { opacity: 0, scale: 0.8 },
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 1.2,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Credits fade in - Individual animations
+        if (credits) {
+          const creditItems = Array.from(credits.querySelectorAll('div')) as HTMLElement[];
+          creditItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                x: -30,
+                scale: 0.9,
+              },
+              {
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                duration: 0.7,
+                delay: index * 0.1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
           });
-        },
-        invalidateOnRefresh: true,
-        id: 'image-carousel-main',
+        }
+
+        // Festivals grid fade in
+        if (festivals) {
+          gsap.fromTo(festivals,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Info grid fade in - Individual animations
+        if (infoGrid) {
+          const gridItems = Array.from(infoGrid.querySelectorAll('div > div')) as HTMLElement[];
+          gridItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                y: 40,
+                scale: 0.9,
+                rotation: index % 2 === 0 ? -3 : 3,
+              },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotation: 0,
+                duration: 0.8,
+                delay: index * 0.12,
+                ease: 'back.out(1.1)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Gallery items fade in - Individual animations
+        const galleryItems = Array.from(panel.querySelectorAll('.data-natureza-gallery-item')) as HTMLElement[];
+        if (galleryItems.length) {
+          galleryItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                scale: 0.8,
+                rotation: index % 2 === 0 ? -5 : 5,
+                y: 30,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 0.9,
+                delay: index * 0.08,
+                ease: 'back.out(1.2)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Words stagger animation
+        if (words.length) {
+          gsap.to(words,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              stagger: 0.03,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
       });
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
-    }, imageCarouselSectionRef);
+      // Parallax effect baseado no scroll do track
+      const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-parallax]') || []) as HTMLElement[];
+      const st = ScrollTrigger.getById('horizontal-second-track');
+      
+      if (st && parallaxImages.length) {
+        const updateParallax = () => {
+          const progress = st.progress;
+          parallaxImages.forEach((img) => {
+            const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
+            const moveX = -progress * 200 * speed;
+            gsap.set(img, { x: moveX });
+          });
+        };
 
-    const handleResize = () => {
-      ScrollTrigger.refresh();
-    };
-    window.addEventListener('resize', handleResize);
+        ScrollTrigger.create({
+          trigger: horizontalSecondWrapperRef.current,
+          start: 'top 50px',
+          end: () => {
+            if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
+            return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
+          },
+          onUpdate: updateParallax,
+        });
+      }
+    }, horizontalSecondTrackRef);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
@@ -2499,175 +3142,89 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Dragonfly Animation Section - ACERVO */}
-      <div className="relative w-full">
-        <section
-          ref={dragonflySectionRef}
-          className="relative bg-black text-white"
-          style={{ minHeight: '200vh' }}
-        >
-          {/* Container Pinado - Título e Libélula */}
-          <div 
-            ref={dragonflyPinRef}
-            className="sticky top-0 h-screen w-full flex items-center justify-center z-10"
-          >
-            <div className="container mx-auto px-4 relative w-full h-full flex flex-col items-center justify-center">
-            
-            {/* Heading Container */}
-            <div 
-              ref={dragonflyHeadingRef} 
-              className="relative z-20 mix-blend-difference perspective-[1000px] w-full flex justify-center heading"
-            >
-              <div className="relative text-center">
-                <h1 className="relative flex flex-col items-center justify-center uppercase leading-none">
-                  {/* "ACERVO" - Huge Text */}
-                  <span 
-                    className="relative block z-0 mix-blend-difference"
-                    style={{ 
-                      fontSize: 'clamp(40px, 10vw, 135px)',
-                      fontFamily: "'Helvetica Neue LT Pro Thin Extended', Arial, Helvetica, sans-serif",
-                      fontWeight: 100,
-                      letterSpacing: '-0.02em',
-                      color: '#f5f0e6'
-                    }}
-                  >
-                    ACERVO
-                  </span>
-
-                  {/* "MOVEO" - Subtitle */}
-                  <span 
-                    className="relative z-10 -mt-[2vw] leading-none mix-blend-difference"
-                    style={{ 
-                      fontSize: 'clamp(32px, 10vw, 135px)',
-                      fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                      fontWeight: 700,
-                      letterSpacing: '-0.05em',
-                      display: 'block',
-                      color: '#f5f0e6'
-                    }}
-                  >
-                    MOVEO
-                  </span>
-                </h1>
-              </div>
-            </div>
-            
-            {/* SVG Overlay - Posicionado para transpassar ambas seções */}
-            <svg
-              data-name="Libelula"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 300 200"
-              className="absolute top-[130%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300%] opacity-0 pointer-events-none z-50"
-              style={{ maxWidth: '200vw', maxHeight: '200vh' }}
-            >
-              {/* Eixo central - cilindro elegante */}
-              <line id="spine" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" x1="150" y1="5" x2="150" y2="195" strokeLinecap="round" />
-              
-              <path id="head" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
-              <path id="thorax" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
-              <path id="abdomen" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 50 L 150 180" /> 
-              <path id="wing-tl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
-              <path id="wing-bl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
-              <path id="wing-tr" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
-              <path id="wing-br" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
-            </svg>
-
-            </div>
-          </div>
-
-          {/* Images Grid - Fluxo independente */}
-          <div 
-            className="relative z-0 w-full px-4"
-            style={{ marginTop: '-50vh' }}
-          >
-            <div 
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-6xl mx-auto images"
-            >
-              {[
-                { src: '/imagens/secao2home/Rectangle 10.png', speed: '2.4' },
-                { src: '/imagens/secao2home/Rectangle 8.png', speed: '1.8' },
-                { src: '/imagens/secao2home/Rectangle 9.png', speed: '2.2' },
-                { src: '/imagens/secao2home/Rectangle 11.png', speed: '1.5' }
-              ].map((item, index) => (
-                <div 
-                  key={index} 
-                  className="relative w-full aspect-[3/4] overflow-hidden border border-white group cursor-pointer"
-                  data-speed={item.speed}
-                  data-tilt-card
-                >
-                  <Image
-                    src={item.src}
-                    alt={`Acervo image ${index + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out images-img group-hover:scale-110"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    unoptimized
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </section>
-      </div>
-
-      {/* Nova Seção - Image Carousel com Parallax */}
-      <div
-        ref={imageCarouselSectionRef}
-        className="relative bg-transparent text-white"
+      {/* Seção de Transição - Introdução ao Catálogo de Filmes */}
+      <div 
+        ref={dragonflySectionRef}
+        className="relative w-full bg-black"
         style={{
-          marginLeft: '0',
-          marginRight: '0',
-          marginBottom: '50px',
-          minHeight: '100vh',
+          marginBottom: '0',
         }}
       >
         <section
-          className="relative bg-transparent"
-          data-pin-animate
-          style={{ height: '100vh', display: 'flex', alignItems: 'center' }}
+          className="relative bg-black text-white"
+          style={{ 
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '50px',
+          }}
         >
-          {/* Container de imagem wide fino */}
-          <div
-            ref={imageCarouselContainerRef}
-            className="relative w-full overflow-hidden"
-            data-pin-animate
-            style={{
-              height: '40vh',
-              marginLeft: '50px',
-              marginRight: '50px',
-            }}
+          <div 
+            ref={dragonflyPinRef}
+            className="w-full max-w-7xl mx-auto"
           >
-            {/* Imagens com parallax e transição */}
-            {[
-              '/imagens/secao2home/Rectangle 122.png',
-              '/imagens/secao2home/Rectangle 8.png',
-              '/imagens/secao2home/Rectangle 9.png',
-              '/imagens/secao2home/Rectangle 10.png',
-              '/imagens/secao2home/Rectangle 11.png',
-            ].map((src, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              {/* Left - Text Content */}
+              <div>
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  }}
+                >
+                  Nossos Filmes
+                </div>
+                <h2
+                  ref={dragonflyHeadingRef}
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(48px, 7vw, 120px)',
+                    lineHeight: '0.95',
+                    fontWeight: 700,
+                    letterSpacing: '-0.03em',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                    color: 'white',
+                  }}
+                >
+                  Catálogo em Destaque
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(16px, 1.5vw, 22px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    maxWidth: '90%',
+                  }}
+                >
+                  Explore nossa seleção de obras que marcaram festivais internacionais e conquistaram audiências ao redor do mundo. De longas-metragens a curtas experimentais, cada projeto representa nossa dedicação à narrativa cinematográfica de excelência.
+                </p>
+              </div>
+
+              {/* Right - Featured Image */}
               <div
-                key={index}
-                ref={(el) => {
-                  imageRefs.current[index] = el;
-                }}
-                className="absolute inset-0 w-full h-full"
+                className="relative w-full aspect-[4/5] overflow-hidden"
                 style={{
-                  opacity: index === 0 ? 1 : 0,
-                  transform: 'translateY(0px)',
-                  willChange: 'opacity, transform',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}
               >
                 <Image
-                  src={src}
-                  alt={`Carousel image ${index + 1}`}
+                  src="/imagens/secao2home/Rectangle 10.png"
+                  alt="Catálogo em Destaque"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
-                  unoptimized
-                  priority={index === 0}
+                  style={{
+                    filter: 'brightness(0.9)',
+                  }}
                 />
               </div>
-            ))}
+            </div>
           </div>
         </section>
       </div>
@@ -2687,158 +3244,385 @@ export default function Home() {
           className="flex h-full will-change-transform"
           style={{ width: 'max-content', overflow: 'visible', gap: '100px' }}
         >
-          {/* Seção - A Natureza das Coisas Invisíveis */}
+          {/* Seção 1 - A Natureza das Coisas Invisíveis - Title Only */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="0"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start mb-6">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        <span style={{ display: 'block' }}>A Natureza das</span>
-                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2015)
-                      </div>
-                    </div>
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full p-[50px] z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <h2 
+                className="data-natureza-content"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(60px, 8vw, 140px)',
+                  lineHeight: '0.9',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.05em',
+                  color: 'rgba(255, 255, 255, 0.95)',
+                  opacity: 0,
+                  transform: 'scale(0.8)',
+                  mixBlendMode: 'difference',
+                  textShadow: '0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.2)',
+                }}
+              >
+                A NATUREZA DAS COISAS INVISÍVEIS
+              </h2>
+            </div>
 
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Coprodução Brasil-Chile
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Lançamento no Brasil: 27/11/2025
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
+            {/* Image Gallery Grid */}
+            <div 
+              className="absolute inset-0 p-[50px]"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 'clamp(20px, 3vw, 40px)',
+                zIndex: 1,
+              }}
+            >
+              {PLACEHOLDER_IMAGES.natureza.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="data-natureza-gallery-item"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: 0,
+                    transform: 'scale(0.9)',
+                    filter: 'saturate(0)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'saturate(1)';
+                    e.currentTarget.style.zIndex = '999';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'saturate(0)';
+                    e.currentTarget.style.zIndex = '1';
+                  }}
+                >
+                  <Image
+                    src={src}
+                    alt={`A Natureza das Coisas Invisíveis ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 30vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Seção 2 - A Natureza das Coisas Invisíveis - Editorial Split */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="1"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1.2fr 0.8fr',
+            }}
+          >
+            {/* Left - Editorial Content */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+                style={{
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  O Filme
+                </div>
+                <h1 
+                  className="data-natureza-title split-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(24px, 3vw, 48px)',
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'white',
+                  }}
+                >
+                  A Natureza das Coisas Invisíveis
+                </h1>
+                <div 
+                  className="data-natureza-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    maxWidth: '90%',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <p className="split-text">
+                    Primeiro longa-metragem internacional da Moveo Filmes. Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas.
+                  </p>
+                </div>
+
+                {/* Ficha Técnica Compacta */}
+                <div 
+                  className="data-natureza-credits"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 1vw, 13px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                    maxWidth: '90%',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Ano:</strong> 2025
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Coprodução:</strong> Brasil-Chile
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Editorial Image */}
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                position: 'relative',
+              }}
+            >
+              <div 
+                className="absolute inset-0"
+                style={{
+                  willChange: 'transform',
+                }}
+              >
+                <Image
+                  src={PLACEHOLDER_IMAGES.natureza[0]}
+                  alt="A Natureza das Coisas Invisíveis"
+                  fill
+                  sizes="40vw"
+                  className="object-cover data-natureza-parallax"
+                  style={{
+                    filter: 'saturate(0) brightness(0.8)',
+                    transform: 'scale(1.1)',
+                  }}
+                  data-speed="0.3"
+                  unoptimized
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Seção 3 - A Natureza das Coisas Invisíveis - Full Background */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="2"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Background Image */}
+            <div className="absolute inset-0" style={{ willChange: 'transform' }}>
+              <Image
+                src={PLACEHOLDER_IMAGES.natureza[1]}
+                alt="A Natureza das Coisas Invisíveis"
+                fill
+                sizes="100vw"
+                className="object-cover data-natureza-parallax"
+                style={{
+                  filter: 'saturate(0) brightness(0.7)',
+                  transform: 'scale(1.1)',
+                }}
+                data-speed="0.2"
+                unoptimized
+              />
+            </div>
+
+            {/* Overlay */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 2,
+              }}
+            />
+
+            {/* Content */}
+            <div 
+              className="relative data-natureza-content"
+              style={{
+                width: '80%',
+                maxWidth: '900px',
+                opacity: 0,
+                transform: 'translateY(30px)',
+                zIndex: 3,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 13px)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  marginBottom: 'clamp(20px, 3vh, 40px)',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                }}
+              >
+                Estreia Mundial
+              </div>
+              <h2 
+                className="data-natureza-title split-text"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 5vw, 80px)',
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'clamp(20px, 3vh, 40px)',
+                  color: 'white',
+                }}
+              >
+                75ª Berlinale
+              </h2>
+              <div 
+                className="data-natureza-text"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(14px, 1.3vw, 18px)',
+                  lineHeight: '1.6',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  marginBottom: 'clamp(30px, 4vh, 50px)',
+                }}
+              >
+                <p className="split-text">
+                  Generation KPlus, Filme de Abertura. Uma estreia histórica que marca o primeiro longa-metragem internacional da Moveo Filmes em um dos festivais mais prestigiosos do mundo.
+                </p>
+              </div>
+
+              {/* Estreias Grid */}
+              <div 
+                className="data-natureza-festivals"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: 'clamp(20px, 3vw, 40px)',
+                  marginTop: 'clamp(30px, 4vh, 50px)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  paddingTop: 'clamp(20px, 3vh, 30px)',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(10px, 0.9vw, 12px)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: 'clamp(8px, 1vh, 12px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    Festivais
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(12px, 1.1vw, 15px)',
+                      lineHeight: '1.6',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                    }}
+                  >
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      <strong>Colômbia:</strong> 64º Cartagena
+                    </div>
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      <strong>México:</strong> 40º Guadalajara
+                    </div>
+                    <div>
+                      <strong>EUA:</strong> 51º Seattle
                     </div>
                   </div>
-
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>México:</strong> 40º Guadalajara International Film Festival
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 51º Seattle International Film Festival
-                        </div>
-                      </div>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(10px, 0.9vw, 12px)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: 'clamp(8px, 1vh, 12px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    Prêmios
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(12px, 1.1vw, 15px)',
+                      lineHeight: '1.6',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                    }}
+                  >
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      Melhor Filme — Uruguai
                     </div>
-
-                    {/* Container de Prêmios */}
-                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        PRÊMIOS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Menção Especial do Júri — 51º Seattle International Film Festival
-                        </div>
-                        <div>
-                          Outstanding First Feature (Jury Prize) — Frameline49
-                        </div>
-                      </div>
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      Menção Especial — Seattle
+                    </div>
+                    <div>
+                      Jury Prize — Frameline49
                     </div>
                   </div>
                 </div>
@@ -2846,563 +3630,662 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Seção Adicional 1 - A Natureza das Coisas Invisíveis */}
+          {/* Seção 4 - A Natureza das Coisas Invisíveis - Split with Sinopse and Distribution */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="3"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start mb-6">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        <span style={{ display: 'block' }}>A Natureza das</span>
-                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2015)
-                      </div>
-                    </div>
+            {/* Left - Sinopse */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#121212',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+                style={{
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  Sinopse
+                </div>
+                <div 
+                  className="data-natureza-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    maxWidth: '90%',
+                  }}
+                >
+                  <p className="split-text">
+                    Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas. O filme explora as histórias que não vemos, mas que nos definem, revelando camadas de memória, identidade e pertencimento através de uma linguagem cinematográfica ousada e poética.
+                  </p>
+                </div>
 
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Coprodução Brasil-Chile
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Lançamento no Brasil: 27/11/2025
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
+                {/* Quote */}
+                <div 
+                  style={{
+                    marginTop: 'clamp(30px, 4vh, 50px)',
+                    paddingLeft: 'clamp(20px, 3vw, 30px)',
+                    borderLeft: '2px solid rgba(255, 255, 255, 0.3)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(16px, 1.5vw, 22px)',
+                      lineHeight: '1.6',
+                      fontStyle: 'italic',
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      marginBottom: 'clamp(12px, 2vh, 20px)',
+                    }}
+                  >
+                    "O que não vemos é o que mais nos move."
                   </div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(11px, 1vw, 13px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    — Rafaela Camelo
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>México:</strong> 40º Guadalajara International Film Festival
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 51º Seattle International Film Festival
-                        </div>
-                      </div>
-                    </div>
+            {/* Right - Distribution & Technical Info */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+                style={{
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  Distribuição
+                </div>
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(13px, 1.2vw, 16px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(12px, 2vh, 18px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Brasil:</strong> Vitrine Filmes
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Internacional:</strong> The Open Reel
+                  </div>
+                </div>
 
-                    {/* Container de Prêmios */}
-                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        PRÊMIOS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Menção Especial do Júri — 51º Seattle International Film Festival
-                        </div>
-                        <div>
-                          Outstanding First Feature (Jury Prize) — Frameline49
-                        </div>
-                      </div>
-                    </div>
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                  }}
+                >
+                  Ficha Técnica
+                </div>
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(12px, 1.1vw, 14px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Roteiro:</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Coprodução:</strong> Brasil-Chile
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Financiamento:</strong> FAC-DF, FSA/Ancine
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Seção Adicional 2 - A Natureza das Coisas Invisíveis */}
+
+          {/* Seção 1 - AS MIÇANGAS - Title Only with Scroll Acceleration Gallery */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="0"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start mb-6">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        <span style={{ display: 'block' }}>A Natureza das</span>
-                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2015)
-                      </div>
-                    </div>
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+              }}
+            >
+              <h1 
+                className="data-micangas-title"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 6vw, 120px)',
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  maxWidth: '800px',
+                  mixBlendMode: 'difference',
+                  color: 'white',
+                  opacity: 0,
+                  transform: 'scale(0.8)',
+                }}
+              >
+                AS MIÇANGAS
+              </h1>
+            </div>
 
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Coprodução Brasil-Chile
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Lançamento no Brasil: 27/11/2025
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
+            {/* Scroll Acceleration Gallery - 3 Columns */}
+            <div 
+              className="absolute inset-0 flex justify-center"
+              style={{
+                width: '100%',
+                height: '100%',
+                overflow: 'visible',
+                zIndex: 1,
+                padding: '50px',
+              }}
+            >
+              {/* Column 1 - Moves Up */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="0"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-start',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {PLACEHOLDER_IMAGES.micangas.map((src, idx) => (
+                  <div
+                    key={`col0-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
                   </div>
-
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>México:</strong> 40º Guadalajara International Film Festival
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 51º Seattle International Film Festival
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Container de Prêmios */}
-                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        PRÊMIOS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Menção Especial do Júri — 51º Seattle International Film Festival
-                        </div>
-                        <div>
-                          Outstanding First Feature (Jury Prize) — Frameline49
-                        </div>
-                      </div>
-                    </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
+                  <div
+                    key={`col0-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
                   </div>
-                </div>
+                ))}
+              </div>
+
+              {/* Column 2 - Moves Down */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="1"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-end',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {[
+                  PLACEHOLDER_IMAGES.micangas[1],
+                  PLACEHOLDER_IMAGES.micangas[2],
+                  PLACEHOLDER_IMAGES.micangas[3],
+                  PLACEHOLDER_IMAGES.micangas[0],
+                ].map((src, idx) => (
+                  <div
+                    key={`col1-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(2, 4).map((src, idx) => (
+                  <div
+                    key={`col1-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Column 3 - Moves Up */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="2"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-start',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {[
+                  PLACEHOLDER_IMAGES.micangas[2],
+                  PLACEHOLDER_IMAGES.micangas[3],
+                  PLACEHOLDER_IMAGES.micangas[0],
+                  PLACEHOLDER_IMAGES.micangas[1],
+                ].map((src, idx) => (
+                  <div
+                    key={`col2-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
+                  <div
+                    key={`col2-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </section>
 
-          {/* Seção - AS MIÇANGAS */}
+          {/* Seção 2 - AS MIÇANGAS - Info Panel */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="1"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full" style={{ overflow: 'visible' }}>
-                    {/* Container de Informações Técnicas (topo) */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(9px, 0.75vw, 11px)',
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          FAC-DF
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Edital Cardume
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak / Moveo Filmes
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
+            {/* Left - Content */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-micangas-content"
+                style={{
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  O Filme
+                </div>
+                <h2 
+                  className="data-micangas-title split-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(24px, 3vw, 48px)',
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'white',
+                  }}
+                >
+                  As Miçangas
+                </h2>
+                <div 
+                  className="data-micangas-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <p className="split-text">
+                    (2023) Curta-metragem que explora a memória e a identidade através de narrativas fragmentadas e poéticas.
+                  </p>
+                </div>
 
-                    {/* Container do Título (base) */}
-                    <div className="flex flex-col justify-start mt-auto" style={{ paddingBottom: '4vh' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        As Miçangas
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2023)
-                      </div>
-                    </div>
+                {/* Ficha Técnica */}
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 1vw, 13px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
                   </div>
-
-                  {/* Coluna Direita - Estreias (base) */}
-                  <div className="md:col-span-5 flex flex-col h-full justify-end" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 73ª Berlinale
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Asiática:</strong> 47ª Hong Kong
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Latino:</strong> 41º Uruguay
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 29º Palm Springs
-                        </div>
-                      </div>
-                    </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Financiamento:</strong> FAC-DF, Edital Cardume
                   </div>
                 </div>
               </div>
             </div>
-          </section>
 
-          {/* Seção Adicional 1 - AS MIÇANGAS */}
-          <section
-            className="horizontal-section relative flex-shrink-0 text-white"
-            style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-            }}
-          >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full" style={{ overflow: 'visible' }}>
-                    {/* Container de Informações Técnicas (topo) */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(9px, 0.75vw, 11px)',
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          FAC-DF
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Edital Cardume
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak / Moveo Filmes
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Container do Título (base) */}
-                    <div className="flex flex-col justify-start mt-auto" style={{ paddingBottom: '4vh' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        As Miçangas
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2023)
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Coluna Direita - Estreias (base) */}
-                  <div className="md:col-span-5 flex flex-col h-full justify-end" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 73ª Berlinale
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Asiática:</strong> 47ª Hong Kong
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Latino:</strong> 41º Uruguay
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 29º Palm Springs
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Right - Image */}
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                position: 'relative',
+              }}
+            >
+              <div 
+                className="absolute inset-0"
+                style={{
+                  willChange: 'transform',
+                }}
+              >
+                <Image
+                  src={PLACEHOLDER_IMAGES.micangas[0]}
+                  alt="AS MIÇANGAS"
+                  fill
+                  sizes="50vw"
+                  className="object-cover data-micangas-parallax"
+                  style={{
+                    filter: 'saturate(0) brightness(0.8)',
+                    transform: 'scale(1.1)',
+                  }}
+                  data-speed="0.3"
+                  unoptimized
+                />
               </div>
             </div>
           </section>
 
-          {/* Seção - O Mistério da Carne */}
+          {/* Seção 1 - O Mistério da Carne - Title Only */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="0"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+              }}
+            >
+              <h1 
+                className="data-misterio-title"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 6vw, 120px)',
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  maxWidth: '800px',
+                  mixBlendMode: 'difference',
+                  color: 'white',
+                  opacity: 0,
+                  transform: 'scale(0.8)',
+                }}
+              >
+                O MISTÉRIO DA CARNE
+              </h1>
+            </div>
+
+            {/* Image Gallery Grid */}
+            <div 
+              className="absolute inset-0 p-[50px]"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 'clamp(20px, 3vw, 40px)',
+                zIndex: 1,
+              }}
+            >
+              {PLACEHOLDER_IMAGES.misterio.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="data-misterio-gallery-item"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: 0,
+                    transform: 'scale(0.9)',
+                    filter: 'saturate(0)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'saturate(1)';
+                    e.currentTarget.style.zIndex = '999';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'saturate(0)';
+                    e.currentTarget.style.zIndex = '1';
+                  }}
+                >
+                  <Image
+                    src={src}
+                    alt={`O Mistério da Carne ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 30vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Seção 2 - O Mistério da Carne - Content */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="1"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
@@ -3421,155 +4304,7 @@ export default function Home() {
                         className="mix-blend-difference"
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        O Mistério da Carne
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2019)
-                      </div>
-                    </div>
-
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          FAC-DF
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          1º Edital de Curtas da Cardume
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak (Mundo) e Moveo Filmes (Brasil)
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Prêmios (topo) */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        PRÊMIOS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme — Biarritz Amérique Latine
-                        </div>
-                        <div>
-                          Melhor Filme — New Directors / New Films
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Container de Estreias (base) */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(11px, 0.95vw, 14px)',
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(10px, 0.85vw, 13px)',
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> Sundance Film Festival (2019)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Europa:</strong> Biarritz Amérique Latine
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> New Directors / New Films
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Seção Adicional 1 - O Mistério da Carne */}
-          <section
-            className="horizontal-section relative flex-shrink-0 text-white"
-            style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-            }}
-          >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
+                          fontSize: 'clamp(24px, 3vw, 48px)',
                           lineHeight: '0.95',
                           fontWeight: 700,
                           letterSpacing: '-0.02em',
@@ -3805,11 +4540,20 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Bloco vertical médio */}
-                <div className="col-span-2 row-span-4 bg-transparent min-h-0">
-                  <p className="font-light text-sm leading-relaxed text-white mix-blend-difference" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
-                    {""}
-                  </p>
+                {/* Bloco vertical médio - 3D Carousel */}
+                <div className="col-span-2 row-span-4 bg-transparent min-h-0 relative overflow-visible">
+                  <div 
+                    ref={carouselScrollDistRef}
+                    className="absolute top-0 w-full pointer-events-none z-0"
+                    style={{ height: '400%', opacity: 0 }}
+                  />
+                  <div
+                    ref={carouselContainerRef}
+                    className="absolute inset-0 w-full h-full flex items-center justify-center"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                    }}
+                  />
                 </div>
 
                 {/* Quadrado inferior esquerdo */}
