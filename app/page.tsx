@@ -86,7 +86,6 @@ export default function Home() {
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // const [produtoraFontSize, setProdutoraFontSize] = useState<number>(100); // Removed
   const produtoraTextRef = useRef<HTMLDivElement>(null);
   const produtoraContainerRef = useRef<HTMLDivElement>(null);
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
@@ -295,6 +294,43 @@ export default function Home() {
     };
   }, [mainTrackReady]);
 
+  // Animate MOVEO title synchronized with horizontal scroll timeline
+  // Prevents premature displacement before other elements start scrolling
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!mainTrackReady) return;
+    if (!mainTrackTimelineRef.current) return;
+    if (!firstSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
+      if (!allTargets.length) return;
+
+      const moveoElement = allTargets.find((el) => {
+        const text = el.textContent?.trim();
+        return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
+      }) as HTMLElement;
+
+      if (!moveoElement || !mainTrackTimelineRef.current) return;
+
+      const tl = mainTrackTimelineRef.current;
+
+      // Add MOVEO animation to the existing timeline
+      // Start at position 0.2 (after hold period) and animate during horizontal scroll (0.2 to 1.0)
+      tl.to(moveoElement, {
+        y: -40,
+        ease: 'none',
+        duration: 0.8, // Same duration as horizontal scroll movement (80% of timeline)
+      }, 0.2); // Start at 20% (after the hold period, when horizontal movement begins)
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, firstSectionRef);
+
+    return () => ctx.revert();
+  }, [mainTrackReady]);
+
   // Spectacular entrance animation for first section
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -314,7 +350,7 @@ export default function Home() {
       
       const produtoraElement = allTargets.find((el) => {
         const text = el.textContent || '';
-        return text.includes('Produtora boutique') || text.includes('De filmes independentes');
+        return text.includes('Produtora boutique') || text.includes('de filmes independentes') || text.includes('De filmes independentes');
       }) as HTMLElement;
       
       const imageElement = allTargets.find((el) => {
@@ -324,8 +360,6 @@ export default function Home() {
         return hasImage || el.classList.contains('overflow-hidden');
       }) as HTMLElement;
 
-      const exploreElement = firstSectionRef.current?.querySelector('[data-explore-hint]') as HTMLElement;
-      const scrollLineElement = firstSectionRef.current?.querySelector('[data-scroll-line]') as HTMLElement;
       const decorativeLines = Array.from(firstSectionRef.current?.querySelectorAll('[data-decor-line]') || []) as HTMLElement[];
 
       // ENTRANCE TIMELINE - dramatic reveal
@@ -375,114 +409,198 @@ export default function Home() {
         }, '-=0.8');
       }
 
-      // 3. Produtora text slides in
-      if (produtoraElement) {
-        gsap.set(produtoraElement, { 
-          opacity: 0,
-          x: -100,
-          filter: 'blur(10px)',
-        });
-        
-        entranceTl.to(produtoraElement, {
-          opacity: 1,
-          x: 0,
-          filter: 'blur(0px)',
-          duration: 1,
-          ease: 'power3.out',
-        }, '-=0.6');
-      }
+      // 3. Produtora text - set initial state (will animate on first scroll)
+      // Note: Animation is handled in separate useLayoutEffect that triggers on scroll
 
-      // 4. Image fades in with scale
+      // 4. Image - set initial state (will animate on first scroll)
       if (imageElement) {
         gsap.set(imageElement, { 
           opacity: 0,
           scale: 1.1,
-        });
-        
-        entranceTl.to(imageElement, {
-          opacity: 1,
-          scale: 1,
-          duration: 1.5,
-          ease: 'power2.out',
-        }, '-=0.8');
-      }
-
-      // 5. EXPLORE hint bounces in
-      if (exploreElement) {
-        gsap.set(exploreElement, { 
-          opacity: 0,
-          y: -30,
-          scale: 0.8,
-        });
-        
-        entranceTl.to(exploreElement, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          ease: 'elastic.out(1, 0.6)',
-        }, '-=0.4');
-
-        // Continuous pulsing animation
-        gsap.to(exploreElement, {
-          y: -10,
-          duration: 1.5,
-          ease: 'sine.inOut',
-          yoyo: true,
-          repeat: -1,
-        });
-      }
-
-      // 6. Scroll line animates
-      if (scrollLineElement) {
-        gsap.set(scrollLineElement, { scaleY: 0, transformOrigin: 'top center' });
-        entranceTl.to(scrollLineElement, {
-          scaleY: 1,
-          duration: 1,
-          ease: 'power2.out',
-        }, '-=0.6');
-
-        // Continuous growing/shrinking animation
-        gsap.to(scrollLineElement, {
-          scaleY: 0.7,
-          duration: 1.8,
-          ease: 'sine.inOut',
-          yoyo: true,
-          repeat: -1,
-        });
-      }
-
-      // SCROLL OUT ANIMATIONS - subtle fade as user scrolls
-      if (exploreElement) {
-        gsap.to(exploreElement, {
-          opacity: 0,
-          y: -50,
-          ease: 'power1.in',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=200',
-            scrub: true,
-          },
-        });
-      }
-
-      if (moveoElement) {
-        gsap.to(moveoElement, {
-          y: -40,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=300',
-            scrub: true,
-          },
         });
       }
 
     }, firstSectionRef);
 
     return () => ctx.revert();
+  }, []);
+
+  // Animate image on first scroll
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!firstSectionRef.current) return;
+
+    const imageElement = firstSectionRef.current.querySelector('[data-animate][data-first-animate]') as HTMLElement;
+    if (!imageElement) return;
+
+    const hasImage = imageElement.querySelector('img[alt="Capa Home"]') || 
+                    imageElement.querySelector('img[src*="capahome"]');
+    if (!hasImage) return;
+
+    let hasAnimated = false;
+    let initialScrollY = window.scrollY || window.pageYOffset;
+
+    const handleFirstScroll = () => {
+      if (hasAnimated) return;
+
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      const scrollDelta = Math.abs(currentScrollY - initialScrollY);
+      
+      // Only trigger if user scrolled at least a few pixels
+      if (scrollDelta > 5) {
+        hasAnimated = true;
+
+        // Animate image with the same effect as before
+        gsap.to(imageElement, {
+          opacity: 1,
+          scale: 1,
+          duration: 1.5,
+          ease: 'power2.out',
+        });
+
+        // Remove listener after animation starts
+        window.removeEventListener('scroll', handleFirstScroll);
+      }
+    };
+
+    // Listen for scroll events
+    window.addEventListener('scroll', handleFirstScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleFirstScroll);
+    };
+  }, []);
+
+  // Animate produtora text on first scroll with split text effect
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!firstSectionRef.current) return;
+
+    // Find the text element - try ref first, then fallback to querySelector
+    let textElement: HTMLElement | null = produtoraTextRef.current;
+    
+    if (!textElement && firstSectionRef.current) {
+      // Fallback: find by text content
+      const allTargets = Array.from(firstSectionRef.current.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
+      const produtoraElement = allTargets.find((el) => {
+        const text = el.textContent || '';
+        return text.includes('Produtora boutique') || text.includes('de filmes independentes');
+      });
+      if (produtoraElement) {
+        textElement = produtoraElement.querySelector('[data-animate]') as HTMLElement;
+      }
+    }
+    
+    if (!textElement) return;
+
+    // Set initial state
+    gsap.set(textElement, { 
+      opacity: 0,
+      x: -100,
+      filter: 'blur(10px)',
+    });
+
+    let hasAnimated = false;
+    let initialScrollY = window.scrollY || window.pageYOffset;
+
+    const handleFirstScroll = () => {
+      if (hasAnimated) return;
+
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      const scrollDelta = Math.abs(currentScrollY - initialScrollY);
+      
+      // Only trigger if user scrolled at least a few pixels
+      if (scrollDelta > 5) {
+        hasAnimated = true;
+
+        // Split text into words for animation
+        const originalHTML = textElement.innerHTML;
+        const originalText = textElement.textContent || '';
+        
+        // Simple split by <br /> or <br>
+        const lines = originalHTML.split(/<br\s*\/?>/i);
+        let newHTML = '';
+        
+        lines.forEach((line, lineIndex) => {
+          if (!line.trim()) return;
+          
+          // Get text content from the line
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = line.trim();
+          const lineText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+          
+          if (!lineText) return;
+          
+          // Split into words
+          const words = lineText.split(/\s+/).filter(w => w.length > 0);
+          
+          // Wrap each word in a span
+          words.forEach((word, wordIndex) => {
+            newHTML += `<span class="word">${word}</span>`;
+            if (wordIndex < words.length - 1) {
+              newHTML += ' ';
+            }
+          });
+          
+          // Add <br /> between lines
+          if (lineIndex < lines.length - 1) {
+            newHTML += '<br />';
+          }
+        });
+        
+        // Replace HTML
+        textElement.innerHTML = newHTML;
+        
+        // Get all word elements
+        const wordElements = Array.from(textElement.querySelectorAll('.word')) as HTMLElement[];
+        
+        if (wordElements.length > 0) {
+          // Set initial state for words - visible but positioned below
+          wordElements.forEach((word) => {
+            gsap.set(word, {
+              opacity: 0,
+              y: 15,
+              display: 'inline-block',
+            });
+          });
+          
+          // Make container visible
+          gsap.set(textElement, {
+            opacity: 1,
+            x: 0,
+            filter: 'blur(0px)',
+          });
+          
+          // Animate words with stagger
+          gsap.to(wordElements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.05,
+            ease: 'power3.out',
+          });
+        } else {
+          // Fallback - simple fade in
+          gsap.to(textElement, {
+            opacity: 1,
+            x: 0,
+            filter: 'blur(0px)',
+            duration: 1,
+            ease: 'power3.out',
+          });
+        }
+
+        // Remove listener after animation starts
+        window.removeEventListener('scroll', handleFirstScroll);
+      }
+    };
+
+    // Listen for scroll events
+    window.addEventListener('scroll', handleFirstScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleFirstScroll);
+    };
   }, []);
 
   // Animações para seções de "AS MIÇANGAS" - Scroll Acceleration
@@ -496,13 +614,15 @@ export default function Home() {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-panel]') || []) as HTMLElement[];
       if (!panels.length) return;
 
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
       // Scroll Acceleration para primeira seção (galeria)
       const firstPanel = panels[0];
       if (firstPanel) {
         const cols = Array.from(firstPanel.querySelectorAll('.data-micangas-col')) as HTMLElement[];
-        const st = ScrollTrigger.getById('horizontal-second-track');
         
-        if (st && cols.length) {
+        if (cols.length) {
           const additionalY = { val: 0 };
           let additionalYAnim: gsap.core.Tween | null = null;
           let offset = 0;
@@ -548,7 +668,7 @@ export default function Home() {
             trigger: firstPanel,
             start: 'left 100%',
             end: 'left 0%',
-            containerAnimation: st,
+            containerAnimation: horizontalTrackST,
             onUpdate: (self) => {
               const velocity = self.getVelocity();
               if (velocity > 0) {
@@ -598,7 +718,7 @@ export default function Home() {
                   trigger: panel,
                   start: 'left 80%',
                   end: 'left 20%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -611,14 +731,22 @@ export default function Home() {
         const title = panel.querySelector('.data-micangas-title') as HTMLElement;
         const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
 
+        // Check if this is the first panel (panel 0) - make it visible immediately
+        const isFirstPanel = panel.getAttribute('data-micangas-panel') === '0';
+
         // Title animation - Individual
         if (title) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(title, { opacity: 1, scale: 1, x: 0, rotation: 0 });
+          }
+          
           gsap.fromTo(title,
             { 
-              opacity: 0, 
-              scale: 0.7,
-              x: -50,
-              rotation: -3,
+              opacity: isFirstPanel ? 1 : 0, 
+              scale: isFirstPanel ? 1 : 0.7,
+              x: isFirstPanel ? 0 : -50,
+              rotation: isFirstPanel ? 0 : -3,
             },
             {
               opacity: 1,
@@ -631,7 +759,7 @@ export default function Home() {
                 trigger: title,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -640,11 +768,16 @@ export default function Home() {
 
         // Content fade in - Individual
         if (content) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(content, { opacity: 1, y: 0, scale: 1 });
+          }
+          
           gsap.fromTo(content,
             { 
-              opacity: 0, 
-              y: 40,
-              scale: 0.95,
+              opacity: isFirstPanel ? 1 : 0, 
+              y: isFirstPanel ? 0 : 40,
+              scale: isFirstPanel ? 1 : 0.95,
             },
             {
               opacity: 1,
@@ -656,7 +789,7 @@ export default function Home() {
                 trigger: content,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -677,7 +810,7 @@ export default function Home() {
                   trigger: word,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -689,12 +822,17 @@ export default function Home() {
         const images = Array.from(panel.querySelectorAll('.data-micangas-image')) as HTMLElement[];
         if (images.length) {
           images.forEach((img, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(img, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
             gsap.fromTo(img,
               { 
-                opacity: 0, 
-                scale: 0.8,
-                rotation: index % 2 === 0 ? -5 : 5,
-                y: 30,
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.8,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
+                y: isFirstPanel ? 0 : 30,
               },
               {
                 opacity: 1,
@@ -708,7 +846,7 @@ export default function Home() {
                   trigger: img,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -719,11 +857,10 @@ export default function Home() {
 
       // Parallax effect for background images
       const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-parallax]') || []) as HTMLElement[];
-      const st = ScrollTrigger.getById('horizontal-second-track');
       
-      if (st && parallaxImages.length) {
+      if (horizontalTrackST && parallaxImages.length) {
         const updateParallax = () => {
-          const progress = st.progress;
+          const progress = horizontalTrackST.progress;
           parallaxImages.forEach((img) => {
             const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
             const moveX = -progress * 200 * speed;
@@ -941,19 +1078,30 @@ export default function Home() {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-misterio-panel]') || []) as HTMLElement[];
       if (!panels.length) return;
 
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
       // Animate each panel when it enters viewport
       panels.forEach((panel) => {
         const title = panel.querySelector('.data-misterio-title') as HTMLElement;
         const galleryItems = Array.from(panel.querySelectorAll('.data-misterio-gallery-item')) as HTMLElement[];
 
+        // Check if this is the first panel (panel 0) - make it visible immediately
+        const isFirstPanel = panel.getAttribute('data-misterio-panel') === '0';
+
         // Title animation - Individual
         if (title) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(title, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+          }
+          
           gsap.fromTo(title,
             { 
-              opacity: 0, 
-              scale: 0.6,
-              rotation: 5,
-              y: 50,
+              opacity: isFirstPanel ? 1 : 0, 
+              scale: isFirstPanel ? 1 : 0.6,
+              rotation: isFirstPanel ? 0 : 5,
+              y: isFirstPanel ? 0 : 50,
             },
             {
               opacity: 1,
@@ -966,7 +1114,7 @@ export default function Home() {
                 trigger: title,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -976,12 +1124,17 @@ export default function Home() {
         // Gallery items fade in - Individual animations
         if (galleryItems.length) {
           galleryItems.forEach((item, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
             gsap.fromTo(item,
               { 
-                opacity: 0, 
-                scale: 0.7,
-                rotation: index % 2 === 0 ? -8 : 8,
-                y: 50,
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.7,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -8 : 8),
+                y: isFirstPanel ? 0 : 50,
               },
               {
                 opacity: 1,
@@ -995,7 +1148,7 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1729,6 +1882,9 @@ export default function Home() {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []) as HTMLElement[];
       if (!panels.length) return;
 
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
       // Split text animation
       const splitTexts = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('.split-text') || []);
       splitTexts.forEach((textEl) => {
@@ -1748,8 +1904,16 @@ export default function Home() {
 
         // Content fade in
         if (content) {
+          // Check if this is the first panel (panel 0) - make it visible immediately
+          const isFirstPanel = panel.getAttribute('data-natureza-panel') === '0';
+          
+          if (isFirstPanel) {
+            // For first panel, set visible immediately and animate on scroll
+            gsap.set(content, { opacity: 1, y: 0 });
+          }
+          
           gsap.fromTo(content,
-            { opacity: 0, y: 30 },
+            { opacity: isFirstPanel ? 1 : 0, y: isFirstPanel ? 0 : 30 },
             {
               opacity: 1,
               y: 0,
@@ -1759,7 +1923,7 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1779,7 +1943,7 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1807,7 +1971,7 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1828,7 +1992,7 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1858,7 +2022,7 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1869,13 +2033,21 @@ export default function Home() {
         // Gallery items fade in - Individual animations
         const galleryItems = Array.from(panel.querySelectorAll('.data-natureza-gallery-item')) as HTMLElement[];
         if (galleryItems.length) {
+          // Check if this is the first panel (panel 0) - make items visible immediately
+          const isFirstPanel = panel.getAttribute('data-natureza-panel') === '0';
+          
           galleryItems.forEach((item, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
             gsap.fromTo(item,
               { 
-                opacity: 0, 
-                scale: 0.8,
-                rotation: index % 2 === 0 ? -5 : 5,
-                y: 30,
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.8,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
+                y: isFirstPanel ? 0 : 30,
               },
               {
                 opacity: 1,
@@ -1889,7 +2061,7 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                  containerAnimation: horizontalTrackST,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1910,7 +2082,7 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: ScrollTrigger.getById('horizontal-second-track'),
+                containerAnimation: horizontalTrackST,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1918,11 +2090,10 @@ export default function Home() {
         }
       });
 
-      // Parallax effect baseado no scroll do track
-      const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-parallax]') || []) as HTMLElement[];
-      const st = ScrollTrigger.getById('horizontal-second-track');
-      
-      if (st && parallaxImages.length) {
+        // Parallax effect baseado no scroll do track
+        const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-parallax]') || []) as HTMLElement[];
+        
+        if (horizontalTrackST && parallaxImages.length) {
         const updateParallax = () => {
           const progress = st.progress;
           parallaxImages.forEach((img) => {
@@ -1964,8 +2135,6 @@ export default function Home() {
 
         // Posicionar o conteúdo acima inicialmente (fora da tela)
         gsap.set(content, { y: '-100vh' });
-
-        console.log('Seção 7 - Vertical configurado (de cima para baixo)');
 
         gsap.to(content, {
           y: 0, // Move para baixo até a posição normal
@@ -2290,59 +2459,14 @@ export default function Home() {
   }, [pathname]);
 
   useEffect(() => {
-    let resizeObserver: ResizeObserver | null = null;
-    let rafId: number | null = null;
-
-    // Remove calculation loop
-    /*
-    const calculateProdutoraFontSize = () => {
-      // ... removed dynamic calculation ...
-    };
-    */
-    
-    // Cleanup unused vars
-    // setProdutoraFontSize not used anymore
-
-
-    const runCalculation = () => {
-      rafId = requestAnimationFrame(() => {
-      // Removido cálculo dinâmico de produtoraFontSize para usar tamanho fixo padronizado
-      /*
-      if (
-        produtoraContainerRef.current &&
-        produtoraContainerRef.current.offsetWidth > 0 &&
-        produtoraContainerRef.current.offsetHeight > 0
-      ) {
-        // calculateProdutoraFontSize();
-        
-        if (produtoraContainerRef.current && !resizeObserver) {
-          resizeObserver = new ResizeObserver(() => {
-            // calculateProdutoraFontSize();
-          });
-          resizeObserver.observe(produtoraContainerRef.current);
-        }
-      }
-      */
-      // Mantendo estrutura apenas para não quebrar lógica existente se houver dependências, mas vazio.
-      if (produtoraContainerRef.current && !resizeObserver) {
-          resizeObserver = new ResizeObserver(() => {});
-          resizeObserver.observe(produtoraContainerRef.current);
-      }
-      });
-    };
-
-    runCalculation();
-
     const handleResize = () => {
       calculateDynamicFontSize();
-      // calculateProdutoraFontSize(); // Removed
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         setTimeout(() => {
           calculateDynamicFontSize();
-          // calculateProdutoraFontSize(); // Removed
         }, 100);
       }
     };
@@ -2350,7 +2474,6 @@ export default function Home() {
     const handlePageShow = () => {
       setTimeout(() => {
         calculateDynamicFontSize();
-        // calculateProdutoraFontSize(); // Removed
       }, 100);
     };
 
@@ -2359,51 +2482,12 @@ export default function Home() {
     window.addEventListener('pageshow', handlePageShow);
 
     return () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pageshow', handlePageShow);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
     };
   }, []);
 
-  useEffect(() => {
-    if (pathname === '/') {
-      const timer = setTimeout(() => {
-        if (
-          produtoraContainerRef.current &&
-          produtoraContainerRef.current.offsetWidth > 0 &&
-          produtoraContainerRef.current.offsetHeight > 0
-        ) {
-          /*
-          const targetWidth = produtoraContainerRef.current.offsetWidth;
-          const targetHeight = produtoraContainerRef.current.offsetHeight;
-          const measureElement = document.createElement('div');
-          measureElement.style.position = 'absolute';
-          measureElement.style.visibility = 'hidden';
-          measureElement.style.width = `${targetWidth}px`;
-          measureElement.style.fontFamily = "'Helvetica Neue LT Pro Medium Extended', Arial, Helvetica, sans-serif";
-          measureElement.style.lineHeight = '90%';
-          measureElement.style.fontSize = '100px';
-          measureElement.innerHTML = 'Produtora boutique<br />De filmes independentes';
-          document.body.appendChild(measureElement);
-          const baseWidth = measureElement.offsetWidth;
-          const baseHeight = measureElement.offsetHeight;
-          const widthBasedSize = (targetWidth / baseWidth) * 100;
-          const heightBasedSize = (targetHeight / baseHeight) * 100;
-          const calculatedFontSize = Math.min(widthBasedSize, heightBasedSize);
-          document.body.removeChild(measureElement);
-          setProdutoraFontSize(calculatedFontSize);
-          */
-        }
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname]);
 
   // Calculate font size for "SOBRE A MOVEO" to fill container
   useEffect(() => {
@@ -2532,15 +2616,6 @@ export default function Home() {
         <ScrollHint />
       </div>
 
-      {/* Debug: Indicador de scroll progress */}
-      <div
-        className="fixed top-0 left-0 h-1 bg-red-500 z-[9999] hidden"
-        style={{
-          width: '0%',
-          transition: 'width 0.1s ease-out'
-        }}
-        id="scroll-indicator"
-      />
 
       {/* Espaço inicial para permitir rolagem antes do pin da primeira seção */}
       <div
@@ -2638,7 +2713,7 @@ export default function Home() {
                 }}
               >
                 Produtora boutique<br />
-                De filmes independentes
+                de filmes independentes
               </div>
             </div>
 
@@ -2686,49 +2761,6 @@ export default function Home() {
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
               }}
             />
-
-            {/* EXPLORE hint */}
-            <div
-              data-explore-hint
-              className="absolute z-50 pointer-events-none"
-              style={{
-                right: '80px',
-                bottom: '100px',
-              }}
-            >
-              <div className="flex flex-col items-center gap-3">
-                <div
-                  className="text-white uppercase mix-blend-difference"
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                    fontSize: 'clamp(10px, 0.9vw, 14px)',
-                    fontWeight: 700,
-                    letterSpacing: '0.2em',
-                    writingMode: 'vertical-rl',
-                    textOrientation: 'mixed',
-                  }}
-                >
-                  EXPLORE
-                </div>
-                <div
-                  data-scroll-line
-                  style={{
-                    width: '2px',
-                    height: '60px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  }}
-                />
-                <div
-                  style={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: '6px solid transparent',
-                    borderRight: '6px solid transparent',
-                    borderTop: '10px solid rgba(255, 255, 255, 0.6)',
-                  }}
-                />
-              </div>
-            </div>
 
             {/* Grid Guide Point */}
             <div
@@ -2839,7 +2871,7 @@ export default function Home() {
                               lineHeight: '1.4',
                             }}
                           >
-                            Brasília, desde 2018
+                            Fundada em 2018
                           </p>
                         </div>
                         <div className="relative overflow-hidden rounded-lg" data-second-image>
@@ -2863,11 +2895,11 @@ export default function Home() {
                             lineHeight: '1.4',
                           }}
                         >
-                          Filmes de arte
+                          Baseada em
                           <br />
-                          para o mercado
+                          Brasília,
                           <br />
-                          internacional
+                          Brasil
                         </p>
                       </div>
                     </div>
@@ -2876,8 +2908,9 @@ export default function Home() {
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div 
                       ref={sobreMoveoContainerRef}
-                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex items-center justify-center flex-[1] min-h-0" 
+                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex flex-col items-end justify-end flex-[1] min-h-0 gap-4 relative z-[100]" 
                       data-second-animate
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <div 
                         ref={sobreMoveoTextRef}
@@ -2906,11 +2939,26 @@ export default function Home() {
                           MOVEO
                         </div>
                       </div>
+                      <Link 
+                        href="/sobre"
+                        className="text-white mix-blend-difference opacity-60 hover:opacity-100 transition-opacity duration-300 relative z-[100] cursor-pointer"
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: 'clamp(10px, 0.85vw, 13px)',
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                          textDecoration: 'none',
+                          pointerEvents: 'auto',
+                          position: 'relative',
+                        }}
+                      >
+                        Saiba mais →
+                      </Link>
                     </div>
 
                     <div className="grid grid-cols-3 flex-[2] min-h-0 gap-2">
                       {/* Container esquerdo (esquerda + centro mesclados) */}
-                      <div className="col-span-2 bg-transparent rounded-lg p-4 md:p-6 flex items-end justify-start" data-second-animate>
+                      <div className="col-span-2 bg-transparent rounded-lg flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
                           style={{
@@ -2918,6 +2966,7 @@ export default function Home() {
                             fontWeight: 700,
                             fontSize: FONT_LARGE,
                             lineHeight: '1.2',
+                            marginLeft: `calc(${getMarkerPosition(7)} - 50px - 2rem)`,
                           }}
                         >
                           Focado em
@@ -2991,19 +3040,6 @@ export default function Home() {
                     </p>
                   </div>
 
-                  {/* Container Central */}
-                  <div className="flex-1 bg-transparent flex items-end pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate>
-                    <p
-                      className="text-white mix-blend-difference"
-                      style={{
-                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                        fontSize: FONT_MEDIUM,
-                        lineHeight: '1.4',
-                      }}
-                    >
-                      Filmes de arte para o mercado internacional
-                    </p>
-                  </div>
 
                   {/* Container Inferior - Grid 2 linhas x 4 colunas */}
                   <div className="flex-1 grid grid-cols-4 grid-rows-4 min-h-0 gap-2">
@@ -3088,7 +3124,7 @@ export default function Home() {
                   </div>
 
                   {/* Container grande mesclado: Text - third */}
-                  <div className="col-span-4 row-span-3 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 col-start-1 row-start-3" data-third-animate>
+                  <div className="col-span-4 row-span-3 bg-transparent flex items-end justify-start pr-4 md:pr-6 lg:pr-8 pl-0 pb-0 col-start-1 row-start-3" data-third-animate>
                     <h2
                       className="text-white uppercase text-left mix-blend-difference"
                       style={{
@@ -3099,7 +3135,13 @@ export default function Home() {
                         fontWeight: 300,
                       }}
                     >
-                      Filmes <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>destaque</span> do nosso catálogo
+                      FILMES DE
+                      <br />
+                      <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>ARTE</span> PARA
+                      <br />
+                      O MERCADO
+                      <br />
+                      INTERNACIONAL
                     </h2>
                   </div>
 
@@ -3276,8 +3318,8 @@ export default function Home() {
                   textTransform: 'uppercase',
                   letterSpacing: '-0.05em',
                   color: 'rgba(255, 255, 255, 0.95)',
-                  opacity: 0,
-                  transform: 'scale(0.8)',
+                  opacity: 1,
+                  transform: 'scale(1)',
                   mixBlendMode: 'difference',
                   textShadow: '0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.2)',
                 }}
@@ -3305,8 +3347,8 @@ export default function Home() {
                     aspectRatio: '3/4',
                     position: 'relative',
                     overflow: 'hidden',
-                    opacity: 0,
-                    transform: 'scale(0.9)',
+                    opacity: 1,
+                    transform: 'scale(1)',
                     filter: 'saturate(0)',
                     transition: 'filter 0.3s ease',
                   }}
@@ -3353,10 +3395,6 @@ export default function Home() {
             >
               <div 
                 className="data-natureza-content"
-                style={{
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                }}
               >
                 <div
                   style={{
@@ -3504,8 +3542,6 @@ export default function Home() {
               style={{
                 width: '80%',
                 maxWidth: '900px',
-                opacity: 0,
-                transform: 'translateY(30px)',
                 zIndex: 3,
               }}
             >
@@ -3651,10 +3687,6 @@ export default function Home() {
             >
               <div 
                 className="data-natureza-content"
-                style={{
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                }}
               >
                 <div
                   style={{
@@ -3725,10 +3757,6 @@ export default function Home() {
             >
               <div 
                 className="data-natureza-content"
-                style={{
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                }}
               >
                 <div
                   style={{
@@ -3834,8 +3862,8 @@ export default function Home() {
                   maxWidth: '800px',
                   mixBlendMode: 'difference',
                   color: 'white',
-                  opacity: 0,
-                  transform: 'scale(0.8)',
+                  opacity: 1,
+                  transform: 'scale(1)',
                 }}
               >
                 AS MIÇANGAS
@@ -4099,10 +4127,6 @@ export default function Home() {
             >
               <div 
                 className="data-micangas-content"
-                style={{
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                }}
               >
                 <div
                   style={{
@@ -4228,8 +4252,8 @@ export default function Home() {
                   maxWidth: '800px',
                   mixBlendMode: 'difference',
                   color: 'white',
-                  opacity: 0,
-                  transform: 'scale(0.8)',
+                  opacity: 1,
+                  transform: 'scale(1)',
                 }}
               >
                 O MISTÉRIO DA CARNE
@@ -4255,8 +4279,8 @@ export default function Home() {
                     aspectRatio: '3/4',
                     position: 'relative',
                     overflow: 'hidden',
-                    opacity: 0,
-                    transform: 'scale(0.9)',
+                    opacity: 1,
+                    transform: 'scale(1)',
                     filter: 'saturate(0)',
                     transition: 'filter 0.3s ease',
                   }}
