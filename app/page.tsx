@@ -8,6 +8,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
+import ContentTransition from './components/ContentTransition';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import {
   getMarkerPosition,
@@ -110,6 +111,8 @@ export default function Home() {
   const dragonflySectionRef = useRef<HTMLDivElement>(null);
   const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
   const dragonflyPinRef = useRef<HTMLDivElement>(null);
+  const cinemaSectionRef = useRef<HTMLElement | null>(null);
+  const arquivoSectionRef = useRef<HTMLElement | null>(null);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
   // Activate spectacular animation hooks
@@ -127,6 +130,81 @@ export default function Home() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
+
+  // Adjust MOVEO title position for smaller screens to prevent overlap with image
+  useEffect(() => {
+    if (!textRef.current) return;
+
+    const updateTitlePosition = () => {
+      if (!textRef.current) return;
+      
+      const height = window.innerHeight;
+      const width = window.innerWidth;
+      
+      // For screens with width < 911px - need moderate adjustments
+      if (width < 911) {
+        const baseOffset = 25; // Original offset
+        
+        // Add moderate offset for very narrow screens
+        let additionalOffset = 0;
+        if (width < 600) {
+          additionalOffset = 35;
+        } else if (width < 700) {
+          additionalOffset = 30;
+        } else if (width < 800) {
+          additionalOffset = 25;
+        } else if (width < 911) {
+          additionalOffset = 20;
+        }
+        
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else if (height <= 911 && width < 1864) {
+        // For screens with height <= 911px and width >= 911px but < 1864px
+        const baseOffset = 25; // Original offset
+        
+        // Add moderate offset for narrower screens
+        let additionalOffset = 0;
+        if (width < 1000) {
+          additionalOffset = 40;
+        } else if (width < 1200) {
+          additionalOffset = 35;
+        } else if (width < 1400) {
+          additionalOffset = 30;
+        } else if (width < 1600) {
+          additionalOffset = 25;
+        } else if (width < 1864) {
+          additionalOffset = 20;
+        }
+        
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else if (height <= 1000 && width < 2000) {
+        // Also adjust for slightly taller screens that are still narrow
+        const baseOffset = 25;
+        let additionalOffset = 0;
+        if (width < 1500) {
+          additionalOffset = 20;
+        } else if (width < 1700) {
+          additionalOffset = 15;
+        } else if (width < 2000) {
+          additionalOffset = 10;
+        }
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else {
+        // Reset to original for larger screens
+        textRef.current.style.bottom = `calc(100% - ${getHorizontalLinePosition('F')} + 25px)`;
+      }
+    };
+
+    updateTitlePosition();
+    window.addEventListener('resize', updateTitlePosition);
+    
+    return () => {
+      window.removeEventListener('resize', updateTitlePosition);
+    };
+  }, []);
 
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition('F')} - ${getHorizontalLinePosition('E')}) / 2)`;
   const centerLeft = `calc(${getMarkerPosition(7)} + (${getMarkerPosition(8)} - ${getMarkerPosition(7)}) / 2)`;
@@ -1684,6 +1762,294 @@ export default function Home() {
     return () => ctx.revert();
   }, [mainTrackReady]);
 
+  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!dragonflySectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(dragonflySectionRef.current);
+      const imageTargets = q('[data-catalog-image]') as HTMLElement[];
+      const contentTargets = q('[data-catalog-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Animation variants for catalog section
+      const catalogImageVariants = [
+        { x: -100, y: 120, rotate: -3, scale: 1.15, blur: 10 },
+      ];
+
+      const catalogContentVariants = [
+        { x: -60, y: 80, scale: 1.08, blur: 8 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = catalogImageVariants[index] || catalogImageVariants[0];
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 80%',
+              end: 'top 40%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      contentTargets.forEach((target, index) => {
+        const variant = catalogContentVariants[index] || catalogContentVariants[0];
+
+        gsap.set(target, { autoAlpha: 1 });
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 85%',
+              end: 'top 50%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, dragonflySectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // ScrollTrigger animations for Cinema Section (CATÁLOGO/CINEMA)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!cinemaSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(cinemaSectionRef.current);
+      const imageTargets = q('[data-cinema-image]') as HTMLElement[];
+      const contentTargets = q('[data-cinema-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Animation variants for cinema section
+      const cinemaImageVariants = [
+        { x: -80, y: 100, rotate: -2, scale: 1.12, blur: 9 },
+        { x: 70, y: 110, rotate: 2, scale: 1.14, blur: 10 },
+      ];
+
+      const cinemaContentVariants = [
+        { x: -50, y: 70, scale: 1.06, blur: 7 },
+        { x: 40, y: 75, scale: 1.07, blur: 7 },
+        { x: -45, y: 65, scale: 1.05, blur: 6 },
+        { x: 50, y: 80, scale: 1.08, blur: 8 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = cinemaImageVariants[index] || cinemaImageVariants[0];
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 80%',
+              end: 'top 40%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      contentTargets.forEach((target, index) => {
+        const variant = cinemaContentVariants[index] || cinemaContentVariants[0];
+
+        gsap.set(target, { autoAlpha: 1 });
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 85%',
+              end: 'top 50%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, cinemaSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // ScrollTrigger animations for Arquivo Section (ARQUIVO MOVEL)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!arquivoSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(arquivoSectionRef.current);
+      const imageTargets = q('[data-arquivo-image]') as HTMLElement[];
+      const contentTargets = q('[data-arquivo-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Animation variants for arquivo section
+      const arquivoImageVariants = [
+        { x: -90, y: 130, rotate: -3, scale: 1.13, blur: 11 },
+        { x: 85, y: 125, rotate: 2.5, scale: 1.15, blur: 12 },
+        { x: -75, y: 140, rotate: -2, scale: 1.12, blur: 10 },
+      ];
+
+      const arquivoContentVariants = [
+        { x: -55, y: 90, scale: 1.09, blur: 8 },
+        { x: 45, y: 85, scale: 1.08, blur: 7 },
+        { x: -50, y: 75, scale: 1.07, blur: 7 },
+        { x: 40, y: 80, scale: 1.06, blur: 6 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = arquivoImageVariants[index] || arquivoImageVariants[0];
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 80%',
+              end: 'top 40%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      contentTargets.forEach((target, index) => {
+        const variant = arquivoContentVariants[index] || arquivoContentVariants[0];
+
+        gsap.set(target, { autoAlpha: 1 });
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 85%',
+              end: 'top 50%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, arquivoSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   // ScrollTrigger para terceiro track horizontal (Além dos filmes / Notícias / Contato)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2670,10 +3036,10 @@ export default function Home() {
             <div
               ref={textRef}
               data-first-animate
-              className="absolute text-white uppercase z-30 mix-blend-difference"
+              className="absolute text-white uppercase z-30 mix-blend-difference moveo-title"
               style={{
-                left: 0,
-                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 50px)`,
+                left: '-20px',
+                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 25px)`,
                 fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
                 fontSize: `${dynamicFontSize}px`,
                 lineHeight: '77.3%',
@@ -2700,7 +3066,7 @@ export default function Home() {
               <div
                 ref={produtoraTextRef}
                 data-animate
-                className="absolute text-white mix-blend-difference"
+                className="absolute text-white mix-blend-difference produtora-subtitle"
                 style={{
                   left: '0',
                   top: '25%',
@@ -3208,7 +3574,7 @@ export default function Home() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {/* Left - Text Content */}
-              <div>
+              <div data-catalog-animate>
                 <div
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
@@ -3251,6 +3617,7 @@ export default function Home() {
               {/* Right - Featured Image */}
               <div
                 className="relative w-full aspect-[4/5] overflow-hidden"
+                data-catalog-image
                 style={{
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}
@@ -3832,6 +4199,22 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Seção de Transição - ContentTransition */}
+          <section
+            className="horizontal-section relative flex-shrink-0"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              position: 'relative',
+            }}
+          >
+            <ContentTransition
+              leftText={{ line1: "A NATUREZA", line2: "DAS COISAS INVISÍVEIS" }}
+              rightText={{ line1: "AS", line2: "MIÇANGAS" }}
+              boxCount={100}
+            />
+          </section>
 
           {/* Seção 1 - AS MIÇANGAS - Title Only with Scroll Acceleration Gallery */}
           <section
@@ -4468,7 +4851,7 @@ export default function Home() {
           overflow: 'visible',
         }}
       >
-        <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
+        <section ref={cinemaSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0">
@@ -4500,6 +4883,7 @@ export default function Home() {
                   {/* Título centralizado */}
                   <h3
                     className="font-black text-white transform -rotate-90 origin-center whitespace-nowrap"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -4520,6 +4904,7 @@ export default function Home() {
                 >
                   <h2
                     className="font-black tracking-tight text-white"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -4533,7 +4918,7 @@ export default function Home() {
                 </div>
 
                 {/* Quadrado superior direito - imagem */}
-                <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden">
+                <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 10.png"
                     alt="Catálogo Cinema placeholder 1"
@@ -4548,7 +4933,7 @@ export default function Home() {
                   className="col-span-5 row-span-3 bg-transparent p-4 md:p-8 flex items-start justify-start min-h-0"
                   style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
-                  <div>
+                  <div data-cinema-animate>
                     <p
                       className="text-white font-bold"
                       style={{
@@ -4587,6 +4972,7 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-bold mix-blend-difference"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -4600,7 +4986,7 @@ export default function Home() {
                 </div>
 
                 {/* Retângulo horizontal inferior - imagem */}
-                <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden">
+                <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 8.png"
                     alt="Catálogo Cinema placeholder 2"
@@ -4614,6 +5000,7 @@ export default function Home() {
                 <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                   <p
                     className="text-white font-bold mix-blend-difference"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -4642,12 +5029,12 @@ export default function Home() {
           overflow: 'visible',
         }}
       >
-        <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
+        <section ref={arquivoSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
             <div className="w-full h-full relative" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
                 {/* Coluna imagem esquerda */}
-                <div className="col-span-2 row-span-8 relative overflow-hidden">
+                <div className="col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 12.png"
                     alt="Arquivo móvel imagem 4"
@@ -4664,6 +5051,7 @@ export default function Home() {
                 >
                   <h1
                     className="font-black tracking-tighter leading-none text-white mix-blend-difference"
+                    data-arquivo-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -4676,6 +5064,7 @@ export default function Home() {
                   <Link
                     href="/catalogo/mostras-e-exposicoes"
                     className="mt-6 inline-flex items-center gap-2 px-4 py-2 border border-white/40 hover:border-white transition-colors uppercase"
+                    data-arquivo-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
@@ -4693,6 +5082,7 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-light leading-tight mix-blend-difference"
+                    data-arquivo-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_MEDIUM,
@@ -4712,6 +5102,7 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-light leading-relaxed mix-blend-difference"
+                    data-arquivo-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
@@ -4725,7 +5116,7 @@ export default function Home() {
                 </div>
 
                 {/* Imagens à direita */}
-                <div className="col-start-8 col-span-4 row-start-1 row-span-3 relative overflow-hidden">
+                <div className="col-start-8 col-span-4 row-start-1 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 10.png"
                     alt="Arquivo móvel imagem 1"
@@ -4734,7 +5125,7 @@ export default function Home() {
                     unoptimized
                   />
                 </div>
-                <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden">
+                <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 9.png"
                     alt="Arquivo móvel imagem 2"

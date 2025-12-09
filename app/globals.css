@@ -549,3 +549,127 @@ body {
   transform: scaleX(1);
   transform-origin: left center;
 }
+
+/* Fix for subtitle overlapping title on wide screens */
+/* For screens with width > 1811px when height is around 922px */
+/* Using aspect ratio to detect wide screens */
+@media (min-aspect-ratio: 197/100) {
+  .produtora-subtitle {
+    top: 15% !important;
+  }
+}
+
+/* More aggressive fix for very wide screens (aspect ratio > 2.2:1) */
+@media (min-aspect-ratio: 22/10) {
+  .produtora-subtitle {
+    top: 10% !important;
+  }
+}
+
+/* Additional fix using min-width for very wide screens */
+/* This catches cases where width is very large regardless of height */
+@media (min-width: 1800px) and (max-height: 1000px) {
+  .produtora-subtitle {
+    top: 12% !important;
+  }
+}
+
+@media (min-width: 2000px) and (max-height: 1000px) {
+  .produtora-subtitle {
+    top: 8% !important;
+  }
+}
+
+/* Fix for MOVEO title being hidden behind image on smaller screens */
+/* For screens with height <= 911px and width < 1864px */
+/* Uses translateY to move title up moderately */
+@media (max-height: 911px) and (max-width: 1863px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-30px) !important;
+  }
+}
+
+/* More specific fix for narrower screens */
+@media (max-height: 911px) and (max-width: 1600px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-40px) !important;
+  }
+}
+
+/* Even more aggressive fix for very narrow screens */
+@media (max-height: 911px) and (max-width: 1400px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-50px) !important;
+  }
+}
+
+/* Additional fix for screens with lower aspect ratio */
+@media (max-height: 911px) and (max-width: 1200px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-60px) !important;
+  }
+}
+
+/* Very narrow screens */
+@media (max-height: 911px) and (max-width: 1000px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-70px) !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-height: 911px) and (max-width: 800px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-80px) !important;
+  }
+}
+
+/* Additional breakpoints for better coverage */
+@media (max-height: 1000px) and (max-width: 1500px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-25px) !important;
+  }
+}
+
+@media (max-height: 950px) and (max-width: 1700px) {
+  .moveo-title {
+    transform: translateX(-1.55%) translateY(-20px) !important;
+  }
+}
+
+/* Adjust horizontal position for screens with width < 1700px */
+@media (max-width: 1699px) {
+  .moveo-title {
+    left: -5px !important;
+  }
+}
+
+/* Adjust position for screens with width < 911px - move up and to the right */
+@media (max-width: 910px) {
+  .moveo-title {
+    left: 5px !important;
+    transform: translateX(-1.55%) translateY(-30px) !important;
+  }
+}
+
+/* More aggressive adjustments for very narrow screens */
+@media (max-width: 800px) {
+  .moveo-title {
+    left: 8px !important;
+    transform: translateX(-1.55%) translateY(-40px) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .moveo-title {
+    left: 10px !important;
+    transform: translateX(-1.55%) translateY(-50px) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .moveo-title {
+    left: 12px !important;
+    transform: translateX(-1.55%) translateY(-60px) !important;
+  }
+}
