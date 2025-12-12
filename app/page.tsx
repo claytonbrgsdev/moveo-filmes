@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,6 +10,7 @@ import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
 import ContentTransition from './components/ContentTransition';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
   getMarkerPosition,
   getHorizontalLinePosition,
@@ -23,26 +24,6 @@ import {
   useScrollProgress,
 } from './hooks/useSpectacularAnimations';
 
-const newsHighlights = [
-  {
-    title: 'Mostra Internacional 2025',
-    summary: 'Dois longas autorais selecionados para Rotterdam exibindo a estética MOVEO.',
-    date: 'Março 2025',
-    tag: 'Festival',
-  },
-  {
-    title: 'Residência Criativa DF',
-    summary: 'Laboratório imersivo de direção com foco em narrativas híbridas e arquivos vivos.',
-    date: 'Junho 2025',
-    tag: 'Residência',
-  },
-  {
-    title: 'Co-produção transatlântica',
-    summary: 'Novo filme em parceria com estúdios europeus amplia a presença da produtora.',
-    date: 'Agosto 2025',
-    tag: 'Produção',
-  },
-];
 
 const newsImages = [
   '/imagens/secao2home/Rectangle 10.png',
@@ -82,6 +63,29 @@ const PLACEHOLDER_IMAGES = {
 };
 
 export default function Home() {
+  const { language, t } = useLanguage();
+  
+  // News highlights traduzidos baseados no idioma
+  const newsHighlights = [
+    {
+      title: t('mostraInternacional2025'),
+      summary: t('mostraInternacional2025Summary'),
+      date: t('marco2025'),
+      tag: t('festival'),
+    },
+    {
+      title: t('residenciaCriativaDF'),
+      summary: t('residenciaCriativaDFSummary'),
+      date: t('junho2025'),
+      tag: t('residencia'),
+    },
+    {
+      title: t('coproducaoTransatlantica'),
+      summary: t('coproducaoTransatlanticaSummary'),
+      date: t('agosto2025'),
+      tag: t('producaoTag'),
+    },
+  ];
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
@@ -141,60 +145,76 @@ export default function Home() {
       const height = window.innerHeight;
       const width = window.innerWidth;
       
+      // Base reference: width 1336px, height 698px está ok
+      const referenceWidth = 1336;
+      const referenceHeight = 698;
+      const baseOffset = 25; // Original offset
+      
+      // Calcular offset adicional baseado na altura quando width >= 1336px
+      let additionalOffset = 0;
+      
+      // Para telas com width >= 1336px, ajustar baseado na altura
+      if (width >= referenceWidth) {
+        if (height < referenceHeight) {
+          // Altura menor que referência, precisa de mais espaço
+          const heightDiff = referenceHeight - height;
+          // Aplicar offset proporcional: a cada 50px de altura perdida, adicionar ~15px de offset
+          additionalOffset = Math.floor((heightDiff / 50) * 15);
+          // Limitar offset máximo para evitar posicionamento extremo
+          additionalOffset = Math.min(additionalOffset, 80);
+        }
+      }
+      
       // For screens with width < 911px - need moderate adjustments
       if (width < 911) {
-        const baseOffset = 25; // Original offset
-        
         // Add moderate offset for very narrow screens
-        let additionalOffset = 0;
+        let widthOffset = 0;
         if (width < 600) {
-          additionalOffset = 35;
+          widthOffset = 35;
         } else if (width < 700) {
-          additionalOffset = 30;
+          widthOffset = 30;
         } else if (width < 800) {
-          additionalOffset = 25;
+          widthOffset = 25;
         } else if (width < 911) {
-          additionalOffset = 20;
+          widthOffset = 20;
         }
         
-        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset}px)`;
         textRef.current.style.bottom = newBottom;
       } else if (height <= 911 && width < 1864) {
         // For screens with height <= 911px and width >= 911px but < 1864px
-        const baseOffset = 25; // Original offset
-        
         // Add moderate offset for narrower screens
-        let additionalOffset = 0;
+        let widthOffset = 0;
         if (width < 1000) {
-          additionalOffset = 40;
+          widthOffset = 40;
         } else if (width < 1200) {
-          additionalOffset = 35;
+          widthOffset = 35;
         } else if (width < 1400) {
-          additionalOffset = 30;
+          widthOffset = 30;
         } else if (width < 1600) {
-          additionalOffset = 25;
+          widthOffset = 25;
         } else if (width < 1864) {
-          additionalOffset = 20;
+          widthOffset = 20;
         }
         
-        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset + additionalOffset}px)`;
         textRef.current.style.bottom = newBottom;
       } else if (height <= 1000 && width < 2000) {
         // Also adjust for slightly taller screens that are still narrow
-        const baseOffset = 25;
-        let additionalOffset = 0;
+        let widthOffset = 0;
         if (width < 1500) {
-          additionalOffset = 20;
+          widthOffset = 20;
         } else if (width < 1700) {
-          additionalOffset = 15;
+          widthOffset = 15;
         } else if (width < 2000) {
-          additionalOffset = 10;
+          widthOffset = 10;
         }
-        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset + additionalOffset}px)`;
         textRef.current.style.bottom = newBottom;
       } else {
-        // Reset to original for larger screens
-        textRef.current.style.bottom = `calc(100% - ${getHorizontalLinePosition('F')} + 25px)`;
+        // Para telas maiores, aplicar offset baseado na altura se necessário
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
       }
     };
 
@@ -2725,6 +2745,16 @@ export default function Home() {
       const targetWidth = containerRef.current.offsetWidth;
       if (targetWidth === 0) return;
 
+      const height = window.innerHeight;
+      const width = window.innerWidth;
+      
+      // Base reference: width 1336px, height 698px está ok
+      // Para alturas menores que 698px, precisamos reduzir o tamanho da fonte
+      const referenceWidth = 1336;
+      const referenceHeight = 698;
+      const minHeight = 400; // Altura mínima para evitar overflow extremo
+      
+      // Calcular proporção baseada na largura
       const measureElement = document.createElement('div');
       measureElement.style.position = 'absolute';
       measureElement.style.visibility = 'hidden';
@@ -2736,9 +2766,41 @@ export default function Home() {
       document.body.appendChild(measureElement);
 
       const baseWidth = measureElement.offsetWidth;
-      const calculatedFontSize = (targetWidth / baseWidth) * 100;
+      let calculatedFontSize = (targetWidth / baseWidth) * 100;
+      
+      // Ajustar baseado na altura se necessário
+      // Se a altura for menor que a referência (698px), reduzir proporcionalmente
+      if (height < referenceHeight) {
+        // Calcular fator de redução baseado na altura
+        // Usar uma curva suave para a redução, mas mais agressiva para alturas muito pequenas
+        const heightRatio = Math.max(height / referenceHeight, minHeight / referenceHeight);
+        // Aplicar redução progressiva: quanto menor a altura, maior a redução
+        // Usar exponencial para reduzir mais agressivamente em alturas muito pequenas
+        const heightFactor = Math.pow(heightRatio, 0.75); // Curva mais agressiva
+        calculatedFontSize = calculatedFontSize * heightFactor;
+      }
+      
+      // Para telas com width >= 1336px e altura < 698px, aplicar redução adicional baseada no aspect ratio
+      if (width >= referenceWidth && height < referenceHeight) {
+        // Se a largura é >= 1336px mas altura < 698px, aplicar redução adicional
+        const aspectRatio = width / height;
+        const referenceAspectRatio = referenceWidth / referenceHeight; // ~1.91
+        if (aspectRatio > referenceAspectRatio) {
+          // Tela mais "achatada" que a referência, reduzir mais
+          // Quanto maior a diferença no aspect ratio, maior a redução
+          const aspectFactor = Math.min(1, referenceAspectRatio / aspectRatio);
+          calculatedFontSize = calculatedFontSize * aspectFactor;
+        }
+      }
+      
+      // Aplicar redução adicional para alturas muito pequenas (< 500px)
+      if (height < 500) {
+        const extraReduction = height / 500; // Redução linear adicional
+        calculatedFontSize = calculatedFontSize * extraReduction;
+      }
+      
       document.body.removeChild(measureElement);
-      setDynamicFontSize(calculatedFontSize);
+      setDynamicFontSize(Math.max(calculatedFontSize, 30)); // Tamanho mínimo de 30px
     };
 
   useEffect(() => {
@@ -3067,6 +3129,7 @@ export default function Home() {
                 ref={produtoraTextRef}
                 data-animate
                 className="absolute text-white mix-blend-difference produtora-subtitle"
+                suppressHydrationWarning
                 style={{
                   left: '0',
                   top: '25%',
@@ -3078,8 +3141,12 @@ export default function Home() {
                   padding: 0,
                 }}
               >
-                Produtora boutique<br />
-                de filmes independentes
+                {t('produtoraBoutiqueShort').split('\n').map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}
+                    {i < t('produtoraBoutiqueShort').split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
               </div>
             </div>
 
@@ -3231,13 +3298,14 @@ export default function Home() {
                         <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 pl-0 flex items-end justify-start" data-second-animate>
                           <p
                             className="text-white mix-blend-difference"
+                            suppressHydrationWarning
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                               fontSize: FONT_SMALL,
                               lineHeight: '1.4',
                             }}
                           >
-                            Fundada em 2018
+                            {t('fundadaEm2018')}
                           </p>
                         </div>
                         <div className="relative overflow-hidden rounded-lg" data-second-image>
@@ -3255,17 +3323,19 @@ export default function Home() {
                       <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 pl-0 flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                             fontSize: FONT_MEDIUM,
                             lineHeight: '1.4',
                           }}
                         >
-                          Baseada em
-                          <br />
-                          Brasília,
-                          <br />
-                          Brasil
+                          {t('baseadaEmBrasilia').split('\n').map((line, i) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              {i < t('baseadaEmBrasilia').split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
                         </p>
                       </div>
                     </div>
@@ -3281,6 +3351,7 @@ export default function Home() {
                       <div 
                         ref={sobreMoveoTextRef}
                         className="text-white uppercase text-center mix-blend-difference" 
+                        suppressHydrationWarning
                         style={{
                           fontSize: `${sobreMoveoFontSize}px`,
                           lineHeight: '0.9',
@@ -3288,26 +3359,29 @@ export default function Home() {
                         }}
                       >
                         <div
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 300,
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          SOBRE A
+                          {t('sobreAMoveo').split('\n')[0]}
                         </div>
                         <div
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 700,
                           }}
                         >
-                          MOVEO
+                          {t('sobreAMoveo').split('\n')[1]}
                         </div>
                       </div>
                       <Link 
                         href="/sobre"
                         className="text-white mix-blend-difference opacity-60 hover:opacity-100 transition-opacity duration-300 relative z-[100] cursor-pointer"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(10px, 0.85vw, 13px)',
@@ -3318,7 +3392,7 @@ export default function Home() {
                           position: 'relative',
                         }}
                       >
-                        Saiba mais →
+                        {t('saibaMais')}
                       </Link>
                     </div>
 
@@ -3327,6 +3401,7 @@ export default function Home() {
                       <div className="col-span-2 bg-transparent rounded-lg flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 700,
@@ -3335,13 +3410,12 @@ export default function Home() {
                             marginLeft: `calc(${getMarkerPosition(7)} - 50px - 2rem)`,
                           }}
                         >
-                          Focado em
-                          <br />
-                          promissores
-                          <br />
-                          cineastas
-                          <br />
-                          brasileiros
+                          {t('focadoEmCineastas').split('\n').map((line, i) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              {i < t('focadoEmCineastas').split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
                         </p>
                       </div>
 
@@ -3383,9 +3457,10 @@ export default function Home() {
                 {/* Container Esquerdo - Dividido em 3 partes horizontais */}
                 <div className="flex flex-col h-full min-h-0">
                   {/* Container Superior */}
-                  <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text>
+                  <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text suppressHydrationWarning>
                     <p
                       className="text-white mix-blend-difference"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
@@ -3400,9 +3475,9 @@ export default function Home() {
                         margin: 0,
                       }}
                     >
-                      <span style={{ display: 'block', width: '100%' }}>Um histórico sólido</span>
-                      <span style={{ display: 'block', width: '100%' }}>de colaborações com</span>
-                      <span style={{ display: 'block', width: '100%' }}>talentos emergentes</span>
+                      {t('historicoSolidodeColaboracoes').split('\n').map((line, i) => (
+                        <span key={i} suppressHydrationWarning style={{ display: 'block', width: '100%' }}>{line}</span>
+                      ))}
                     </p>
                   </div>
 
@@ -3501,13 +3576,27 @@ export default function Home() {
                         fontWeight: 300,
                       }}
                     >
-                      FILMES DE
-                      <br />
-                      <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>ARTE</span> PARA
-                      <br />
-                      O MERCADO
-                      <br />
-                      INTERNACIONAL
+                      {language === 'pt' ? (
+                        <>
+                          FILMES DE
+                          <br />
+                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>ARTE</span> PARA
+                          <br />
+                          O MERCADO
+                          <br />
+                          INTERNACIONAL
+                        </>
+                      ) : (
+                        <>
+                          ART FILMS
+                          <br />
+                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>FOR</span> THE
+                          <br />
+                          INTERNATIONAL
+                          <br />
+                          MARKET
+                        </>
+                      )}
                     </h2>
                   </div>
 
@@ -3576,6 +3665,7 @@ export default function Home() {
               {/* Left - Text Content */}
               <div data-catalog-animate>
                 <div
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
@@ -3585,10 +3675,11 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.5)',
                   }}
                 >
-                  Nossos Filmes
+                  {t('nossosFilmes')}
                 </div>
                 <h2
                   ref={dragonflyHeadingRef}
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                     fontSize: 'clamp(48px, 7vw, 120px)',
@@ -3599,9 +3690,10 @@ export default function Home() {
                     color: 'white',
                   }}
                 >
-                  Catálogo em Destaque
+                  {t('catalogoEmDestaque')}
                 </h2>
                 <p
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(16px, 1.5vw, 22px)',
@@ -3610,7 +3702,7 @@ export default function Home() {
                     maxWidth: '90%',
                   }}
                 >
-                  Explore nossa seleção de obras que marcaram festivais internacionais e conquistaram audiências ao redor do mundo. De longas-metragens a curtas experimentais, cada projeto representa nossa dedicação à narrativa cinematográfica de excelência.
+                  {t('exploreNossaSelecao')}
                 </p>
               </div>
 
@@ -3677,6 +3769,7 @@ export default function Home() {
             >
               <h2 
                 className="data-natureza-content"
+                suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                   fontSize: 'clamp(60px, 8vw, 140px)',
@@ -3691,7 +3784,7 @@ export default function Home() {
                   textShadow: '0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.2)',
                 }}
               >
-                A NATUREZA DAS COISAS INVISÍVEIS
+                {t('aNaturezaDasCoisasInvisiveis')}
               </h2>
             </div>
 
@@ -3764,6 +3857,7 @@ export default function Home() {
                 className="data-natureza-content"
               >
                 <div
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
@@ -3773,10 +3867,11 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  O Filme
+                  {t('oFilme')}
                 </div>
                 <h1 
                   className="data-natureza-title split-text"
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                     fontSize: 'clamp(24px, 3vw, 48px)',
@@ -3787,7 +3882,7 @@ export default function Home() {
                     color: 'white',
                   }}
                 >
-                  A Natureza das Coisas Invisíveis
+                  {t('aNaturezaDasCoisasInvisiveisTitle')}
                 </h1>
                 <div 
                   className="data-natureza-text"
@@ -3800,8 +3895,8 @@ export default function Home() {
                     marginBottom: 'clamp(30px, 4vh, 50px)',
                   }}
                 >
-                  <p className="split-text">
-                    Primeiro longa-metragem internacional da Moveo Filmes. Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas.
+                  <p className="split-text" suppressHydrationWarning>
+                    {t('naturezaDescription')}
                   </p>
                 </div>
 
@@ -3819,16 +3914,16 @@ export default function Home() {
                   }}
                 >
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Ano:</strong> 2025
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('ano')}</strong> 2025
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Coprodução:</strong> Brasil-Chile
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('coproducao')}</strong> Brasil-Chile
                   </div>
                   <div>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
                   </div>
                 </div>
               </div>
@@ -3913,6 +4008,7 @@ export default function Home() {
               }}
             >
               <div
+                suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(10px, 0.9vw, 13px)',
@@ -3922,7 +4018,7 @@ export default function Home() {
                   color: 'rgba(255, 255, 255, 0.6)',
                 }}
               >
-                Estreia Mundial
+                {t('estreiaMundial')}
               </div>
               <h2 
                 className="data-natureza-title split-text"
@@ -3976,9 +4072,10 @@ export default function Home() {
                       color: 'rgba(255, 255, 255, 0.5)',
                     }}
                   >
-                    Festivais
+                    {t('festivais')}
                   </div>
                   <div
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                       fontSize: 'clamp(12px, 1.1vw, 15px)',
@@ -3987,13 +4084,13 @@ export default function Home() {
                     }}
                   >
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
-                      <strong>Colômbia:</strong> 64º Cartagena
+                      <strong>{t('colombia')}</strong> 64º Cartagena
                     </div>
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
-                      <strong>México:</strong> 40º Guadalajara
+                      <strong>{t('mexico')}</strong> 40º Guadalajara
                     </div>
                     <div>
-                      <strong>EUA:</strong> 51º Seattle
+                      <strong>{t('eua')}</strong> 51º Seattle
                     </div>
                   </div>
                 </div>
@@ -4008,9 +4105,10 @@ export default function Home() {
                       color: 'rgba(255, 255, 255, 0.5)',
                     }}
                   >
-                    Prêmios
+                    {t('premios')}
                   </div>
                   <div
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                       fontSize: 'clamp(12px, 1.1vw, 15px)',
@@ -4019,10 +4117,10 @@ export default function Home() {
                     }}
                   >
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
-                      Melhor Filme — Uruguai
+                      {t('melhorFilme')} — {t('uruguai')}
                     </div>
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
-                      Menção Especial — Seattle
+                      {t('mencaoEspecial')} — Seattle
                     </div>
                     <div>
                       Jury Prize — Frameline49
@@ -4177,19 +4275,19 @@ export default function Home() {
                   }}
                 >
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Roteiro:</strong> Rafaela Camelo
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('roteiro')}</strong> Rafaela Camelo
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Coprodução:</strong> Brasil-Chile
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('coproducao')}</strong> Brasil-Chile
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Financiamento:</strong> FAC-DF, FSA/Ancine
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, FSA/Ancine
                   </div>
                   <div>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
@@ -4210,8 +4308,14 @@ export default function Home() {
             }}
           >
             <ContentTransition
-              leftText={{ line1: "A NATUREZA", line2: "DAS COISAS INVISÍVEIS" }}
-              rightText={{ line1: "AS", line2: "MIÇANGAS" }}
+              leftText={{ 
+                line1: t('aNatureza'), 
+                line2: t('dasCoisasInvisiveis')
+              }}
+              rightText={{ 
+                line1: t('as'), 
+                line2: t('micangas')
+              }}
               boxCount={100}
             />
           </section>
@@ -4237,6 +4341,7 @@ export default function Home() {
             >
               <h1 
                 className="data-micangas-title"
+                suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                   fontSize: 'clamp(40px, 6vw, 120px)',
@@ -4249,7 +4354,7 @@ export default function Home() {
                   transform: 'scale(1)',
                 }}
               >
-                AS MIÇANGAS
+                {t('asMicangas')}
               </h1>
             </div>
 
@@ -4512,6 +4617,7 @@ export default function Home() {
                 className="data-micangas-content"
               >
                 <div
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
@@ -4521,10 +4627,11 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  O Filme
+                  {t('oFilme')}
                 </div>
                 <h2 
                   className="data-micangas-title split-text"
+                  suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                     fontSize: 'clamp(24px, 3vw, 48px)',
@@ -4535,7 +4642,7 @@ export default function Home() {
                     color: 'white',
                   }}
                 >
-                  As Miçangas
+                  {t('asMicangasTitle')}
                 </h2>
                 <div 
                   className="data-micangas-text"
@@ -4564,13 +4671,13 @@ export default function Home() {
                   }}
                 >
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Direção:</strong> Rafaela Camelo
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
                   </div>
                   <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Produção:</strong> Moveo Filmes
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
                   </div>
                   <div>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Financiamento:</strong> FAC-DF, Edital Cardume
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, Edital Cardume
                   </div>
                 </div>
               </div>
@@ -4709,6 +4816,7 @@ export default function Home() {
                     <div className="flex flex-col justify-start">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(24px, 3vw, 48px)',
@@ -4719,7 +4827,7 @@ export default function Home() {
                           color: 'white',
                         }}
                       >
-                        O Mistério da Carne
+                        {t('oMisterioDaCarne')}
                       </div>
                       <div
                         className="mix-blend-difference"
@@ -4739,6 +4847,7 @@ export default function Home() {
                     <div className="flex-shrink-0 mt-auto">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -4750,13 +4859,13 @@ export default function Home() {
                           FAC-DF
                         </div>
                         <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          1º Edital de Curtas da Cardume
+                          {t('primeiroEditalCardume')}
                         </div>
                         <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak (Mundo) e Moveo Filmes (Brasil)
+                          {t('distribuicao')} {t('agenciaFreakMundo')}
                         </div>
                         <div>
-                          Produção: Moveo Filmes
+                          {t('producao')} Moveo Filmes
                         </div>
                       </div>
                     </div>
@@ -4768,6 +4877,7 @@ export default function Home() {
                     <div className="flex-shrink-0">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -4777,10 +4887,11 @@ export default function Home() {
                           letterSpacing: '0.5px',
                         }}
                       >
-                        PRÊMIOS
+                        {t('premios')}
                       </div>
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -4789,10 +4900,10 @@ export default function Home() {
                         }}
                       >
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme — Biarritz Amérique Latine
+                          {t('melhorFilme')} — Biarritz Amérique Latine
                         </div>
                         <div>
-                          Melhor Filme — New Directors / New Films
+                          {t('melhorFilme')} — New Directors / New Films
                         </div>
                       </div>
                     </div>
@@ -4801,6 +4912,7 @@ export default function Home() {
                     <div className="flex-shrink-0 mt-auto">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(11px, 0.95vw, 14px)',
@@ -4810,10 +4922,11 @@ export default function Home() {
                           letterSpacing: '0.5px',
                         }}
                       >
-                        ESTREIAS
+                        {t('estreias')}
                       </div>
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(10px, 0.85vw, 13px)',
@@ -4822,13 +4935,13 @@ export default function Home() {
                         }}
                       >
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> Sundance Film Festival (2019)
+                          <strong>{t('mundial')}</strong> Sundance Film Festival (2019)
                         </div>
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Europa:</strong> Biarritz Amérique Latine
+                          <strong>{t('europa')}</strong> Biarritz Amérique Latine
                         </div>
                         <div>
-                          <strong>EUA:</strong> New Directors / New Films
+                          <strong>{t('eua')}</strong> New Directors / New Films
                         </div>
                       </div>
                     </div>
@@ -4884,6 +4997,7 @@ export default function Home() {
                   <h3
                     className="font-black text-white transform -rotate-90 origin-center whitespace-nowrap"
                     data-cinema-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -4893,7 +5007,7 @@ export default function Home() {
                       marginLeft: '25px',
                     }}
                   >
-                    CATÁLOGO
+                    {t('catalogo')}
                   </h3>
                 </div>
 
@@ -5001,6 +5115,7 @@ export default function Home() {
                   <p
                     className="text-white font-bold mix-blend-difference"
                     data-cinema-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -5009,7 +5124,7 @@ export default function Home() {
                       lineHeight: '1.1',
                     }}
                   >
-                    EXPLORAR ARQUIVO NA ÍNTEGRA {'>>>>'}
+                    {t('explorarArquivoNaIntegra')} {'>>>>'}
                   </p>
                 </div>
               </div>
@@ -5052,6 +5167,7 @@ export default function Home() {
                   <h1
                     className="font-black tracking-tighter leading-none text-white mix-blend-difference"
                     data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -5059,19 +5175,25 @@ export default function Home() {
                       lineHeight: '0.9',
                     }}
                   >
-                    ALÉM<br />DOS FILMES
+                    {t('alemDosFilmes').split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < t('alemDosFilmes').split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
                   </h1>
                   <Link
                     href="/catalogo/mostras-e-exposicoes"
                     className="mt-6 inline-flex items-center gap-2 px-4 py-2 border border-white/40 hover:border-white transition-colors uppercase"
                     data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
                       letterSpacing: '0.08em',
                     }}
                   >
-                    Ver arquivo completo
+                    {t('verArquivoCompleto')}
                   </Link>
                 </div>
 
@@ -5083,6 +5205,7 @@ export default function Home() {
                   <p
                     className="text-white font-light leading-tight mix-blend-difference"
                     data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_MEDIUM,
@@ -5091,7 +5214,12 @@ export default function Home() {
                       fontWeight: 700,
                     }}
                   >
-                    ARQUIVO<br />MOVEO
+                    {t('arquivoMoveo').split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < t('arquivoMoveo').split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
                   </p>
                 </div>
 
@@ -5103,6 +5231,7 @@ export default function Home() {
                   <p
                     className="text-white font-light leading-relaxed mix-blend-difference"
                     data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
@@ -5111,7 +5240,7 @@ export default function Home() {
                       textAlign: 'justify',
                     }}
                   >
-                    mostras, exposições e outros projetos especiais dos quais fizemos parte
+                    {t('arquivoDescription')}
                   </p>
                 </div>
 
@@ -5239,7 +5368,7 @@ export default function Home() {
                           background: 'white',
                           opacity: newsIndex === idx ? 0.9 : 0.3,
                         }}
-                        aria-label={`Ir para notícia ${idx + 1}`}
+                        aria-label={`${t('irParaNoticia')} ${idx + 1}`}
                       />
                     ))}
                   </div>
@@ -5247,16 +5376,16 @@ export default function Home() {
                     <button
                       onClick={() => setNewsIndex((prev) => (prev - 1 + newsSlides.length) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
-                      aria-label="Notícia anterior"
+                      aria-label={t('noticiaAnterior')}
                     >
-                      <span className="sr-only">Anterior</span>
+                      <span className="sr-only">{t('anterior')}</span>
                     </button>
                     <button
                       onClick={() => setNewsIndex((prev) => (prev + 1) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
-                      aria-label="Próxima notícia"
+                      aria-label={t('proximaNoticia')}
                     >
-                      <span className="sr-only">Próxima</span>
+                      <span className="sr-only">{t('proxima')}</span>
                     </button>
                   </div>
                 </div>
@@ -5266,6 +5395,7 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <h2
                       className="text-white uppercase"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
@@ -5273,7 +5403,7 @@ export default function Home() {
                         letterSpacing: '-0.02em',
                       }}
                     >
-                      Notícias
+                      {t('noticias')}
                     </h2>
                     <Link
                       href="/noticias"
@@ -5284,7 +5414,7 @@ export default function Home() {
                         letterSpacing: '0.08em',
                       }}
                     >
-                      Ver página
+                      {t('verPagina')}
                     </Link>
                   </div>
 
@@ -5298,17 +5428,18 @@ export default function Home() {
                         letterSpacing: '-0.02em',
                       }}
                     >
-                      Lorem ipsum
+                      {t('loremIpsumTitle')}
                     </p>
                     <p
                       className="text-white opacity-80"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                         fontSize: FONT_SMALL,
                         lineHeight: '1.6',
                       }}
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae sem in sapien sodales tempor non ut justo.
+                      {t('loremIpsumText')}
                     </p>
                   </div>
 
@@ -5342,7 +5473,7 @@ export default function Home() {
                         letterSpacing: '0.06em',
                       }}
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      {t('loremIpsumShort')}
                     </p>
                     <div className="flex gap-3">
                       {newsSlides.map((item) => (
@@ -5405,7 +5536,7 @@ export default function Home() {
                   letterSpacing: '0.08em',
                 }}
               >
-                Ir para contato
+                {t('irParaContato')}
               </Link>
               <Link
                 href="/catalogo/cinema"
@@ -5438,7 +5569,7 @@ export default function Home() {
                 letterSpacing: '0.05em',
               }}
             >
-              Produtora boutique de filmes independentes — Brasília, desde 2018.
+              {t('produtoraBoutique')}
             </p>
           </div>
 

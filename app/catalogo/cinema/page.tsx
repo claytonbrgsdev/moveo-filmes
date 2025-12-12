@@ -18,10 +18,79 @@ export default async function CinemaPage() {
   const supabase = await createClient();
 
   // Buscar filmes da tabela filmes
-  const { data: filmes, error } = await supabase
-    .from("filmes")
-    .select("id, slug, titulo_pt, ano, ano_previsto, status_interno_pt, poster_principal_url, thumbnail_card_url")
-    .order("ano", { ascending: false });
+  let filmes: Filme[] | null = null;
+  let error: { message: string; details?: string } | null = null;
+
+  try {
+    const { data, error: supabaseError } = await supabase
+      .from("filmes")
+      .select("id, slug, titulo_pt, ano, ano_previsto, status_interno_pt, poster_principal_url, thumbnail_card_url")
+      .order("ano", { ascending: false });
+
+    if (supabaseError) {
+      // Normalizar a mensagem de erro
+      const errorStr = JSON.stringify(supabaseError, null, 2);
+      const errorMessage = supabaseError.message || String(supabaseError);
+      
+      // Verificar se o erro contém indicações de servidor offline (HTML, Cloudflare, erro 521)
+      if (
+        errorStr.includes('<!DOCTYPE html') || 
+        errorMessage.includes('<!DOCTYPE html') ||
+        errorStr.includes('Cloudflare') || 
+        errorMessage.includes('Cloudflare') ||
+        errorStr.includes('521') || 
+        errorMessage.includes('521') ||
+        errorStr.includes('Web server is down') ||
+        errorMessage.includes('Web server is down') ||
+        errorMessage.toLowerCase().includes('network') ||
+        errorMessage.toLowerCase().includes('connection') ||
+        errorMessage.toLowerCase().includes('timeout') ||
+        errorMessage.toLowerCase().includes('fetch failed')
+      ) {
+        error = {
+          message: 'O servidor está temporariamente indisponível. Por favor, tente novamente em alguns minutos.',
+          details: 'Erro de conexão com o banco de dados (Código 521)'
+        };
+      } else {
+        error = {
+          message: supabaseError.message || 'Erro ao carregar filmes',
+          details: supabaseError.details || supabaseError.hint || undefined
+        };
+      }
+    } else {
+      filmes = data;
+    }
+  } catch (err) {
+    // Capturar erros de rede ou outros erros não tratados
+    const errorStr = err instanceof Error ? err.toString() : String(err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    
+    // Verificar se é um erro de conexão/HTML
+    if (
+      errorStr.includes('<!DOCTYPE html') || 
+      errorMessage.includes('<!DOCTYPE html') ||
+      errorStr.includes('Cloudflare') || 
+      errorMessage.includes('Cloudflare') ||
+      errorStr.includes('521') || 
+      errorMessage.includes('521') ||
+      errorMessage.toLowerCase().includes('network') ||
+      errorMessage.toLowerCase().includes('connection') ||
+      errorMessage.toLowerCase().includes('timeout') ||
+      errorMessage.toLowerCase().includes('fetch failed') ||
+      errorMessage.toLowerCase().includes('failed to fetch')
+    ) {
+      error = {
+        message: 'O servidor está temporariamente indisponível. Por favor, tente novamente em alguns minutos.',
+        details: 'Erro de conexão com o banco de dados'
+      };
+    } else {
+      // Para outros erros, mostrar uma mensagem genérica (sem expor detalhes técnicos)
+      error = {
+        message: 'Erro ao carregar filmes. Por favor, tente novamente mais tarde.',
+        details: 'Erro inesperado'
+      };
+    }
+  }
 
   // Função helper para determinar o ano a exibir
   const getAnoDisplay = (ano: number | null | undefined, anoPrevisto: number | null | undefined): string => {
@@ -47,9 +116,19 @@ export default async function CinemaPage() {
           {/* Container com Grid de Cards */}
           <div>
             {error && (
-              <div className="text-red-500 mb-4">
-                <p className="font-bold">Erro ao carregar filmes:</p>
-                <p className="text-sm mt-2">{error.message}</p>
+              <div className="border border-red-500/50 rounded-lg p-6 bg-red-950/20 mb-8">
+                <h3 className="text-xl font-bold text-red-400 mb-2">
+                  Erro ao carregar filmes
+                </h3>
+                <p className="text-red-300 mb-2">{error.message}</p>
+                {error.details && (
+                  <p className="text-sm text-red-400/70 mt-2 opacity-75">
+                    {error.details}
+                  </p>
+                )}
+                <p className="text-sm text-white/60 mt-4">
+                  Se o problema persistir, verifique sua conexão com a internet ou entre em contato com o suporte.
+                </p>
               </div>
             )}
 
