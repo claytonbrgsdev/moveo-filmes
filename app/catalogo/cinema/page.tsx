@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { MainLayout } from "@/app/components/MainLayout";
 import { FilmeCard } from "./FilmeCard";
 
@@ -14,7 +13,12 @@ interface Filme {
 }
 
 export default async function CinemaPage() {
-  const supabase = await createClient();
+  // Usar cliente sem cookies para build estático
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // Buscar filmes da tabela filmes
   let filmes: Filme[] | null = null;
@@ -57,7 +61,16 @@ export default async function CinemaPage() {
         };
       }
     } else {
-      filmes = data;
+      // Converter null para undefined para compatibilidade com o tipo Filme
+      filmes = data?.map(filme => ({
+        ...filme,
+        ano: filme.ano ?? undefined,
+        ano_previsto: filme.ano_previsto ?? undefined,
+        titulo_pt: filme.titulo_pt ?? undefined,
+        status_interno_pt: filme.status_interno_pt ?? undefined,
+        poster_principal_url: filme.poster_principal_url ?? undefined,
+        thumbnail_card_url: filme.thumbnail_card_url ?? undefined,
+      })) || null;
     }
   } catch (err) {
     // Capturar erros de rede ou outros erros não tratados
