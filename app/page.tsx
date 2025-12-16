@@ -148,7 +148,7 @@ export default function Home() {
       // Base reference: width 1336px, height 698px está ok
       const referenceWidth = 1336;
       const referenceHeight = 698;
-      const baseOffset = 25; // Original offset
+      const baseOffset = 40; // Original offset (25px + 15px adjustment)
       
       // Calcular offset adicional baseado na altura quando width >= 1336px
       let additionalOffset = 0;
@@ -371,7 +371,7 @@ export default function Home() {
 
       const HOLD_DISTANCE = window.innerHeight * 0.5; // Hold for half viewport height of scroll
 
-      const st = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: section,
         containerAnimation: mainTrackTimelineRef.current || undefined,
         start: 'center center',
@@ -446,11 +446,6 @@ export default function Home() {
         return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
       }) as HTMLElement;
       
-      const produtoraElement = allTargets.find((el) => {
-        const text = el.textContent || '';
-        return text.includes('Produtora boutique') || text.includes('de filmes independentes') || text.includes('De filmes independentes');
-      }) as HTMLElement;
-      
       const imageElement = allTargets.find((el) => {
         const hasImage = el.querySelector('img[alt="Capa Home"]') || 
                         el.querySelector('img[src*="capahome"]') ||
@@ -523,7 +518,7 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
-  // Animate image on first scroll
+  // Animate image on scroll - with reverse animation on scroll back
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!firstSectionRef.current) return;
@@ -535,41 +530,61 @@ export default function Home() {
                     imageElement.querySelector('img[src*="capahome"]');
     if (!hasImage) return;
 
-    let hasAnimated = false;
-    let initialScrollY = window.scrollY || window.pageYOffset;
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
 
-    const handleFirstScroll = () => {
-      if (hasAnimated) return;
+    // Set initial state - ensure element starts invisible
+    gsap.set(imageElement, { 
+      opacity: 0,
+      scale: 1.1,
+    });
 
-      const currentScrollY = window.scrollY || window.pageYOffset;
-      const scrollDelta = Math.abs(currentScrollY - initialScrollY);
-      
-      // Only trigger if user scrolled at least a few pixels
-      if (scrollDelta > 5) {
-        hasAnimated = true;
+    // Track animation state
+    let isVisible = false;
+    let animation: gsap.core.Tween | null = null;
 
-        // Animate image with the same effect as before
-        gsap.to(imageElement, {
-          opacity: 1,
-          scale: 1,
-          duration: 1.5,
-          ease: 'power2.out',
-        });
-
-        // Remove listener after animation starts
-        window.removeEventListener('scroll', handleFirstScroll);
-      }
+    // Helper function to animate in
+    const animateIn = () => {
+      if (isVisible) return;
+      isVisible = true;
+      if (animation) animation.kill();
+      animation = gsap.to(imageElement, {
+        opacity: 1,
+        scale: 1,
+        duration: 1.5,
+        ease: 'power2.out',
+      });
     };
 
-    // Listen for scroll events
-    window.addEventListener('scroll', handleFirstScroll, { passive: true });
+    // Helper function to animate out
+    const animateOut = () => {
+      if (!isVisible) return;
+      isVisible = false;
+      if (animation) animation.kill();
+      animation = gsap.to(imageElement, {
+        opacity: 0,
+        scale: 1.1,
+        duration: 1.5,
+        ease: 'power2.out',
+      });
+    };
+
+    // Create ScrollTrigger to control animation based on scroll position
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: firstSectionRef.current,
+      start: 'top top',
+      end: '+=200', // Trigger zone: 200px from start
+      onEnter: animateIn,
+      onLeaveBack: animateOut,
+    });
 
     return () => {
-      window.removeEventListener('scroll', handleFirstScroll);
+      if (animation) animation.kill();
+      scrollTrigger.kill();
     };
   }, []);
 
-  // Animate produtora text on first scroll with split text effect
+  // Animate produtora text on scroll with split text effect - with reverse animation
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!firstSectionRef.current) return;
@@ -591,6 +606,12 @@ export default function Home() {
     
     if (!textElement) return;
 
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Store original HTML before any modifications
+    const originalHTML = textElement.innerHTML;
+
     // Set initial state
     gsap.set(textElement, { 
       opacity: 0,
@@ -598,106 +619,151 @@ export default function Home() {
       filter: 'blur(10px)',
     });
 
-    let hasAnimated = false;
-    let initialScrollY = window.scrollY || window.pageYOffset;
+    // Track animation state
+    let isVisible = false;
+    let wordElements: HTMLElement[] = [];
+    let animation: gsap.core.Tween | null = null;
 
-    const handleFirstScroll = () => {
-      if (hasAnimated) return;
-
-      const currentScrollY = window.scrollY || window.pageYOffset;
-      const scrollDelta = Math.abs(currentScrollY - initialScrollY);
+    // Helper function to split text into words
+    const splitTextIntoWords = () => {
+      // Simple split by <br /> or <br>
+      const lines = originalHTML.split(/<br\s*\/?>/i);
+      let newHTML = '';
       
-      // Only trigger if user scrolled at least a few pixels
-      if (scrollDelta > 5) {
-        hasAnimated = true;
-
-        // Split text into words for animation
-        const originalHTML = textElement.innerHTML;
-        const originalText = textElement.textContent || '';
+      lines.forEach((line, lineIndex) => {
+        if (!line.trim()) return;
         
-        // Simple split by <br /> or <br>
-        const lines = originalHTML.split(/<br\s*\/?>/i);
-        let newHTML = '';
+        // Get text content from the line
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = line.trim();
+        const lineText = (tempDiv.textContent || tempDiv.innerText || '').trim();
         
-        lines.forEach((line, lineIndex) => {
-          if (!line.trim()) return;
-          
-          // Get text content from the line
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = line.trim();
-          const lineText = (tempDiv.textContent || tempDiv.innerText || '').trim();
-          
-          if (!lineText) return;
-          
-          // Split into words
-          const words = lineText.split(/\s+/).filter(w => w.length > 0);
-          
-          // Wrap each word in a span
-          words.forEach((word, wordIndex) => {
-            newHTML += `<span class="word">${word}</span>`;
-            if (wordIndex < words.length - 1) {
-              newHTML += ' ';
-            }
-          });
-          
-          // Add <br /> between lines
-          if (lineIndex < lines.length - 1) {
-            newHTML += '<br />';
+        if (!lineText) return;
+        
+        // Split into words
+        const words = lineText.split(/\s+/).filter(w => w.length > 0);
+        
+        // Wrap each word in a span
+        words.forEach((word, wordIndex) => {
+          newHTML += `<span class="word">${word}</span>`;
+          if (wordIndex < words.length - 1) {
+            newHTML += ' ';
           }
         });
         
-        // Replace HTML
-        textElement.innerHTML = newHTML;
-        
-        // Get all word elements
-        const wordElements = Array.from(textElement.querySelectorAll('.word')) as HTMLElement[];
-        
-        if (wordElements.length > 0) {
-          // Set initial state for words - visible but positioned below
-          wordElements.forEach((word) => {
-            gsap.set(word, {
-              opacity: 0,
-              y: 15,
-              display: 'inline-block',
-            });
-          });
-          
-          // Make container visible
-          gsap.set(textElement, {
-            opacity: 1,
-            x: 0,
-            filter: 'blur(0px)',
-          });
-          
-          // Animate words with stagger
-          gsap.to(wordElements, {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.05,
-            ease: 'power3.out',
-          });
-        } else {
-          // Fallback - simple fade in
-          gsap.to(textElement, {
-            opacity: 1,
-            x: 0,
-            filter: 'blur(0px)',
-            duration: 1,
-            ease: 'power3.out',
-          });
+        // Add <br /> between lines
+        if (lineIndex < lines.length - 1) {
+          newHTML += '<br />';
         }
+      });
+      
+      // Replace HTML
+      textElement.innerHTML = newHTML;
+      
+      // Get all word elements
+      wordElements = Array.from(textElement.querySelectorAll('.word')) as HTMLElement[];
+    };
 
-        // Remove listener after animation starts
-        window.removeEventListener('scroll', handleFirstScroll);
+    // Helper function to animate in
+    const animateIn = () => {
+      if (isVisible) return;
+      isVisible = true;
+
+      // Split text into words if not already split
+      if (wordElements.length === 0) {
+        splitTextIntoWords();
+      }
+
+      if (wordElements.length > 0) {
+        // Set initial state for words
+        wordElements.forEach((word) => {
+          gsap.set(word, {
+            opacity: 0,
+            y: 15,
+            display: 'inline-block',
+          });
+        });
+        
+        // Make container visible
+        gsap.set(textElement, {
+          opacity: 1,
+          x: 0,
+          filter: 'blur(0px)',
+        });
+        
+        // Animate words with stagger
+        if (animation) animation.kill();
+        animation = gsap.to(wordElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.05,
+          ease: 'power3.out',
+        });
+      } else {
+        // Fallback - simple fade in
+        if (animation) animation.kill();
+        animation = gsap.to(textElement, {
+          opacity: 1,
+          x: 0,
+          filter: 'blur(0px)',
+          duration: 1,
+          ease: 'power3.out',
+        });
       }
     };
 
-    // Listen for scroll events
-    window.addEventListener('scroll', handleFirstScroll, { passive: true });
+    // Helper function to animate out (reverse)
+    const animateOut = () => {
+      if (!isVisible) return;
+      isVisible = false;
+
+      if (wordElements.length > 0) {
+        // Animate words out with reverse stagger
+        if (animation) animation.kill();
+        animation = gsap.to(wordElements, {
+          opacity: 0,
+          y: 15,
+          duration: 0.8,
+          stagger: 0.05,
+          ease: 'power3.out',
+          onComplete: () => {
+            // Restore original HTML after animation completes
+            textElement.innerHTML = originalHTML;
+            wordElements = [];
+            // Reset element state
+            gsap.set(textElement, {
+              opacity: 0,
+              x: -100,
+              filter: 'blur(10px)',
+            });
+          },
+        });
+      } else {
+        // Fallback - simple fade out
+        if (animation) animation.kill();
+        animation = gsap.to(textElement, {
+          opacity: 0,
+          x: -100,
+          filter: 'blur(10px)',
+          duration: 1,
+          ease: 'power3.out',
+        });
+      }
+    };
+
+    // Create ScrollTrigger to control animation based on scroll position
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: firstSectionRef.current,
+      start: 'top top',
+      end: '+=200', // Trigger zone: 200px from start
+      onEnter: animateIn,
+      onLeaveBack: animateOut,
+    });
 
     return () => {
-      window.removeEventListener('scroll', handleFirstScroll);
+      if (animation) animation.kill();
+      scrollTrigger.kill();
     };
   }, []);
 
@@ -766,7 +832,8 @@ export default function Home() {
             trigger: firstPanel,
             start: 'left 100%',
             end: 'left 0%',
-            containerAnimation: horizontalTrackST,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            containerAnimation: horizontalTrackST as any,
             onUpdate: (self) => {
               const velocity = self.getVelocity();
               if (velocity > 0) {
@@ -785,7 +852,9 @@ export default function Home() {
       }
 
       // Split text animation for all panels
-      const splitTexts = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('.split-text')) as HTMLElement[];
+      const splitTexts = horizontalSecondTrackRef.current 
+        ? Array.from(horizontalSecondTrackRef.current.querySelectorAll('.split-text')) as HTMLElement[]
+        : [];
       splitTexts.forEach((textEl) => {
         const text = textEl.textContent || '';
         const words = text.split(' ');
@@ -816,7 +885,8 @@ export default function Home() {
                   trigger: panel,
                   start: 'left 80%',
                   end: 'left 20%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -857,7 +927,8 @@ export default function Home() {
                 trigger: title,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -887,7 +958,8 @@ export default function Home() {
                 trigger: content,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -908,7 +980,8 @@ export default function Home() {
                   trigger: word,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -944,7 +1017,8 @@ export default function Home() {
                   trigger: img,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1016,10 +1090,10 @@ export default function Home() {
     const ctx = gsap.context(() => {
       // Preload images
       const imagePromises = images.map((src) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = resolve;
-          img.onerror = reject;
+        return new Promise<void>((resolve, reject) => {
+          const img = document.createElement('img');
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
           img.src = src;
         });
       });
@@ -1077,7 +1151,7 @@ export default function Home() {
             .timeScale(0.05);
 
           // Store timeline on the element
-          (box as any).tl = tl;
+          (box as HTMLElement & { tl?: gsap.core.Timeline }).tl = tl;
 
           // Hover effects
           box.addEventListener('mouseenter', () => {
@@ -1147,7 +1221,7 @@ export default function Home() {
           onUpdate: (self) => {
             const progress = self.progress;
             boxes.forEach((box) => {
-              const tl = (box as any).tl;
+              const tl = (box as HTMLElement & { tl?: gsap.core.Timeline }).tl;
               if (tl) {
                 tl.progress(progress);
               }
@@ -1212,7 +1286,8 @@ export default function Home() {
                 trigger: title,
                 start: 'left 85%',
                 end: 'left 15%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1246,7 +1321,8 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1782,7 +1858,7 @@ export default function Home() {
     return () => ctx.revert();
   }, [mainTrackReady]);
 
-  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque)
+  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque) - Individual animations
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!dragonflySectionRef.current) return;
@@ -1791,83 +1867,135 @@ export default function Home() {
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(dragonflySectionRef.current);
-      const imageTargets = q('[data-catalog-image]') as HTMLElement[];
-      const contentTargets = q('[data-catalog-animate]') as HTMLElement[];
-      const allTargets = [...imageTargets, ...contentTargets];
-      if (!allTargets.length) return;
+      
+      // Get individual elements
+      const labelElement = q('[data-catalog-label]')[0] as HTMLElement;
+      const titleElement = q('[data-catalog-title]')[0] as HTMLElement;
+      const descriptionElement = q('[data-catalog-description]')[0] as HTMLElement;
+      const imageElement = q('[data-catalog-image]')[0] as HTMLElement;
 
-      gsap.set(allTargets, { autoAlpha: 0 });
+      // Animation for label "NOSSOS FILMES"
+      if (labelElement) {
+        gsap.set(labelElement, { 
+          opacity: 0, 
+          y: 30,
+        });
 
-      // Animation variants for catalog section
-      const catalogImageVariants = [
-        { x: -100, y: 120, rotate: -3, scale: 1.15, blur: 10 },
-      ];
-
-      const catalogContentVariants = [
-        { x: -60, y: 80, scale: 1.08, blur: 8 },
-      ];
-
-      imageTargets.forEach((target, index) => {
-        const variant = catalogImageVariants[index] || catalogImageVariants[0];
-
-        gsap.fromTo(
-          target,
-          { 
-            autoAlpha: 0, 
-            x: variant.x, 
-            y: variant.y, 
-            scale: variant.scale, 
-            rotate: variant.rotate, 
-            filter: `blur(${variant.blur}px)` 
+        gsap.to(labelElement, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: labelElement,
+            start: 'top 85%',
+            end: 'top 60%',
+            toggleActions: 'play none none reverse',
           },
-          {
-            autoAlpha: 1,
-            x: 0,
-            y: 0,
-            scale: 1,
-            rotate: 0,
-            filter: 'blur(0px)',
+        });
+      }
+
+      // Animation for title "Catálogo em Destaque"
+      if (titleElement) {
+        gsap.set(titleElement, { 
+          opacity: 0, 
+          y: 50,
+          scale: 0.95,
+        });
+
+        gsap.to(titleElement, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: titleElement,
+            start: 'top 85%',
+            end: 'top 55%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+
+      // Typewriter animation for description paragraph (character-by-character with proper wrapping)
+      if (descriptionElement) {
+        const originalText = descriptionElement.textContent || '';
+        
+        // Split text into characters
+        const chars = originalText.split('');
+        const charElements: HTMLElement[] = [];
+        
+        // Clear content and ensure proper wrapping styles
+        descriptionElement.style.display = 'block';
+        descriptionElement.style.width = '100%';
+        descriptionElement.innerHTML = '';
+        
+        // Create spans for each character
+        chars.forEach((char) => {
+          const charSpan = document.createElement('span');
+          charSpan.style.display = 'inline';
+          charSpan.style.opacity = '0';
+          
+          // Use regular spaces to allow wrapping
+          if (char === ' ') {
+            charSpan.textContent = ' ';
+          } else {
+            charSpan.textContent = char;
+          }
+          
+          descriptionElement.appendChild(charSpan);
+          charElements.push(charSpan);
+        });
+
+        // Create typewriter timeline with ScrollTrigger
+        const typewriterTl = gsap.timeline({
+          paused: true,
+          scrollTrigger: {
+            trigger: descriptionElement,
+            start: 'top 85%',
+            end: 'top 50%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        // Animate each character appearing one by one - faster timing
+        charElements.forEach((span, i) => {
+          typewriterTl.to(span, {
+            opacity: 1,
+            duration: 0.01,
             ease: 'none',
+          }, i * 0.012); // Faster: reduced delay for quicker animation
+        });
+      }
+
+      // Animation for image - Zoom in from center with blur and brightness
+      if (imageElement) {
+        const imageContainer = imageElement.parentElement;
+        if (imageContainer) {
+          // Set initial state - zoomed in, blurred, darker
+          gsap.set(imageElement, {
+            opacity: 0,
+            scale: 1.4,
+            filter: 'blur(20px) brightness(0.5)',
+          });
+
+          // Animate to final state
+          gsap.to(imageElement, {
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px) brightness(0.9)',
+            duration: 1.5,
+            ease: 'power3.out',
             scrollTrigger: {
-              trigger: target,
+              trigger: imageContainer,
               start: 'top 80%',
-              end: 'top 40%',
-              scrub: true,
+              end: 'top 45%',
+              toggleActions: 'play none none reverse',
             },
-          }
-        );
-      });
-
-      contentTargets.forEach((target, index) => {
-        const variant = catalogContentVariants[index] || catalogContentVariants[0];
-
-        gsap.set(target, { autoAlpha: 1 });
-
-        gsap.fromTo(
-          target,
-          { 
-            autoAlpha: 0, 
-            x: variant.x, 
-            y: variant.y,
-            scale: variant.scale,
-            filter: `blur(${variant.blur}px)`,
-          },
-          {
-            autoAlpha: 1,
-            x: 0,
-            y: 0,
-            scale: 1,
-            filter: 'blur(0px)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: target,
-              start: 'top 85%',
-              end: 'top 50%',
-              scrub: true,
-            },
-          }
-        );
-      });
+          });
+        }
+      }
 
       requestAnimationFrame(() => ScrollTrigger.refresh());
     }, dragonflySectionRef);
@@ -2159,6 +2287,8 @@ export default function Home() {
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!horizontalSecondWrapperRef.current || !horizontalSecondTrackRef.current) return;
+    // Aguardar o primeiro track estar pronto antes de inicializar o segundo
+    if (!mainTrackReady) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -2181,7 +2311,7 @@ export default function Home() {
     let ctx: gsap.Context | null = null;
     let handleResize: (() => void) | null = null;
 
-    // Aguardar um frame para garantir que o DOM está estável
+    // Aguardar um frame para garantir que o DOM está estável e o primeiro track terminou
     const timer = setTimeout(() => {
       if (!wrapper || !track || !wrapper.isConnected || !track.isConnected) return;
 
@@ -2189,19 +2319,25 @@ export default function Home() {
         // Limpar transformações anteriores
         gsap.set(track, { clearProps: 'all' });
         gsap.set(track, { x: 0 });
+        
+        // Garantir que o wrapper está posicionado corretamente
+        gsap.set(wrapper, { clearProps: 'transform' });
+
+        const getTravel = () => {
+          if (!track || !wrapper) return 0;
+          return track.scrollWidth - wrapper.offsetWidth;
+        };
 
         gsap.to(track, {
-          x: () => {
-            if (!track || !wrapper) return 0;
-            return -(track.scrollWidth - wrapper.offsetWidth);
-          },
+          x: () => -getTravel(),
           ease: 'none',
           scrollTrigger: {
             trigger: wrapper,
-            start: 'top 50px',
+            start: 'top top',
             end: () => {
               if (!track || !wrapper) return '+=0';
-              return `+=${track.scrollWidth + window.innerHeight}`;
+              const travel = getTravel();
+              return `+=${travel + window.innerHeight}`;
             },
             scrub: 0.5,
             pin: true,
@@ -2210,6 +2346,8 @@ export default function Home() {
             anticipatePin: 1,
             invalidateOnRefresh: true,
             id: 'horizontal-second-track',
+            markers: false, // Desabilitar markers em produção
+            refreshPriority: -1, // Prioridade menor que o primeiro track
             onRefresh: () => {
               // Forçar atualização quando necessário
               if (track && wrapper) {
@@ -2230,7 +2368,7 @@ export default function Home() {
         }
       };
       window.addEventListener('resize', handleResize);
-    }, 100);
+    }, 200); // Aumentar delay para garantir que o primeiro track terminou
 
     return () => {
       clearTimeout(timer);
@@ -2255,7 +2393,7 @@ export default function Home() {
         }
       }
     };
-  }, []);
+  }, [mainTrackReady]);
 
   // Animações para seções de "A Natureza das Coisas Invisíveis"
   useLayoutEffect(() => {
@@ -2309,7 +2447,8 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2329,7 +2468,8 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2357,7 +2497,8 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2378,7 +2519,8 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2408,7 +2550,8 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2447,7 +2590,8 @@ export default function Home() {
                   trigger: item,
                   start: 'left 85%',
                   end: 'left 15%',
-                  containerAnimation: horizontalTrackST,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2468,7 +2612,8 @@ export default function Home() {
                 trigger: panel,
                 start: 'left 80%',
                 end: 'left 20%',
-                containerAnimation: horizontalTrackST,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2481,7 +2626,7 @@ export default function Home() {
         
         if (horizontalTrackST && parallaxImages.length) {
         const updateParallax = () => {
-          const progress = st.progress;
+          const progress = horizontalTrackST.progress;
           parallaxImages.forEach((img) => {
             const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
             const moveX = -progress * 200 * speed;
@@ -3101,7 +3246,8 @@ export default function Home() {
               className="absolute text-white uppercase z-30 mix-blend-difference moveo-title"
               style={{
                 left: '-20px',
-                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 25px)`,
+                top: '180px',
+                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 40px)`,
                 fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
                 fontSize: `${dynamicFontSize}px`,
                 lineHeight: '77.3%',
@@ -3663,8 +3809,9 @@ export default function Home() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {/* Left - Text Content */}
-              <div data-catalog-animate>
+              <div style={{ width: '100%' }}>
                 <div
+                  data-catalog-label
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
@@ -3678,6 +3825,7 @@ export default function Home() {
                   {t('nossosFilmes')}
                 </div>
                 <h2
+                  data-catalog-title
                   ref={dragonflyHeadingRef}
                   suppressHydrationWarning
                   style={{
@@ -3693,13 +3841,18 @@ export default function Home() {
                   {t('catalogoEmDestaque')}
                 </h2>
                 <p
+                  data-catalog-description
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(16px, 1.5vw, 22px)',
                     lineHeight: '1.6',
                     color: 'rgba(255, 255, 255, 0.8)',
-                    maxWidth: '90%',
+                    maxWidth: '100%',
+                    width: '100%',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'normal',
                   }}
                 >
                   {t('exploreNossaSelecao')}
@@ -3709,12 +3862,12 @@ export default function Home() {
               {/* Right - Featured Image */}
               <div
                 className="relative w-full aspect-[4/5] overflow-hidden"
-                data-catalog-image
                 style={{
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}
               >
                 <Image
+                  data-catalog-image
                   src="/imagens/secao2home/Rectangle 10.png"
                   alt="Catálogo em Destaque"
                   fill
@@ -3737,7 +3890,8 @@ export default function Home() {
         style={{
           height: '100vh',
           width: '100%',
-          overflow: 'visible',
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
         <div
@@ -4198,7 +4352,7 @@ export default function Home() {
                       marginBottom: 'clamp(12px, 2vh, 20px)',
                     }}
                   >
-                    "O que não vemos é o que mais nos move."
+                    &quot;O que não vemos é o que mais nos move.&quot;
                   </div>
                   <div
                     style={{

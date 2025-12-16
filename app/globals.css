@@ -90,6 +90,14 @@ body {
   position: relative;
 }
 
+/* Fix for Next.js portal positioning */
+nextjs-portal {
+  position: fixed !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none;
+}
+
 /* Dragonfly animation styles */
 .dragonfly-path {
   fill: #ffffff;
@@ -585,55 +593,55 @@ body {
 /* Uses translateY to move title up moderately */
 @media (max-height: 911px) and (max-width: 1863px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-30px) !important;
+    transform: translateX(-1.55%) translateY(-15px) !important;
   }
 }
 
 /* More specific fix for narrower screens */
 @media (max-height: 911px) and (max-width: 1600px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-40px) !important;
+    transform: translateX(-1.55%) translateY(-25px) !important;
   }
 }
 
 /* Even more aggressive fix for very narrow screens */
 @media (max-height: 911px) and (max-width: 1400px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-50px) !important;
+    transform: translateX(-1.55%) translateY(-35px) !important;
   }
 }
 
 /* Additional fix for screens with lower aspect ratio */
 @media (max-height: 911px) and (max-width: 1200px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-60px) !important;
+    transform: translateX(-1.55%) translateY(-45px) !important;
   }
 }
 
 /* Very narrow screens */
 @media (max-height: 911px) and (max-width: 1000px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-70px) !important;
+    transform: translateX(-1.55%) translateY(-55px) !important;
   }
 }
 
 /* Extra small screens */
 @media (max-height: 911px) and (max-width: 800px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-80px) !important;
+    transform: translateX(-1.55%) translateY(-65px) !important;
   }
 }
 
 /* Additional breakpoints for better coverage */
 @media (max-height: 1000px) and (max-width: 1500px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-25px) !important;
+    transform: translateX(-1.55%) translateY(-10px) !important;
   }
 }
 
 @media (max-height: 950px) and (max-width: 1700px) {
   .moveo-title {
-    transform: translateX(-1.55%) translateY(-20px) !important;
+    transform: translateX(-1.55%) translateY(-5px) !important;
   }
 }
 
@@ -648,7 +656,7 @@ body {
 @media (max-width: 910px) {
   .moveo-title {
     left: 5px !important;
-    transform: translateX(-1.55%) translateY(-30px) !important;
+    transform: translateX(-1.55%) translateY(-15px) !important;
   }
 }
 
@@ -656,20 +664,20 @@ body {
 @media (max-width: 800px) {
   .moveo-title {
     left: 8px !important;
-    transform: translateX(-1.55%) translateY(-40px) !important;
+    transform: translateX(-1.55%) translateY(-25px) !important;
   }
 }
 
 @media (max-width: 700px) {
   .moveo-title {
     left: 10px !important;
-    transform: translateX(-1.55%) translateY(-50px) !important;
+    transform: translateX(-1.55%) translateY(-35px) !important;
   }
 }
 
 @media (max-width: 600px) {
   .moveo-title {
     left: 12px !important;
-    transform: translateX(-1.55%) translateY(-60px) !important;
+    transform: translateX(-1.55%) translateY(-45px) !important;
   }
 }

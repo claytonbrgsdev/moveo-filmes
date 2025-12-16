@@ -34,6 +34,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Catálogo section
     nossosFilmes: 'Nossos Filmes',
     catalogoEmDestaque: 'Catálogo em Destaque',
+    catalogoEm: 'CATÁLOGO EM',
+    destaque: 'DESTAQUE',
     exploreNossaSelecao: 'Explore nossa seleção de obras que marcaram festivais internacionais e conquistaram audiências ao redor do mundo. De longas-metragens a curtas experimentais, cada projeto representa nossa dedicação à narrativa cinematográfica de excelência.',
     catalogo: 'CATÁLOGO',
     explorarArquivoNaIntegra: 'EXPLORAR ARQUIVO NA ÍNTEGRA',
