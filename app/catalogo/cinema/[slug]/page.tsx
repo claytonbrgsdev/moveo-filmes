@@ -66,6 +66,7 @@ export default async function FilmeCinemaPage({ params }: PageProps) {
       .order("ordem", { ascending: true }),
   ]);
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   return (
     <FilmeContent
       filme={filme as any}
