@@ -5,83 +5,91 @@ import { MainLayout } from '@/app/components/MainLayout';
 import Image from 'next/image';
 
 interface Pessoa {
-  id?: string;
-  nome?: string;
-  nome_exibicao?: string;
+  id?: string | null;
+  nome?: string | null;
+  nome_exibicao?: string | null;
+  [key: string]: unknown;
 }
 
 interface Empresa {
-  id?: string;
-  nome?: string;
-  nome_exibicao?: string;
+  id?: string | null;
+  nome?: string | null;
+  nome_exibicao?: string | null;
+  [key: string]: unknown;
 }
 
 interface Credito {
   id: string;
   cargo: string;
-  pessoa_id?: string;
-  empresa_id?: string;
-  nome_exibicao?: string;
-  pessoas?: Pessoa;
-  empresas?: Empresa;
+  pessoa_id?: string | null;
+  empresa_id?: string | null;
+  nome_exibicao?: string | null;
+  pessoas?: Pessoa | null;
+  empresas?: Empresa | null;
+  [key: string]: unknown;
 }
 
 interface Financiamento {
   id: string;
   nome: string;
-  tipo?: string;
-  ano?: number;
-  fase?: string;
-  resultado?: string;
+  tipo?: string | null;
+  ano?: number | null;
+  fase?: string | null;
+  resultado?: string | null;
+  [key: string]: unknown;
 }
 
 interface Festival {
   id: string;
   nome: string;
-  edicao?: string;
-  ano?: number;
-  cidade?: string;
-  pais?: string;
-  secao?: string;
-  tipo_evento?: string;
-  tipo_estreia?: string;
+  edicao?: string | null;
+  ano?: number | null;
+  cidade?: string | null;
+  pais?: string | null;
+  secao?: string | null;
+  tipo_evento?: string | null;
+  tipo_estreia?: string | null;
+  [key: string]: unknown;
 }
 
 interface Premiacao {
   id: string;
   titulo_do_premio: string;
-  categoria?: string;
-  ano?: number;
-  festival_nome?: string;
-  tipo?: string;
+  categoria?: string | null;
+  ano?: number | null;
+  festival_nome?: string | null;
+  tipo?: string | null;
+  [key: string]: unknown;
 }
 
 interface Asset {
   id: string;
-  url?: string;
-  tipo?: string;
+  url?: string | null;
+  tipo?: string | null;
+  [key: string]: unknown;
 }
 
 interface Filme {
   id: string;
-  titulo_pt?: string;
-  titulo_en?: string;
-  ano?: number;
-  ano_previsto?: number;
-  tipo_obra?: string;
-  duracao_min?: number;
-  status_interno_pt?: string;
-  status_interno_en?: string;
-  generos?: string[];
-  paises_producao?: string[];
-  categoria_site?: string;
-  sinopse_pt?: string;
-  sinopse_en?: string;
-  buscando_pt?: string;
-  buscando_en?: string;
-  poster_principal_url?: string;
-  thumbnail_card_url?: string;
-  imagem_og_url?: string;
+  titulo_pt?: string | null;
+  titulo_en?: string | null;
+  ano?: number | null;
+  ano_previsto?: number | null;
+  tipo_obra?: string | null;
+  duracao_min?: number | null;
+  status_interno_pt?: string | null;
+  status_interno_en?: string | null;
+  generos?: string[] | null;
+  paises_producao?: string[] | null;
+  categoria_site?: string | null;
+  sinopse_pt?: string | null;
+  sinopse_en?: string | null;
+  buscando_pt?: string | null;
+  buscando_en?: string | null;
+  poster_principal_url?: string | null;
+  thumbnail_card_url?: string | null;
+  imagem_og_url?: string | null;
+  [key: string]: unknown;
 }
 
 interface FilmeContentProps {
