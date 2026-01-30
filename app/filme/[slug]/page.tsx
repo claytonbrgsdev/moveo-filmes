@@ -1,6 +1,4 @@
-export default function FilmePage({
-  params: _params,
-}: {
+export default function FilmePage(_props: {
   params: Promise<{ slug: string }>;
 }) {
   return null;

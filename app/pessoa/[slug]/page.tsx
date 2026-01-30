@@ -1,6 +1,4 @@
-export default function PessoaPage({
-  params: _params,
-}: {
+export default function PessoaPage(_props: {
   params: Promise<{ slug: string }>;
 }) {
   return null;

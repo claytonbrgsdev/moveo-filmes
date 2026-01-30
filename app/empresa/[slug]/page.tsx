@@ -1,6 +1,4 @@
-export default function EmpresaPage({
-  params: _params,
-}: {
+export default function EmpresaPage(_props: {
   params: Promise<{ slug: string }>;
 }) {
   return null;

@@ -243,7 +243,7 @@ export default function Home() {
 
       const HOLD_DISTANCE = window.innerHeight * 0.5; // Hold for half viewport height of scroll
 
-      const st = ScrollTrigger.create({
+      const _st = ScrollTrigger.create({
         trigger: section,
         containerAnimation: mainTrackTimelineRef.current || undefined,
         start: 'center center',
@@ -1325,8 +1325,8 @@ export default function Home() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const heading = dragonflyHeadingRef.current;
-    const pin = dragonflyPinRef.current;
+    const _heading = dragonflyHeadingRef.current;
+    const _pin = dragonflyPinRef.current;
     const paths = dragonflySectionRef.current.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
 
     // 1. Prepara os caminhos do SVG (Calcula comprimento e esconde)
@@ -1398,7 +1398,7 @@ export default function Home() {
           const speed = parseFloat(div.getAttribute('data-speed') || '1');
           
           gsap.to(div, {
-            y: (i, target) => (1 - speed) * 200,
+            y: () => (1 - speed) * 200,
             ease: 'none',
             scrollTrigger: {
               trigger: dragonflySectionRef.current,

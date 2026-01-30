@@ -3,6 +3,7 @@ import { MainLayout } from "@/app/components/MainLayout";
 import Image from "next/image";
 import Link from "next/link";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Filme {
   id: string;
   slug: string;

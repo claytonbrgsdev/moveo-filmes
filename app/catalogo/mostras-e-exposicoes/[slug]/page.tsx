@@ -68,12 +68,12 @@ export default async function FilmeMostrasExposicoesPage({ params }: PageProps) 
 
   return (
     <FilmeContent
-      filme={filme as any}
-      creditos={(creditos.data || []) as any}
-      financiamentos={(financiamentos.data || []) as any}
-      festivais={(festivais.data || []) as any}
-      premiacoes={(premiacoes.data || []) as any}
-      assets={(assets.data || []) as any}
+      filme={filme}
+      creditos={creditos.data || []}
+      financiamentos={financiamentos.data || []}
+      festivais={festivais.data || []}
+      premiacoes={premiacoes.data || []}
+      assets={assets.data || []}
     />
   );
 }
