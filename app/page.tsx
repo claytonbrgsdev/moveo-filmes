@@ -83,6 +83,7 @@ export default function Home() {
   const [mainTrackReady, setMainTrackReady] = useState(false);
   const [secondTrackReady, setSecondTrackReady] = useState(false);
   const mainTrackTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const secondTrackTweenRef = useRef<gsap.core.Tween | null>(null);
   const [newsIndex, setNewsIndex] = useState(0);
   const sobreMoveoContainerRef = useRef<HTMLDivElement>(null);
   const sobreMoveoTextRef = useRef<HTMLDivElement>(null);
@@ -809,8 +810,7 @@ export default function Home() {
             trigger: firstPanel,
             start: 'left 100%',
             end: 'left 0%',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            containerAnimation: horizontalTrackST as any,
+            containerAnimation: secondTrackTweenRef.current || undefined,
             onUpdate: (self) => {
               const velocity = self.getVelocity();
               if (velocity > 0) {
@@ -863,7 +863,7 @@ export default function Home() {
                   start: 'left 80%',
                   end: 'left 20%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -905,7 +905,7 @@ export default function Home() {
                 start: 'left 85%',
                 end: 'left 15%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -937,7 +937,7 @@ export default function Home() {
                 start: 'left 85%',
                 end: 'left 15%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -959,7 +959,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -984,7 +984,7 @@ export default function Home() {
                 start: 'left 85%',
                 end: 'left 15%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1010,7 +1010,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1047,7 +1047,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1317,7 +1317,7 @@ export default function Home() {
                 start: 'left 85%',
                 end: 'left 15%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1352,7 +1352,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1377,7 +1377,7 @@ export default function Home() {
                 start: 'left 85%',
                 end: 'left 15%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1404,7 +1404,7 @@ export default function Home() {
                   start: 'left 80%',
                   end: 'left 20%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -1429,7 +1429,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -1453,7 +1453,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2320,7 +2320,7 @@ export default function Home() {
           return track.scrollWidth - wrapper.offsetWidth;
         };
 
-        gsap.to(track, {
+        secondTrackTweenRef.current = gsap.to(track, {
           x: () => -getTravel(),
           ease: 'none',
           scrollTrigger: {
@@ -2447,8 +2447,7 @@ export default function Home() {
               trigger: panel,
               start: 'left 80%',
               end: 'left 20%',
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              containerAnimation: horizontalTrackST as any,
+              containerAnimation: secondTrackTweenRef.current || undefined,
               toggleActions: 'play none none reverse',
             },
           });
@@ -2469,7 +2468,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2494,7 +2493,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2517,7 +2516,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2542,7 +2541,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
@@ -2568,7 +2567,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             });
@@ -2593,7 +2592,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             });
@@ -2624,7 +2623,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2664,7 +2663,7 @@ export default function Home() {
                   start: 'left 85%',
                   end: 'left 15%',
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: horizontalTrackST as any,
+                  containerAnimation: secondTrackTweenRef.current || undefined,
                   toggleActions: 'play none none reverse',
                 },
               }
@@ -2686,7 +2685,7 @@ export default function Home() {
                 start: 'left 80%',
                 end: 'left 20%',
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: horizontalTrackST as any,
+                containerAnimation: secondTrackTweenRef.current || undefined,
                 toggleActions: 'play none none reverse',
               },
             }
