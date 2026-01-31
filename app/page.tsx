@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,34 +8,22 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
+import ContentTransition from './components/ContentTransition';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
   getMarkerPosition,
   getHorizontalLinePosition,
   getWidthBetweenMarkers,
   getHeightBetweenLines,
 } from '@/lib/utils/gridCoordinates';
+import {
+  useMagneticElements,
+  use3DCardTilt,
+  useFloatingElements,
+  useScrollProgress,
+} from './hooks/useSpectacularAnimations';
 
-const newsHighlights = [
-  {
-    title: 'Mostra Internacional 2025',
-    summary: 'Dois longas autorais selecionados para Rotterdam exibindo a estética MOVEO.',
-    date: 'Março 2025',
-    tag: 'Festival',
-  },
-  {
-    title: 'Residência Criativa DF',
-    summary: 'Laboratório imersivo de direção com foco em narrativas híbridas e arquivos vivos.',
-    date: 'Junho 2025',
-    tag: 'Residência',
-  },
-  {
-    title: 'Co-produção transatlântica',
-    summary: 'Novo filme em parceria com estúdios europeus amplia a presença da produtora.',
-    date: 'Agosto 2025',
-    tag: 'Produção',
-  },
-];
 
 const newsImages = [
   '/imagens/secao2home/Rectangle 10.png',
@@ -48,13 +36,61 @@ const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
 
+// High-quality placeholder images for featured films
+const PLACEHOLDER_IMAGES = {
+  natureza: [
+    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80', // Cinema
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80', // Movie theater
+    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&q=80', // Film reel
+    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80', // Cinema screen
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80', // Film production
+    'https://images.unsplash.com/photo-1542204165-6bfe6a7b3c73?w=800&q=80', // Director
+  ],
+  micangas: [
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mountain landscape
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic landscape
+    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Nature
+    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Forest
+  ],
+  misterio: [
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mysterious landscape
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic scene
+    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Atmospheric
+    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Dark forest
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Repeat for variety
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+  ],
+};
+
 export default function Home() {
+  const { language, t } = useLanguage();
+  
+  // News highlights traduzidos baseados no idioma
+  const newsHighlights = [
+    {
+      title: t('mostraInternacional2025'),
+      summary: t('mostraInternacional2025Summary'),
+      date: t('marco2025'),
+      tag: t('festival'),
+    },
+    {
+      title: t('residenciaCriativaDF'),
+      summary: t('residenciaCriativaDFSummary'),
+      date: t('junho2025'),
+      tag: t('residencia'),
+    },
+    {
+      title: t('coproducaoTransatlantica'),
+      summary: t('coproducaoTransatlanticaSummary'),
+      date: t('agosto2025'),
+      tag: t('producaoTag'),
+    },
+  ];
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // const [produtoraFontSize, setProdutoraFontSize] = useState<number>(100); // Removed
   const produtoraTextRef = useRef<HTMLDivElement>(null);
   const produtoraContainerRef = useRef<HTMLDivElement>(null);
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
@@ -68,9 +104,8 @@ export default function Home() {
   const horizontalThirdTrackRef = useRef<HTMLDivElement>(null);
   const verticalReverseWrapperRef = useRef<HTMLDivElement>(null);
   const verticalReverseContentRef = useRef<HTMLDivElement>(null);
-  const imageCarouselSectionRef = useRef<HTMLDivElement>(null);
-  const imageCarouselContainerRef = useRef<HTMLDivElement>(null);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const carouselContainerRef = useRef<HTMLDivElement>(null);
+  const carouselScrollDistRef = useRef<HTMLDivElement>(null);
   const [mainTrackReady, setMainTrackReady] = useState(false);
   const mainTrackTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const [newsIndex, setNewsIndex] = useState(0);
@@ -80,6 +115,116 @@ export default function Home() {
   const dragonflySectionRef = useRef<HTMLDivElement>(null);
   const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
   const dragonflyPinRef = useRef<HTMLDivElement>(null);
+  const cinemaSectionRef = useRef<HTMLElement | null>(null);
+  const arquivoSectionRef = useRef<HTMLElement | null>(null);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+
+  // Activate spectacular animation hooks
+  useMagneticElements();
+  use3DCardTilt();
+  useFloatingElements();
+  useScrollProgress();
+
+  // Cursor glow effect
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    setCursorPosition({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
+
+  // Adjust MOVEO title position for smaller screens to prevent overlap with image
+  useEffect(() => {
+    if (!textRef.current) return;
+
+    const updateTitlePosition = () => {
+      if (!textRef.current) return;
+      
+      const height = window.innerHeight;
+      const width = window.innerWidth;
+      
+      // Base reference: width 1336px, height 698px está ok
+      const referenceWidth = 1336;
+      const referenceHeight = 698;
+      const baseOffset = 40; // Original offset (25px + 15px adjustment)
+      
+      // Calcular offset adicional baseado na altura quando width >= 1336px
+      let additionalOffset = 0;
+      
+      // Para telas com width >= 1336px, ajustar baseado na altura
+      if (width >= referenceWidth) {
+        if (height < referenceHeight) {
+          // Altura menor que referência, precisa de mais espaço
+          const heightDiff = referenceHeight - height;
+          // Aplicar offset proporcional: a cada 50px de altura perdida, adicionar ~15px de offset
+          additionalOffset = Math.floor((heightDiff / 50) * 15);
+          // Limitar offset máximo para evitar posicionamento extremo
+          additionalOffset = Math.min(additionalOffset, 80);
+        }
+      }
+      
+      // For screens with width < 911px - need moderate adjustments
+      if (width < 911) {
+        // Add moderate offset for very narrow screens
+        let widthOffset = 0;
+        if (width < 600) {
+          widthOffset = 35;
+        } else if (width < 700) {
+          widthOffset = 30;
+        } else if (width < 800) {
+          widthOffset = 25;
+        } else if (width < 911) {
+          widthOffset = 20;
+        }
+        
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else if (height <= 911 && width < 1864) {
+        // For screens with height <= 911px and width >= 911px but < 1864px
+        // Add moderate offset for narrower screens
+        let widthOffset = 0;
+        if (width < 1000) {
+          widthOffset = 40;
+        } else if (width < 1200) {
+          widthOffset = 35;
+        } else if (width < 1400) {
+          widthOffset = 30;
+        } else if (width < 1600) {
+          widthOffset = 25;
+        } else if (width < 1864) {
+          widthOffset = 20;
+        }
+        
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else if (height <= 1000 && width < 2000) {
+        // Also adjust for slightly taller screens that are still narrow
+        let widthOffset = 0;
+        if (width < 1500) {
+          widthOffset = 20;
+        } else if (width < 1700) {
+          widthOffset = 15;
+        } else if (width < 2000) {
+          widthOffset = 10;
+        }
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + widthOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      } else {
+        // Para telas maiores, aplicar offset baseado na altura se necessário
+        const newBottom = `calc(100% - ${getHorizontalLinePosition('F')} + ${baseOffset + additionalOffset}px)`;
+        textRef.current.style.bottom = newBottom;
+      }
+    };
+
+    updateTitlePosition();
+    window.addEventListener('resize', updateTitlePosition);
+    
+    return () => {
+      window.removeEventListener('resize', updateTitlePosition);
+    };
+  }, []);
 
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition('F')} - ${getHorizontalLinePosition('E')}) / 2)`;
   const centerLeft = `calc(${getMarkerPosition(7)} + (${getMarkerPosition(8)} - ${getMarkerPosition(7)}) / 2)`;
@@ -146,12 +291,6 @@ export default function Home() {
       mainTrackTimelineRef.current = tl;
       setMainTrackReady(true);
 
-      // Debug: Log para verificar dimensões
-      console.log('Track width:', track.scrollWidth);
-      console.log('Wrapper width:', wrapper.offsetWidth);
-      console.log('Distance:', track.scrollWidth - wrapper.offsetWidth);
-      console.log('Number of sections:', track.children.length);
-
       // Forçar atualização imediata do ScrollTrigger
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
@@ -165,15 +304,9 @@ export default function Home() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      // Limpar ScrollTrigger específico antes de reverter o contexto
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id === 'horizontal-main-track' || st.trigger === wrapper) {
-          st.kill();
-        }
-      });
       mainTrackTimelineRef.current = null;
       setMainTrackReady(false);
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -213,12 +346,7 @@ export default function Home() {
     }, horizontalWrapperRef);
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id === 'second-section-pin') {
-          st.kill();
-        }
-      });
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, [mainTrackReady]);
 
@@ -243,7 +371,7 @@ export default function Home() {
 
       const HOLD_DISTANCE = window.innerHeight * 0.5; // Hold for half viewport height of scroll
 
-      const _st = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: section,
         containerAnimation: mainTrackTimelineRef.current || undefined,
         start: 'center center',
@@ -260,17 +388,48 @@ export default function Home() {
     }, horizontalWrapperRef);
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => {
-        const vars = st.vars as { id?: string };
-        if (vars?.id === 'third-section-pin') {
-          st.kill();
-        }
-      });
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, [mainTrackReady]);
 
-  // Unique scroll trigger effects for first section elements
+  // Animate MOVEO title synchronized with horizontal scroll timeline
+  // Prevents premature displacement before other elements start scrolling
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!mainTrackReady) return;
+    if (!mainTrackTimelineRef.current) return;
+    if (!firstSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
+      if (!allTargets.length) return;
+
+      const moveoElement = allTargets.find((el) => {
+        const text = el.textContent?.trim();
+        return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
+      }) as HTMLElement;
+
+      if (!moveoElement || !mainTrackTimelineRef.current) return;
+
+      const tl = mainTrackTimelineRef.current;
+
+      // Add MOVEO animation to the existing timeline
+      // Start at position 0.2 (after hold period) and animate during horizontal scroll (0.2 to 1.0)
+      tl.to(moveoElement, {
+        y: -40,
+        ease: 'none',
+        duration: 0.8, // Same duration as horizontal scroll movement (80% of timeline)
+      }, 0.2); // Start at 20% (after the hold period, when horizontal movement begins)
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, firstSectionRef);
+
+    return () => ctx.revert();
+  }, [mainTrackReady]);
+
+  // Spectacular entrance animation for first section
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!firstSectionRef.current) return;
@@ -278,18 +437,13 @@ export default function Home() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const allTargets = gsap.utils.toArray<HTMLElement>('[data-first-animate]');
+      const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
       if (!allTargets.length) return;
 
-      // Find specific elements by checking their content and structure
+      // Find specific elements
       const moveoElement = allTargets.find((el) => {
         const text = el.textContent?.trim();
         return text === 'MOVEO' || (el.classList.contains('uppercase') && text?.includes('MOVEO'));
-      }) as HTMLElement;
-      
-      const produtoraElement = allTargets.find((el) => {
-        const text = el.textContent || '';
-        return text.includes('Produtora boutique') || text.includes('De filmes independentes');
       }) as HTMLElement;
       
       const imageElement = allTargets.find((el) => {
@@ -299,67 +453,884 @@ export default function Home() {
         return hasImage || el.classList.contains('overflow-hidden');
       }) as HTMLElement;
 
-      // Animation for MOVEO - Minimal fade with subtle vertical slide
+      const decorativeLines = Array.from(firstSectionRef.current?.querySelectorAll('[data-decor-line]') || []) as HTMLElement[];
+
+      // ENTRANCE TIMELINE - dramatic reveal
+      const entranceTl = gsap.timeline({ 
+        defaults: { ease: 'power3.out' },
+        delay: 0.3 
+      });
+
+      // 1. Split MOVEO into characters and animate each
       if (moveoElement) {
-        gsap.set(moveoElement, { 
-          opacity: 0,
-          y: 60,
-        });
+        const text = moveoElement.textContent || '';
+        moveoElement.innerHTML = text.split('').map(char => 
+          `<span style="display: inline-block; will-change: transform, opacity;">${char}</span>`
+        ).join('');
         
-        gsap.to(moveoElement, {
+        const chars = Array.from(moveoElement.querySelectorAll('span'));
+        
+        gsap.set(chars, { 
+          opacity: 0,
+          y: 150,
+          rotationX: -90,
+          transformOrigin: '50% 50%',
+        });
+
+        entranceTl.to(chars, {
           opacity: 1,
           y: 0,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=200',
-            scrub: true,
-            invalidateOnRefresh: true,
+          rotationX: 0,
+          duration: 1.2,
+          stagger: {
+            each: 0.08,
+            from: 'start',
+            ease: 'power2.out',
           },
+          ease: 'back.out(1.4)',
         });
       }
 
-      // Animation for Produtora boutique - Simple horizontal slide in
-      if (produtoraElement) {
-        gsap.set(produtoraElement, { 
-          opacity: 0,
-          x: -80,
-        });
-        
-        gsap.to(produtoraElement, {
-          opacity: 1,
-          x: 0,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=250',
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        });
+      // 2. Decorative lines fly in
+      if (decorativeLines.length) {
+        gsap.set(decorativeLines, { scaleX: 0, transformOrigin: 'left center' });
+        entranceTl.to(decorativeLines, {
+          scaleX: 1,
+          duration: 1,
+          stagger: 0.1,
+          ease: 'power4.out',
+        }, '-=0.8');
       }
 
-      // Animation for Capa Home image - Simple fade in
+      // 3. Produtora text - set initial state (will animate on first scroll)
+      // Note: Animation is handled in separate useLayoutEffect that triggers on scroll
+
+      // 4. Image - set initial state (will animate on first scroll)
       if (imageElement) {
         gsap.set(imageElement, { 
           opacity: 0,
-        });
-        
-        gsap.to(imageElement, {
-          opacity: 1,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: firstSectionRef.current,
-            start: 'top top',
-            end: '+=300',
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
+          scale: 1.1,
         });
       }
+
     }, firstSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Animate image on scroll - with reverse animation on scroll back
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!firstSectionRef.current) return;
+
+    const imageElement = firstSectionRef.current.querySelector('[data-animate][data-first-animate]') as HTMLElement;
+    if (!imageElement) return;
+
+    const hasImage = imageElement.querySelector('img[alt="Capa Home"]') || 
+                    imageElement.querySelector('img[src*="capahome"]');
+    if (!hasImage) return;
+
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Set initial state - ensure element starts invisible
+    gsap.set(imageElement, { 
+      opacity: 0,
+      scale: 1.1,
+    });
+
+    // Track animation state
+    let isVisible = false;
+    let animation: gsap.core.Tween | null = null;
+
+    // Helper function to animate in
+    const animateIn = () => {
+      if (isVisible) return;
+      isVisible = true;
+      if (animation) animation.kill();
+      animation = gsap.to(imageElement, {
+        opacity: 1,
+        scale: 1,
+        duration: 1.5,
+        ease: 'power2.out',
+      });
+    };
+
+    // Helper function to animate out
+    const animateOut = () => {
+      if (!isVisible) return;
+      isVisible = false;
+      if (animation) animation.kill();
+      animation = gsap.to(imageElement, {
+        opacity: 0,
+        scale: 1.1,
+        duration: 1.5,
+        ease: 'power2.out',
+      });
+    };
+
+    // Create ScrollTrigger to control animation based on scroll position
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: firstSectionRef.current,
+      start: 'top top',
+      end: '+=200', // Trigger zone: 200px from start
+      onEnter: animateIn,
+      onLeaveBack: animateOut,
+    });
+
+    return () => {
+      if (animation) animation.kill();
+      scrollTrigger.kill();
+    };
+  }, []);
+
+  // Animate produtora text on scroll with split text effect - with reverse animation
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!firstSectionRef.current) return;
+
+    // Find the text element - try ref first, then fallback to querySelector
+    let textElement: HTMLElement | null = produtoraTextRef.current;
+    
+    if (!textElement && firstSectionRef.current) {
+      // Fallback: find by text content
+      const allTargets = Array.from(firstSectionRef.current.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
+      const produtoraElement = allTargets.find((el) => {
+        const text = el.textContent || '';
+        return text.includes('Produtora boutique') || text.includes('de filmes independentes');
+      });
+      if (produtoraElement) {
+        textElement = produtoraElement.querySelector('[data-animate]') as HTMLElement;
+      }
+    }
+    
+    if (!textElement) return;
+
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Store original HTML before any modifications
+    const originalHTML = textElement.innerHTML;
+
+    // Set initial state
+    gsap.set(textElement, { 
+      opacity: 0,
+      x: -100,
+      filter: 'blur(10px)',
+    });
+
+    // Track animation state
+    let isVisible = false;
+    let wordElements: HTMLElement[] = [];
+    let animation: gsap.core.Tween | null = null;
+
+    // Helper function to split text into words
+    const splitTextIntoWords = () => {
+      // Simple split by <br /> or <br>
+      const lines = originalHTML.split(/<br\s*\/?>/i);
+      let newHTML = '';
+      
+      lines.forEach((line, lineIndex) => {
+        if (!line.trim()) return;
+        
+        // Get text content from the line
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = line.trim();
+        const lineText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+        
+        if (!lineText) return;
+        
+        // Split into words
+        const words = lineText.split(/\s+/).filter(w => w.length > 0);
+        
+        // Wrap each word in a span
+        words.forEach((word, wordIndex) => {
+          newHTML += `<span class="word">${word}</span>`;
+          if (wordIndex < words.length - 1) {
+            newHTML += ' ';
+          }
+        });
+        
+        // Add <br /> between lines
+        if (lineIndex < lines.length - 1) {
+          newHTML += '<br />';
+        }
+      });
+      
+      // Replace HTML
+      textElement.innerHTML = newHTML;
+      
+      // Get all word elements
+      wordElements = Array.from(textElement.querySelectorAll('.word')) as HTMLElement[];
+    };
+
+    // Helper function to animate in
+    const animateIn = () => {
+      if (isVisible) return;
+      isVisible = true;
+
+      // Split text into words if not already split
+      if (wordElements.length === 0) {
+        splitTextIntoWords();
+      }
+
+      if (wordElements.length > 0) {
+        // Set initial state for words
+        wordElements.forEach((word) => {
+          gsap.set(word, {
+            opacity: 0,
+            y: 15,
+            display: 'inline-block',
+          });
+        });
+        
+        // Make container visible
+        gsap.set(textElement, {
+          opacity: 1,
+          x: 0,
+          filter: 'blur(0px)',
+        });
+        
+        // Animate words with stagger
+        if (animation) animation.kill();
+        animation = gsap.to(wordElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.05,
+          ease: 'power3.out',
+        });
+      } else {
+        // Fallback - simple fade in
+        if (animation) animation.kill();
+        animation = gsap.to(textElement, {
+          opacity: 1,
+          x: 0,
+          filter: 'blur(0px)',
+          duration: 1,
+          ease: 'power3.out',
+        });
+      }
+    };
+
+    // Helper function to animate out (reverse)
+    const animateOut = () => {
+      if (!isVisible) return;
+      isVisible = false;
+
+      if (wordElements.length > 0) {
+        // Animate words out with reverse stagger
+        if (animation) animation.kill();
+        animation = gsap.to(wordElements, {
+          opacity: 0,
+          y: 15,
+          duration: 0.8,
+          stagger: 0.05,
+          ease: 'power3.out',
+          onComplete: () => {
+            // Restore original HTML after animation completes
+            textElement.innerHTML = originalHTML;
+            wordElements = [];
+            // Reset element state
+            gsap.set(textElement, {
+              opacity: 0,
+              x: -100,
+              filter: 'blur(10px)',
+            });
+          },
+        });
+      } else {
+        // Fallback - simple fade out
+        if (animation) animation.kill();
+        animation = gsap.to(textElement, {
+          opacity: 0,
+          x: -100,
+          filter: 'blur(10px)',
+          duration: 1,
+          ease: 'power3.out',
+        });
+      }
+    };
+
+    // Create ScrollTrigger to control animation based on scroll position
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: firstSectionRef.current,
+      start: 'top top',
+      end: '+=200', // Trigger zone: 200px from start
+      onEnter: animateIn,
+      onLeaveBack: animateOut,
+    });
+
+    return () => {
+      if (animation) animation.kill();
+      scrollTrigger.kill();
+    };
+  }, []);
+
+  // Animações para seções de "AS MIÇANGAS" - Scroll Acceleration
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!horizontalSecondTrackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
+      // Scroll Acceleration para primeira seção (galeria)
+      const firstPanel = panels[0];
+      if (firstPanel) {
+        const cols = Array.from(firstPanel.querySelectorAll('.data-micangas-col')) as HTMLElement[];
+        
+        if (cols.length) {
+          const additionalY = { val: 0 };
+          let additionalYAnim: gsap.core.Tween | null = null;
+          let offset = 0;
+
+          cols.forEach((col, i) => {
+            const images = Array.from(col.querySelectorAll('.data-micangas-image')) as HTMLElement[];
+            if (!images.length) return;
+
+            // Duplicate images for seamless loop
+            images.forEach((image) => {
+              const clone = image.cloneNode(true) as HTMLElement;
+              col.appendChild(clone);
+            });
+
+            // Set animation with different directions
+            const direction = i % 2 !== 0 ? '+=' : '-='; // Odd columns move down, even move up
+            const columnHeight = col.scrollHeight;
+
+            images.forEach((item) => {
+              gsap.to(item, {
+                y: direction + (columnHeight / 2),
+                duration: 20,
+                repeat: -1,
+                ease: 'none',
+                modifiers: {
+                  y: gsap.utils.unitize((y) => {
+                    if (direction === '+=') {
+                      offset += additionalY.val;
+                      y = (parseFloat(y) - offset) % (columnHeight * 0.5);
+                    } else {
+                      offset += additionalY.val;
+                      y = (parseFloat(y) + offset) % -(columnHeight * 0.5);
+                    }
+                    return y;
+                  })
+                }
+              });
+            });
+          });
+
+          // Scroll velocity acceleration
+          ScrollTrigger.create({
+            trigger: firstPanel,
+            start: 'left 100%',
+            end: 'left 0%',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            containerAnimation: horizontalTrackST as any,
+            onUpdate: (self) => {
+              const velocity = self.getVelocity();
+              if (velocity > 0) {
+                if (additionalYAnim) additionalYAnim.kill();
+                additionalY.val = -velocity / 2000;
+                additionalYAnim = gsap.to(additionalY, { val: 0 });
+              }
+              if (velocity < 0) {
+                if (additionalYAnim) additionalYAnim.kill();
+                additionalY.val = -velocity / 3000;
+                additionalYAnim = gsap.to(additionalY, { val: 0 });
+              }
+            },
+          });
+        }
+      }
+
+      // Split text animation for all panels
+      const splitTexts = horizontalSecondTrackRef.current 
+        ? Array.from(horizontalSecondTrackRef.current.querySelectorAll('.split-text')) as HTMLElement[]
+        : [];
+      splitTexts.forEach((textEl) => {
+        const text = textEl.textContent || '';
+        const words = text.split(' ');
+        textEl.innerHTML = words.map(word => `<span class="word" style="display: inline-block; opacity: 0; transform: translateY(15px);">${word}</span>`).join(' ');
+      });
+
+      // Animate other panels - Individual animations
+      panels.forEach((panel, index) => {
+        if (index === 0) {
+          // Title animation for first panel - Individual
+          const title = panel.querySelector('.data-micangas-title') as HTMLElement;
+          if (title) {
+            gsap.fromTo(title,
+              { 
+                opacity: 0, 
+                scale: 0.6,
+                rotation: -5,
+                y: 50,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 1.4,
+                ease: 'back.out(1.5)',
+                scrollTrigger: {
+                  trigger: panel,
+                  start: 'left 80%',
+                  end: 'left 20%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          }
+          return;
+        }
+
+        const content = panel.querySelector('.data-micangas-content') as HTMLElement;
+        const title = panel.querySelector('.data-micangas-title') as HTMLElement;
+        const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
+
+        // Check if this is the first panel (panel 0) - make it visible immediately
+        const isFirstPanel = panel.getAttribute('data-micangas-panel') === '0';
+
+        // Title animation - Individual
+        if (title) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(title, { opacity: 1, scale: 1, x: 0, rotation: 0 });
+          }
+          
+          gsap.fromTo(title,
+            { 
+              opacity: isFirstPanel ? 1 : 0, 
+              scale: isFirstPanel ? 1 : 0.7,
+              x: isFirstPanel ? 0 : -50,
+              rotation: isFirstPanel ? 0 : -3,
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              x: 0,
+              rotation: 0,
+              duration: 1.3,
+              ease: 'back.out(1.2)',
+              scrollTrigger: {
+                trigger: title,
+                start: 'left 85%',
+                end: 'left 15%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Content fade in - Individual
+        if (content) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(content, { opacity: 1, y: 0, scale: 1 });
+          }
+          
+          gsap.fromTo(content,
+            { 
+              opacity: isFirstPanel ? 1 : 0, 
+              y: isFirstPanel ? 0 : 40,
+              scale: isFirstPanel ? 1 : 0.95,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 1,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: content,
+                start: 'left 85%',
+                end: 'left 15%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Words stagger animation - Individual
+        if (words.length) {
+          words.forEach((word, index) => {
+            gsap.to(word,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                delay: index * 0.04,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: word,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Individual image animations for AS MIÇANGAS
+        const images = Array.from(panel.querySelectorAll('.data-micangas-image')) as HTMLElement[];
+        if (images.length) {
+          images.forEach((img, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(img, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
+            gsap.fromTo(img,
+              { 
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.8,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
+                y: isFirstPanel ? 0 : 30,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 0.9,
+                delay: index * 0.06,
+                ease: 'back.out(1.1)',
+                scrollTrigger: {
+                  trigger: img,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+      });
+
+      // Parallax effect for background images
+      const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-parallax]') || []) as HTMLElement[];
+      
+      if (horizontalTrackST && parallaxImages.length) {
+        const updateParallax = () => {
+          const progress = horizontalTrackST.progress;
+          parallaxImages.forEach((img) => {
+            const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
+            const moveX = -progress * 200 * speed;
+            gsap.set(img, { x: moveX });
+          });
+        };
+
+        ScrollTrigger.create({
+          trigger: horizontalSecondWrapperRef.current,
+          start: 'top 50px',
+          end: () => {
+            if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
+            return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
+          },
+          onUpdate: updateParallax,
+        });
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // 3D Carousel Animation - Catálogo Section
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!carouselContainerRef.current || !carouselScrollDistRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const container = carouselContainerRef.current;
+    const scrollDist = carouselScrollDistRef.current;
+    const boxes: HTMLDivElement[] = [];
+    const numBoxes = 24;
+
+    // Images array - using existing placeholder images
+    // Note: Using the same image paths as used elsewhere in the codebase
+    const images = [
+      '/imagens/secao2home/Rectangle 8.png',
+      '/imagens/secao2home/Rectangle 9.png',
+      '/imagens/secao2home/Rectangle 10.png',
+      '/imagens/secao2home/Rectangle 11.png',
+      '/imagens/secao2home/Rectangle 122.png',
+    ];
+
+    // Create boxes
+    for (let i = 0; i < numBoxes; i++) {
+      const box = document.createElement('div');
+      box.style.position = 'absolute';
+      box.style.userSelect = 'none';
+      box.style.cursor = 'pointer';
+      boxes.push(box);
+      container.appendChild(box);
+    }
+
+    const ctx = gsap.context(() => {
+      // Preload images
+      const imagePromises = images.map((src) => {
+        return new Promise<void>((resolve, reject) => {
+          const img = document.createElement('img');
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+          img.src = src;
+        });
+      });
+
+      // Initial setup for container
+      gsap.set(container, {
+        perspective: 600,
+        transformStyle: 'preserve-3d',
+      });
+
+      // Wait for images to load, then setup boxes
+      Promise.allSettled(imagePromises).then(() => {
+        // Initial setup for each box
+        boxes.forEach((box, i) => {
+          const imageIndex = i % images.length;
+          const imageUrl = images[imageIndex];
+          
+          // First set GSAP properties
+          gsap.set(box, {
+            left: '50%',
+            top: '50%',
+            xPercent: -50,
+            yPercent: -50,
+            width: 180,
+            height: 180,
+            borderRadius: '8px',
+            backfaceVisibility: 'hidden',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+            transformStyle: 'preserve-3d',
+            zIndex: 10 + i,
+            backgroundColor: '#1a1a1a', // Fallback color while image loads
+            opacity: 1,
+          });
+          
+          // Then set background image directly on the element (after GSAP.set to ensure it's not overwritten)
+          // Use requestAnimationFrame to ensure GSAP has finished applying styles
+          requestAnimationFrame(() => {
+            box.style.setProperty('background-image', `url(${imageUrl})`, 'important');
+            box.style.setProperty('background-size', 'cover', 'important');
+            box.style.setProperty('background-position', 'center', 'important');
+            box.style.setProperty('background-repeat', 'no-repeat', 'important');
+          });
+
+          // Create timeline for each box
+          const tl = gsap.timeline({ paused: true, defaults: { immediateRender: true } })
+            .fromTo(box, {
+              scale: 0.3,
+              rotationX: (i / numBoxes) * 360,
+              transformOrigin: '50% 50% -500px',
+            }, {
+              rotationX: '+=360',
+              ease: 'none',
+            })
+            .timeScale(0.05);
+
+          // Store timeline on the element
+          (box as HTMLElement & { tl?: gsap.core.Timeline }).tl = tl;
+
+          // Hover effects
+          box.addEventListener('mouseenter', () => {
+            gsap.to(box, { 
+              opacity: 0.8, 
+              scale: 0.35, 
+              duration: 0.4, 
+              ease: 'expo.out',
+              boxShadow: '0 15px 60px rgba(255, 255, 255, 0.2)',
+              zIndex: 100,
+            });
+          });
+
+          box.addEventListener('mouseleave', () => {
+            gsap.to(box, { 
+              opacity: 1, 
+              scale: 0.3, 
+              duration: 0.2, 
+              ease: 'back.out(3)', 
+              overwrite: 'auto',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              zIndex: 10 + i,
+            });
+          });
+        });
+
+        // Setup ScrollTriggers after boxes are ready
+        // Entrance animation - Big spin when section enters viewport
+        ScrollTrigger.create({
+          trigger: container,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            // Animate container with a dramatic entrance spin
+            gsap.fromTo(container, 
+              {
+                rotationY: -180,
+                opacity: 0,
+              },
+              {
+                rotationY: 0,
+                opacity: 1,
+                duration: 2,
+                ease: 'power3.out',
+              }
+            );
+
+            // Stagger the boxes appearing
+            boxes.forEach((box, i) => {
+              gsap.from(box, {
+                opacity: 0,
+                scale: 0,
+                duration: 1,
+                delay: i * 0.03,
+                ease: 'back.out(2)',
+              });
+            });
+          },
+        });
+
+        // ScrollTrigger for continuous rotation during scroll
+        ScrollTrigger.create({
+          trigger: scrollDist,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            boxes.forEach((box) => {
+              const tl = (box as HTMLElement & { tl?: gsap.core.Timeline }).tl;
+              if (tl) {
+                tl.progress(progress);
+              }
+            });
+          },
+          invalidateOnRefresh: true,
+        });
+      });
+    }, carouselContainerRef);
+
+    return () => {
+      // Clean up boxes
+      boxes.forEach((box) => box.remove());
+      ctx.revert();
+    };
+  }, []);
+
+  // Animações para seções de "O Mistério da Carne"
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!horizontalSecondTrackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-misterio-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
+      // Animate each panel when it enters viewport
+      panels.forEach((panel) => {
+        const title = panel.querySelector('.data-misterio-title') as HTMLElement;
+        const galleryItems = Array.from(panel.querySelectorAll('.data-misterio-gallery-item')) as HTMLElement[];
+
+        // Check if this is the first panel (panel 0) - make it visible immediately
+        const isFirstPanel = panel.getAttribute('data-misterio-panel') === '0';
+
+        // Title animation - Individual
+        if (title) {
+          if (isFirstPanel) {
+            // For first panel, set visible immediately
+            gsap.set(title, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+          }
+          
+          gsap.fromTo(title,
+            { 
+              opacity: isFirstPanel ? 1 : 0, 
+              scale: isFirstPanel ? 1 : 0.6,
+              rotation: isFirstPanel ? 0 : 5,
+              y: isFirstPanel ? 0 : 50,
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              rotation: 0,
+              y: 0,
+              duration: 1.4,
+              ease: 'back.out(1.5)',
+              scrollTrigger: {
+                trigger: title,
+                start: 'left 85%',
+                end: 'left 15%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Gallery items fade in - Individual animations
+        if (galleryItems.length) {
+          galleryItems.forEach((item, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
+            gsap.fromTo(item,
+              { 
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.7,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -8 : 8),
+                y: isFirstPanel ? 0 : 50,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 1,
+                delay: index * 0.1,
+                ease: 'back.out(1.3)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+      });
+    }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
   }, []);
@@ -887,6 +1858,346 @@ export default function Home() {
     return () => ctx.revert();
   }, [mainTrackReady]);
 
+  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque) - Individual animations
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!dragonflySectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(dragonflySectionRef.current);
+      
+      // Get individual elements
+      const labelElement = q('[data-catalog-label]')[0] as HTMLElement;
+      const titleElement = q('[data-catalog-title]')[0] as HTMLElement;
+      const descriptionElement = q('[data-catalog-description]')[0] as HTMLElement;
+      const imageElement = q('[data-catalog-image]')[0] as HTMLElement;
+
+      // Animation for label "NOSSOS FILMES"
+      if (labelElement) {
+        gsap.set(labelElement, { 
+          opacity: 0, 
+          y: 30,
+        });
+
+        gsap.to(labelElement, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: labelElement,
+            start: 'top 85%',
+            end: 'top 60%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+
+      // Animation for title "Catálogo em Destaque"
+      if (titleElement) {
+        gsap.set(titleElement, { 
+          opacity: 0, 
+          y: 50,
+          scale: 0.95,
+        });
+
+        gsap.to(titleElement, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: titleElement,
+            start: 'top 85%',
+            end: 'top 55%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+
+      // Typewriter animation for description paragraph (character-by-character with proper wrapping)
+      if (descriptionElement) {
+        const originalText = descriptionElement.textContent || '';
+        
+        // Split text into characters
+        const chars = originalText.split('');
+        const charElements: HTMLElement[] = [];
+        
+        // Clear content and ensure proper wrapping styles
+        descriptionElement.style.display = 'block';
+        descriptionElement.style.width = '100%';
+        descriptionElement.innerHTML = '';
+        
+        // Create spans for each character
+        chars.forEach((char) => {
+          const charSpan = document.createElement('span');
+          charSpan.style.display = 'inline';
+          charSpan.style.opacity = '0';
+          
+          // Use regular spaces to allow wrapping
+          if (char === ' ') {
+            charSpan.textContent = ' ';
+          } else {
+            charSpan.textContent = char;
+          }
+          
+          descriptionElement.appendChild(charSpan);
+          charElements.push(charSpan);
+        });
+
+        // Create typewriter timeline with ScrollTrigger
+        const typewriterTl = gsap.timeline({
+          paused: true,
+          scrollTrigger: {
+            trigger: descriptionElement,
+            start: 'top 85%',
+            end: 'top 50%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        // Animate each character appearing one by one - faster timing
+        charElements.forEach((span, i) => {
+          typewriterTl.to(span, {
+            opacity: 1,
+            duration: 0.01,
+            ease: 'none',
+          }, i * 0.012); // Faster: reduced delay for quicker animation
+        });
+      }
+
+      // Animation for image - Zoom in from center with blur and brightness
+      if (imageElement) {
+        const imageContainer = imageElement.parentElement;
+        if (imageContainer) {
+          // Set initial state - zoomed in, blurred, darker
+          gsap.set(imageElement, {
+            opacity: 0,
+            scale: 1.4,
+            filter: 'blur(20px) brightness(0.5)',
+          });
+
+          // Animate to final state
+          gsap.to(imageElement, {
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px) brightness(0.9)',
+            duration: 1.5,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: imageContainer,
+              start: 'top 80%',
+              end: 'top 45%',
+              toggleActions: 'play none none reverse',
+            },
+          });
+        }
+      }
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, dragonflySectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // ScrollTrigger animations for Cinema Section (CATÁLOGO/CINEMA)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!cinemaSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(cinemaSectionRef.current);
+      const imageTargets = q('[data-cinema-image]') as HTMLElement[];
+      const contentTargets = q('[data-cinema-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Animation variants for cinema section
+      const cinemaImageVariants = [
+        { x: -80, y: 100, rotate: -2, scale: 1.12, blur: 9 },
+        { x: 70, y: 110, rotate: 2, scale: 1.14, blur: 10 },
+      ];
+
+      const cinemaContentVariants = [
+        { x: -50, y: 70, scale: 1.06, blur: 7 },
+        { x: 40, y: 75, scale: 1.07, blur: 7 },
+        { x: -45, y: 65, scale: 1.05, blur: 6 },
+        { x: 50, y: 80, scale: 1.08, blur: 8 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = cinemaImageVariants[index] || cinemaImageVariants[0];
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 80%',
+              end: 'top 40%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      contentTargets.forEach((target, index) => {
+        const variant = cinemaContentVariants[index] || cinemaContentVariants[0];
+
+        gsap.set(target, { autoAlpha: 1 });
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 85%',
+              end: 'top 50%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, cinemaSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // ScrollTrigger animations for Arquivo Section (ARQUIVO MOVEL)
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!arquivoSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(arquivoSectionRef.current);
+      const imageTargets = q('[data-arquivo-image]') as HTMLElement[];
+      const contentTargets = q('[data-arquivo-animate]') as HTMLElement[];
+      const allTargets = [...imageTargets, ...contentTargets];
+      if (!allTargets.length) return;
+
+      gsap.set(allTargets, { autoAlpha: 0 });
+
+      // Animation variants for arquivo section
+      const arquivoImageVariants = [
+        { x: -90, y: 130, rotate: -3, scale: 1.13, blur: 11 },
+        { x: 85, y: 125, rotate: 2.5, scale: 1.15, blur: 12 },
+        { x: -75, y: 140, rotate: -2, scale: 1.12, blur: 10 },
+      ];
+
+      const arquivoContentVariants = [
+        { x: -55, y: 90, scale: 1.09, blur: 8 },
+        { x: 45, y: 85, scale: 1.08, blur: 7 },
+        { x: -50, y: 75, scale: 1.07, blur: 7 },
+        { x: 40, y: 80, scale: 1.06, blur: 6 },
+      ];
+
+      imageTargets.forEach((target, index) => {
+        const variant = arquivoImageVariants[index] || arquivoImageVariants[0];
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y, 
+            scale: variant.scale, 
+            rotate: variant.rotate, 
+            filter: `blur(${variant.blur}px)` 
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 80%',
+              end: 'top 40%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      contentTargets.forEach((target, index) => {
+        const variant = arquivoContentVariants[index] || arquivoContentVariants[0];
+
+        gsap.set(target, { autoAlpha: 1 });
+
+        gsap.fromTo(
+          target,
+          { 
+            autoAlpha: 0, 
+            x: variant.x, 
+            y: variant.y,
+            scale: variant.scale,
+            filter: `blur(${variant.blur}px)`,
+          },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 85%',
+              end: 'top 50%',
+              scrub: true,
+            },
+          }
+        );
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, arquivoSectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   // ScrollTrigger para terceiro track horizontal (Além dos filmes / Notícias / Contato)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -976,6 +2287,8 @@ export default function Home() {
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!horizontalSecondWrapperRef.current || !horizontalSecondTrackRef.current) return;
+    // Aguardar o primeiro track estar pronto antes de inicializar o segundo
+    if (!mainTrackReady) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -998,7 +2311,7 @@ export default function Home() {
     let ctx: gsap.Context | null = null;
     let handleResize: (() => void) | null = null;
 
-    // Aguardar um frame para garantir que o DOM está estável
+    // Aguardar um frame para garantir que o DOM está estável e o primeiro track terminou
     const timer = setTimeout(() => {
       if (!wrapper || !track || !wrapper.isConnected || !track.isConnected) return;
 
@@ -1006,19 +2319,25 @@ export default function Home() {
         // Limpar transformações anteriores
         gsap.set(track, { clearProps: 'all' });
         gsap.set(track, { x: 0 });
+        
+        // Garantir que o wrapper está posicionado corretamente
+        gsap.set(wrapper, { clearProps: 'transform' });
+
+        const getTravel = () => {
+          if (!track || !wrapper) return 0;
+          return track.scrollWidth - wrapper.offsetWidth;
+        };
 
         gsap.to(track, {
-          x: () => {
-            if (!track || !wrapper) return 0;
-            return -(track.scrollWidth - wrapper.offsetWidth);
-          },
+          x: () => -getTravel(),
           ease: 'none',
           scrollTrigger: {
             trigger: wrapper,
-            start: 'top 50px',
+            start: 'top top',
             end: () => {
               if (!track || !wrapper) return '+=0';
-              return `+=${track.scrollWidth + window.innerHeight}`;
+              const travel = getTravel();
+              return `+=${travel + window.innerHeight}`;
             },
             scrub: 0.5,
             pin: true,
@@ -1027,6 +2346,8 @@ export default function Home() {
             anticipatePin: 1,
             invalidateOnRefresh: true,
             id: 'horizontal-second-track',
+            markers: false, // Desabilitar markers em produção
+            refreshPriority: -1, // Prioridade menor que o primeiro track
             onRefresh: () => {
               // Forçar atualização quando necessário
               if (track && wrapper) {
@@ -1047,7 +2368,7 @@ export default function Home() {
         }
       };
       window.addEventListener('resize', handleResize);
-    }, 100);
+    }, 200); // Aumentar delay para garantir que o primeiro track terminou
 
     return () => {
       clearTimeout(timer);
@@ -1072,145 +2393,260 @@ export default function Home() {
         }
       }
     };
-  }, []);
+  }, [mainTrackReady]);
 
-  // ScrollTrigger para Image Carousel com Parallax
+  // Animações para seções de "A Natureza das Coisas Invisíveis"
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!imageCarouselSectionRef.current || !imageCarouselContainerRef.current) return;
-    if (imageRefs.current.length === 0) return;
+    if (!horizontalSecondTrackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const section = imageCarouselSectionRef.current;
-    const container = imageCarouselContainerRef.current;
-    const images = imageRefs.current.filter(Boolean) as HTMLDivElement[];
-    const totalImages = images.length;
-
-    // Limpar ScrollTriggers existentes
-    ScrollTrigger.getAll().forEach((st) => {
-      if (st.trigger === section || (st.vars?.trigger && st.vars.trigger === section)) {
-        st.kill();
-      }
-    });
-
     const ctx = gsap.context(() => {
-      // Configurar estado inicial de todas as imagens
-      images.forEach((img, i) => {
-        if (!img) return;
-        gsap.set(img, {
-          opacity: i === 0 ? 1 : 0,
-          y: 0,
-          scale: 1,
-        });
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []) as HTMLElement[];
+      if (!panels.length) return;
+
+      const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
+      if (!horizontalTrackST) return;
+
+      // Split text animation
+      const splitTexts = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('.split-text') || []);
+      splitTexts.forEach((textEl) => {
+        const text = textEl.textContent || '';
+        const words = text.split(' ');
+        textEl.innerHTML = words.map(word => `<span class="word" style="display: inline-block; opacity: 0; transform: translateY(15px);">${word}</span>`).join(' ');
       });
 
-      // Estado inicial do container - fechado
-      gsap.set(container, {
-        height: '10vh',
-        clipPath: 'inset(45% 0% 45% 0%)',
-      });
+      // Animate each panel when it enters viewport
+      panels.forEach((panel) => {
+        const content = panel.querySelector('.data-natureza-content') as HTMLElement;
+        const megaText = panel.querySelector('.data-natureza-mega-text') as HTMLElement;
+        const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
+        const credits = panel.querySelector('.data-natureza-credits') as HTMLElement;
+        const festivals = panel.querySelector('.data-natureza-festivals') as HTMLElement;
+        const infoGrid = panel.querySelector('.data-natureza-info-grid') as HTMLElement;
 
-      // Animação de abertura/fechamento do container
-      // Abre quando o centro do container está no centro da viewport
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top bottom', // Quando o topo da seção aparece
-        end: 'bottom top', // Quando o bottom do container chega ao topo da viewport
-        scrub: true,
-        onUpdate: () => {
-          // Calcular a posição do centro do container em relação à viewport
-          const containerRect = container.getBoundingClientRect();
-          const containerCenter = containerRect.top + (containerRect.height / 2);
-          const viewportCenter = window.innerHeight / 2;
-          const distanceFromCenter = Math.abs(containerCenter - viewportCenter);
-
-          // Quando o container está no centro, está 100% aberto
-          // Quando está longe do centro, está fechado
-          // Usar uma curva suave para a transição
-          const maxDistance = window.innerHeight * 0.6; // Distância para considerar completamente fechado
-          const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1);
-
-          // Curva suave usando easeOut
-          const openProgress = 1 - Math.pow(normalizedDistance, 1.5);
-
-          // Altura: 10vh (fechado) a 40vh (aberto)
-          const heightPercent = 10 + (openProgress * 30);
-          // Clip: 45% (fechado) a 0% (aberto)
-          const clipAmount = 45 - (openProgress * 45);
-
-          gsap.set(container, {
-            height: `${heightPercent}vh`,
-            clipPath: `inset(${clipAmount}% 0% ${clipAmount}% 0%)`,
-          });
-        },
-        invalidateOnRefresh: true,
-        id: 'container-open-close',
-      });
-
-      // Animação principal de transição entre imagens com parallax suave
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
-        onUpdate: (self) => {
-          const progress = Math.max(0, Math.min(1, self.progress));
-          const normalizedProgress = progress * (totalImages - 1);
-          const imageIndex = Math.floor(normalizedProgress);
-          const currentImageProgress = normalizedProgress - imageIndex;
-
-          images.forEach((img, i) => {
-            if (!img) return;
-
-            if (i === imageIndex) {
-              // Imagem atual - fade out suave
-              const opacity = 1 - currentImageProgress;
-              const parallaxY = -currentImageProgress * 20; // Parallax mais sutil
-              gsap.set(img, {
-                opacity: opacity,
-                y: parallaxY,
-              });
-            } else if (i === imageIndex + 1 && imageIndex + 1 < totalImages) {
-              // Próxima imagem - fade in suave
-              const opacity = currentImageProgress;
-              const parallaxY = -(1 - currentImageProgress) * 20; // Parallax mais sutil
-              gsap.set(img, {
-                opacity: opacity,
-                y: parallaxY,
-              });
-            } else {
-              // Outras imagens - completamente ocultas
-              gsap.set(img, {
-                opacity: 0,
-                y: 0,
-              });
+        // Content fade in
+        if (content) {
+          // Check if this is the first panel (panel 0) - make it visible immediately
+          const isFirstPanel = panel.getAttribute('data-natureza-panel') === '0';
+          
+          if (isFirstPanel) {
+            // For first panel, set visible immediately and animate on scroll
+            gsap.set(content, { opacity: 1, y: 0 });
+          }
+          
+          gsap.fromTo(content,
+            { opacity: isFirstPanel ? 1 : 0, y: isFirstPanel ? 0 : 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
             }
+          );
+        }
+
+        // Mega text animation
+        if (megaText) {
+          gsap.fromTo(megaText,
+            { opacity: 0, scale: 0.8 },
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 1.2,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Credits fade in - Individual animations
+        if (credits) {
+          const creditItems = Array.from(credits.querySelectorAll('div')) as HTMLElement[];
+          creditItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                x: -30,
+                scale: 0.9,
+              },
+              {
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                duration: 0.7,
+                delay: index * 0.1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
           });
-        },
-        invalidateOnRefresh: true,
-        id: 'image-carousel-main',
-      });
+        }
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
-    }, imageCarouselSectionRef);
+        // Festivals grid fade in
+        if (festivals) {
+          gsap.fromTo(festivals,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
 
-    const handleResize = () => {
-      ScrollTrigger.refresh();
-    };
-    window.addEventListener('resize', handleResize);
+        // Info grid fade in - Individual animations
+        if (infoGrid) {
+          const gridItems = Array.from(infoGrid.querySelectorAll('div > div')) as HTMLElement[];
+          gridItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { 
+                opacity: 0, 
+                y: 40,
+                scale: 0.9,
+                rotation: index % 2 === 0 ? -3 : 3,
+              },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotation: 0,
+                duration: 0.8,
+                delay: index * 0.12,
+                ease: 'back.out(1.1)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id?.toString().startsWith('image-carousel') || st.trigger === section) {
-          st.kill();
+        // Gallery items fade in - Individual animations
+        const galleryItems = Array.from(panel.querySelectorAll('.data-natureza-gallery-item')) as HTMLElement[];
+        if (galleryItems.length) {
+          // Check if this is the first panel (panel 0) - make items visible immediately
+          const isFirstPanel = panel.getAttribute('data-natureza-panel') === '0';
+          
+          galleryItems.forEach((item, index) => {
+            if (isFirstPanel) {
+              // For first panel, set visible immediately
+              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
+            }
+            
+            gsap.fromTo(item,
+              { 
+                opacity: isFirstPanel ? 1 : 0, 
+                scale: isFirstPanel ? 1 : 0.8,
+                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
+                y: isFirstPanel ? 0 : 30,
+              },
+              {
+                opacity: 1,
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                duration: 0.9,
+                delay: index * 0.08,
+                ease: 'back.out(1.2)',
+                scrollTrigger: {
+                  trigger: item,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Words stagger animation
+        if (words.length) {
+          gsap.to(words,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              stagger: 0.03,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
         }
       });
-      if (ctx) ctx.revert();
-    };
+
+        // Parallax effect baseado no scroll do track
+        const parallaxImages = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-parallax]') || []) as HTMLElement[];
+        
+        if (horizontalTrackST && parallaxImages.length) {
+        const updateParallax = () => {
+          const progress = horizontalTrackST.progress;
+          parallaxImages.forEach((img) => {
+            const speed = parseFloat(img.getAttribute('data-speed') || '0.2');
+            const moveX = -progress * 200 * speed;
+            gsap.set(img, { x: moveX });
+          });
+        };
+
+        ScrollTrigger.create({
+          trigger: horizontalSecondWrapperRef.current,
+          start: 'top 50px',
+          end: () => {
+            if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
+            return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
+          },
+          onUpdate: updateParallax,
+        });
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
   }, []);
 
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
@@ -1230,8 +2666,6 @@ export default function Home() {
 
         // Posicionar o conteúdo acima inicialmente (fora da tela)
         gsap.set(content, { y: '-100vh' });
-
-        console.log('Seção 7 - Vertical configurado (de cima para baixo)');
 
         gsap.to(content, {
           y: 0, // Move para baixo até a posição normal
@@ -1276,7 +2710,7 @@ export default function Home() {
 
     const ctx = gsap.context(() => {
       sections.forEach((section, index) => {
-        const targets = gsap.utils.toArray<HTMLElement>(section.querySelectorAll('[data-pin-animate]'));
+        const targets = Array.from(section.querySelectorAll('[data-pin-animate]')) as HTMLElement[];
         if (!targets.length) return;
 
         gsap.set(targets, { autoAlpha: 0, y: 60 });
@@ -1325,8 +2759,6 @@ export default function Home() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const _heading = dragonflyHeadingRef.current;
-    const _pin = dragonflyPinRef.current;
     const paths = dragonflySectionRef.current.querySelectorAll<SVGPathElement>('.dragonfly-path.draw');
 
     // 1. Prepara os caminhos do SVG (Calcula comprimento e esconde)
@@ -1345,25 +2777,29 @@ export default function Home() {
     }
 
     const ctx = gsap.context(() => {
-      // 2. Cria o Timeline de Desenho
+      // 2. Cria o Timeline de Desenho - SEM PIN (usamos CSS sticky)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: dragonflySectionRef.current,
           start: 'top top',
-          end: '+=1500',
+          end: 'bottom bottom',
           scrub: true,
-          pin: true,
-          pinSpacing: true,
         },
       });
 
       // === Sequência de Animação ===
-      // Duração total do timeline é aproximadamente 4.0 segundos (0.8 + 1.2 + 1.5 + 0.5)
 
       // Desenha a Cabeça e Tórax
       tl.to(['#head', '#thorax'], {
         strokeDashoffset: 0,
         duration: 0.8,
+        ease: 'power2.inOut',
+      }, 0);
+
+      // Desenha o Eixo Central (spine)
+      tl.to('#spine', {
+        strokeDashoffset: 0,
+        duration: 1.0,
         ease: 'power2.inOut',
       }, 0);
 
@@ -1375,33 +2811,38 @@ export default function Home() {
       }, '<0.2'); // Inicia antes do anterior terminar
 
       // Desenha As Asas
-      tl.to('.wing', {
-        strokeDashoffset: 0,
-        duration: 1.5,
-        stagger: 0.05,
-        ease: 'power2.out',
-      }, '-=0.5'); // Inicia antes do abdômen terminar
+      const wings = Array.from(dragonflySectionRef.current?.querySelectorAll('.wing') || []) as SVGPathElement[];
+      if (wings.length) {
+        tl.to(wings, {
+          strokeDashoffset: 0,
+          duration: 1.5,
+          stagger: 0.05,
+          ease: 'power2.out',
+        }, '-=0.5'); // Inicia antes do abdômen terminar
+      }
 
       // Efeito Visual Final (Aumenta espessura levemente)
-      tl.to('.dragonfly-path', {
-        strokeWidth: 1.5,
-        ease: 'power1.inOut',
-        duration: 0.5,
-      });
+      const dragonflyPaths = Array.from(dragonflySectionRef.current?.querySelectorAll('.dragonfly-path') || []) as SVGPathElement[];
+      if (dragonflyPaths.length) {
+        tl.to(dragonflyPaths, {
+          strokeWidth: 1.5,
+          ease: 'power1.inOut',
+          duration: 0.5,
+        });
+      }
 
-      // Animação das Imagens (Parallax com data-speed)
-      const images = dragonflySectionRef.current?.querySelectorAll('.images > div'); // Agora mirando nos containers
+      // Animação das Imagens (Parallax com data-speed) - Fluxo independente
+      const images = dragonflySectionRef.current?.querySelectorAll('.images > div');
       
       if (images) {
-        // Parallax Effect (durante o scroll inicial)
         images.forEach((div) => {
           const speed = parseFloat(div.getAttribute('data-speed') || '1');
           
           gsap.to(div, {
-            y: () => (1 - speed) * 200,
+            y: () => (1 - speed) * 300,
             ease: 'none',
             scrollTrigger: {
-              trigger: dragonflySectionRef.current,
+              trigger: div,
               start: 'top bottom',
               end: 'bottom top',
               scrub: true,
@@ -1411,20 +2852,25 @@ export default function Home() {
       }
 
       // Saída dos elementos de texto para cima (Transição Suave)
-      const headingElements = dragonflySectionRef.current?.querySelectorAll('.heading');
-      if (headingElements) {
-        tl.to(headingElements, {
-          y: '-150vh',
-          scale: 0.8,
+      const headingElements = Array.from(dragonflySectionRef.current?.querySelectorAll('.heading') || []) as HTMLElement[];
+      if (headingElements.length) {
+        gsap.to(headingElements, {
+          y: '-50vh',
+          scale: 0.9,
           opacity: 0,
-          duration: 1.0,
           ease: 'power3.in',
-        }, '+=0.2'); // Inicia logo após o desenho da libélula terminar
+          scrollTrigger: {
+            trigger: dragonflySectionRef.current,
+            start: 'center top',
+            end: 'bottom top',
+            scrub: true,
+          }
+        });
       }
     }, dragonflySectionRef);
 
     return () => {
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -1444,6 +2890,16 @@ export default function Home() {
       const targetWidth = containerRef.current.offsetWidth;
       if (targetWidth === 0) return;
 
+      const height = window.innerHeight;
+      const width = window.innerWidth;
+      
+      // Base reference: width 1336px, height 698px está ok
+      // Para alturas menores que 698px, precisamos reduzir o tamanho da fonte
+      const referenceWidth = 1336;
+      const referenceHeight = 698;
+      const minHeight = 400; // Altura mínima para evitar overflow extremo
+      
+      // Calcular proporção baseada na largura
       const measureElement = document.createElement('div');
       measureElement.style.position = 'absolute';
       measureElement.style.visibility = 'hidden';
@@ -1455,9 +2911,41 @@ export default function Home() {
       document.body.appendChild(measureElement);
 
       const baseWidth = measureElement.offsetWidth;
-      const calculatedFontSize = (targetWidth / baseWidth) * 100;
+      let calculatedFontSize = (targetWidth / baseWidth) * 100;
+      
+      // Ajustar baseado na altura se necessário
+      // Se a altura for menor que a referência (698px), reduzir proporcionalmente
+      if (height < referenceHeight) {
+        // Calcular fator de redução baseado na altura
+        // Usar uma curva suave para a redução, mas mais agressiva para alturas muito pequenas
+        const heightRatio = Math.max(height / referenceHeight, minHeight / referenceHeight);
+        // Aplicar redução progressiva: quanto menor a altura, maior a redução
+        // Usar exponencial para reduzir mais agressivamente em alturas muito pequenas
+        const heightFactor = Math.pow(heightRatio, 0.75); // Curva mais agressiva
+        calculatedFontSize = calculatedFontSize * heightFactor;
+      }
+      
+      // Para telas com width >= 1336px e altura < 698px, aplicar redução adicional baseada no aspect ratio
+      if (width >= referenceWidth && height < referenceHeight) {
+        // Se a largura é >= 1336px mas altura < 698px, aplicar redução adicional
+        const aspectRatio = width / height;
+        const referenceAspectRatio = referenceWidth / referenceHeight; // ~1.91
+        if (aspectRatio > referenceAspectRatio) {
+          // Tela mais "achatada" que a referência, reduzir mais
+          // Quanto maior a diferença no aspect ratio, maior a redução
+          const aspectFactor = Math.min(1, referenceAspectRatio / aspectRatio);
+          calculatedFontSize = calculatedFontSize * aspectFactor;
+        }
+      }
+      
+      // Aplicar redução adicional para alturas muito pequenas (< 500px)
+      if (height < 500) {
+        const extraReduction = height / 500; // Redução linear adicional
+        calculatedFontSize = calculatedFontSize * extraReduction;
+      }
+      
       document.body.removeChild(measureElement);
-      setDynamicFontSize(calculatedFontSize);
+      setDynamicFontSize(Math.max(calculatedFontSize, 30)); // Tamanho mínimo de 30px
     };
 
   useEffect(() => {
@@ -1544,59 +3032,14 @@ export default function Home() {
   }, [pathname]);
 
   useEffect(() => {
-    let resizeObserver: ResizeObserver | null = null;
-    let rafId: number | null = null;
-
-    // Remove calculation loop
-    /*
-    const calculateProdutoraFontSize = () => {
-      // ... removed dynamic calculation ...
-    };
-    */
-    
-    // Cleanup unused vars
-    // setProdutoraFontSize not used anymore
-
-
-    const runCalculation = () => {
-      rafId = requestAnimationFrame(() => {
-      // Removido cálculo dinâmico de produtoraFontSize para usar tamanho fixo padronizado
-      /*
-      if (
-        produtoraContainerRef.current &&
-        produtoraContainerRef.current.offsetWidth > 0 &&
-        produtoraContainerRef.current.offsetHeight > 0
-      ) {
-        // calculateProdutoraFontSize();
-        
-        if (produtoraContainerRef.current && !resizeObserver) {
-          resizeObserver = new ResizeObserver(() => {
-            // calculateProdutoraFontSize();
-          });
-          resizeObserver.observe(produtoraContainerRef.current);
-        }
-      }
-      */
-      // Mantendo estrutura apenas para não quebrar lógica existente se houver dependências, mas vazio.
-      if (produtoraContainerRef.current && !resizeObserver) {
-          resizeObserver = new ResizeObserver(() => {});
-          resizeObserver.observe(produtoraContainerRef.current);
-      }
-      });
-    };
-
-    runCalculation();
-
     const handleResize = () => {
       calculateDynamicFontSize();
-      // calculateProdutoraFontSize(); // Removed
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         setTimeout(() => {
           calculateDynamicFontSize();
-          // calculateProdutoraFontSize(); // Removed
         }, 100);
       }
     };
@@ -1604,7 +3047,6 @@ export default function Home() {
     const handlePageShow = () => {
       setTimeout(() => {
         calculateDynamicFontSize();
-        // calculateProdutoraFontSize(); // Removed
       }, 100);
     };
 
@@ -1613,51 +3055,12 @@ export default function Home() {
     window.addEventListener('pageshow', handlePageShow);
 
     return () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pageshow', handlePageShow);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
     };
   }, []);
 
-  useEffect(() => {
-    if (pathname === '/') {
-      const timer = setTimeout(() => {
-        if (
-          produtoraContainerRef.current &&
-          produtoraContainerRef.current.offsetWidth > 0 &&
-          produtoraContainerRef.current.offsetHeight > 0
-        ) {
-          /*
-          const targetWidth = produtoraContainerRef.current.offsetWidth;
-          const targetHeight = produtoraContainerRef.current.offsetHeight;
-          const measureElement = document.createElement('div');
-          measureElement.style.position = 'absolute';
-          measureElement.style.visibility = 'hidden';
-          measureElement.style.width = `${targetWidth}px`;
-          measureElement.style.fontFamily = "'Helvetica Neue LT Pro Medium Extended', Arial, Helvetica, sans-serif";
-          measureElement.style.lineHeight = '90%';
-          measureElement.style.fontSize = '100px';
-          measureElement.innerHTML = 'Produtora boutique<br />De filmes independentes';
-          document.body.appendChild(measureElement);
-          const baseWidth = measureElement.offsetWidth;
-          const baseHeight = measureElement.offsetHeight;
-          const widthBasedSize = (targetWidth / baseWidth) * 100;
-          const heightBasedSize = (targetHeight / baseHeight) * 100;
-          const calculatedFontSize = Math.min(widthBasedSize, heightBasedSize);
-          document.body.removeChild(measureElement);
-          setProdutoraFontSize(calculatedFontSize);
-          */
-        }
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname]);
 
   // Calculate font size for "SOBRE A MOVEO" to fill container
   useEffect(() => {
@@ -1750,6 +3153,22 @@ export default function Home() {
   return (
 
     <MainLayout>
+      {/* Global Visual Effects */}
+      {/* Scroll Progress Bar */}
+      <div data-scroll-progress className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-white via-white/50 to-transparent z-[9999] pointer-events-none" />
+      
+      {/* Cursor Glow Effect */}
+      <div 
+        className="cursor-glow hidden md:block"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+        }}
+      />
+      
+      {/* Subtle Noise Overlay */}
+      <div className="noise-overlay grain-animation" />
+
       {/* Scroll Hint Indicator */}
       <div 
         className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-500 mix-blend-difference text-white"
@@ -1770,15 +3189,6 @@ export default function Home() {
         <ScrollHint />
       </div>
 
-      {/* Debug: Indicador de scroll progress */}
-      <div
-        className="fixed top-0 left-0 h-1 bg-red-500 z-[9999]"
-        style={{
-          width: '0%',
-          transition: 'width 0.1s ease-out'
-        }}
-        id="scroll-indicator"
-      />
 
       {/* Espaço inicial para permitir rolagem antes do pin da primeira seção */}
       <div
@@ -1833,10 +3243,11 @@ export default function Home() {
             <div
               ref={textRef}
               data-first-animate
-              className="absolute text-white uppercase z-30 mix-blend-difference"
+              className="absolute text-white uppercase z-30 mix-blend-difference moveo-title"
               style={{
-                left: 0,
-                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 50px)`,
+                left: '-20px',
+                top: '180px',
+                bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 40px)`,
                 fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
                 fontSize: `${dynamicFontSize}px`,
                 lineHeight: '77.3%',
@@ -1863,7 +3274,8 @@ export default function Home() {
               <div
                 ref={produtoraTextRef}
                 data-animate
-                className="absolute text-white mix-blend-difference"
+                className="absolute text-white mix-blend-difference produtora-subtitle"
+                suppressHydrationWarning
                 style={{
                   left: '0',
                   top: '25%',
@@ -1875,8 +3287,12 @@ export default function Home() {
                   padding: 0,
                 }}
               >
-                Produtora boutique<br />
-                De filmes independentes
+                {t('produtoraBoutiqueShort').split('\n').map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}
+                    {i < t('produtoraBoutiqueShort').split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
               </div>
             </div>
 
@@ -1901,6 +3317,31 @@ export default function Home() {
               />
             </div>
 
+            {/* Decorative Lines */}
+            <div
+              data-decor-line
+              className="absolute z-20"
+              style={{
+                left: 0,
+                bottom: '40%',
+                width: '25%',
+                height: '2px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%)',
+              }}
+            />
+            <div
+              data-decor-line
+              className="absolute z-20"
+              style={{
+                left: 0,
+                bottom: '35%',
+                width: '15%',
+                height: '1px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
+              }}
+            />
+
+            {/* Grid Guide Point */}
             <div
               className="absolute z-50 pointer-events-none transition-opacity duration-150"
               style={{
@@ -2003,13 +3444,14 @@ export default function Home() {
                         <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 pl-0 flex items-end justify-start" data-second-animate>
                           <p
                             className="text-white mix-blend-difference"
+                            suppressHydrationWarning
                             style={{
                               fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                               fontSize: FONT_SMALL,
                               lineHeight: '1.4',
                             }}
                           >
-                            Brasília, desde 2018
+                            {t('fundadaEm2018')}
                           </p>
                         </div>
                         <div className="relative overflow-hidden rounded-lg" data-second-image>
@@ -2027,17 +3469,19 @@ export default function Home() {
                       <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 pl-0 flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                             fontSize: FONT_MEDIUM,
                             lineHeight: '1.4',
                           }}
                         >
-                          Filmes de arte
-                          <br />
-                          para o mercado
-                          <br />
-                          internacional
+                          {t('baseadaEmBrasilia').split('\n').map((line, i) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              {i < t('baseadaEmBrasilia').split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
                         </p>
                       </div>
                     </div>
@@ -2046,12 +3490,14 @@ export default function Home() {
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div 
                       ref={sobreMoveoContainerRef}
-                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex items-center justify-center flex-[1] min-h-0" 
+                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex flex-col items-end justify-end flex-[1] min-h-0 gap-4 relative z-[100]" 
                       data-second-animate
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <div 
                         ref={sobreMoveoTextRef}
                         className="text-white uppercase text-center mix-blend-difference" 
+                        suppressHydrationWarning
                         style={{
                           fontSize: `${sobreMoveoFontSize}px`,
                           lineHeight: '0.9',
@@ -2059,44 +3505,63 @@ export default function Home() {
                         }}
                       >
                         <div
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 300,
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          SOBRE A
+                          {t('sobreAMoveo').split('\n')[0]}
                         </div>
                         <div
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 700,
                           }}
                         >
-                          MOVEO
+                          {t('sobreAMoveo').split('\n')[1]}
                         </div>
                       </div>
+                      <Link 
+                        href="/sobre"
+                        className="text-white mix-blend-difference opacity-60 hover:opacity-100 transition-opacity duration-300 relative z-[100] cursor-pointer"
+                        suppressHydrationWarning
+                        style={{
+                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                          fontSize: 'clamp(10px, 0.85vw, 13px)',
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                          textDecoration: 'none',
+                          pointerEvents: 'auto',
+                          position: 'relative',
+                        }}
+                      >
+                        {t('saibaMais')}
+                      </Link>
                     </div>
 
                     <div className="grid grid-cols-3 flex-[2] min-h-0 gap-2">
                       {/* Container esquerdo (esquerda + centro mesclados) */}
-                      <div className="col-span-2 bg-transparent rounded-lg p-4 md:p-6 flex items-end justify-start" data-second-animate>
+                      <div className="col-span-2 bg-transparent rounded-lg flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
+                          suppressHydrationWarning
                           style={{
                             fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                             fontWeight: 700,
                             fontSize: FONT_LARGE,
                             lineHeight: '1.2',
+                            marginLeft: `calc(${getMarkerPosition(7)} - 50px - 2rem)`,
                           }}
                         >
-                          Focado em
-                          <br />
-                          promissores
-                          <br />
-                          cineastas
-                          <br />
-                          brasileiros
+                          {t('focadoEmCineastas').split('\n').map((line, i) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              {i < t('focadoEmCineastas').split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
                         </p>
                       </div>
 
@@ -2138,9 +3603,10 @@ export default function Home() {
                 {/* Container Esquerdo - Dividido em 3 partes horizontais */}
                 <div className="flex flex-col h-full min-h-0">
                   {/* Container Superior */}
-                  <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text>
+                  <div className="flex-1 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate data-typewriter-text suppressHydrationWarning>
                     <p
                       className="text-white mix-blend-difference"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
@@ -2155,25 +3621,12 @@ export default function Home() {
                         margin: 0,
                       }}
                     >
-                      <span style={{ display: 'block', width: '100%' }}>Um histórico sólido</span>
-                      <span style={{ display: 'block', width: '100%' }}>de colaborações com</span>
-                      <span style={{ display: 'block', width: '100%' }}>talentos emergentes</span>
+                      {t('historicoSolidodeColaboracoes').split('\n').map((line, i) => (
+                        <span key={i} suppressHydrationWarning style={{ display: 'block', width: '100%' }}>{line}</span>
+                      ))}
                     </p>
                   </div>
 
-                  {/* Container Central */}
-                  <div className="flex-1 bg-transparent flex items-end pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 min-h-0" data-third-animate>
-                    <p
-                      className="text-white mix-blend-difference"
-                      style={{
-                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                        fontSize: FONT_MEDIUM,
-                        lineHeight: '1.4',
-                      }}
-                    >
-                      Filmes de arte para o mercado internacional
-                    </p>
-                  </div>
 
                   {/* Container Inferior - Grid 2 linhas x 4 colunas */}
                   <div className="flex-1 grid grid-cols-4 grid-rows-4 min-h-0 gap-2">
@@ -2258,7 +3711,7 @@ export default function Home() {
                   </div>
 
                   {/* Container grande mesclado: Text - third */}
-                  <div className="col-span-4 row-span-3 bg-transparent flex items-center justify-start pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 lg:pt-8 lg:pr-8 lg:pb-8 pl-0 col-start-1 row-start-3" data-third-animate>
+                  <div className="col-span-4 row-span-3 bg-transparent flex items-end justify-start pr-4 md:pr-6 lg:pr-8 pl-0 pb-0 col-start-1 row-start-3" data-third-animate>
                     <h2
                       className="text-white uppercase text-left mix-blend-difference"
                       style={{
@@ -2269,7 +3722,27 @@ export default function Home() {
                         fontWeight: 300,
                       }}
                     >
-                      Filmes <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>destaque</span> do nosso catálogo
+                      {language === 'pt' ? (
+                        <>
+                          FILMES DE
+                          <br />
+                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>ARTE</span> PARA
+                          <br />
+                          O MERCADO
+                          <br />
+                          INTERNACIONAL
+                        </>
+                      ) : (
+                        <>
+                          ART FILMS
+                          <br />
+                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>FOR</span> THE
+                          <br />
+                          INTERNATIONAL
+                          <br />
+                          MARKET
+                        </>
+                      )}
                     </h2>
                   </div>
 
@@ -2312,161 +3785,100 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Dragonfly Animation Section - ACERVO */}
-      <div className="relative w-full">
-        <section
-          ref={dragonflySectionRef}
-          className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center py-20"
-        >
-          <div className="container mx-auto px-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
-          
-          {/* Heading Container */}
-          <div 
-            ref={dragonflyHeadingRef} 
-            className="relative z-20 mix-blend-difference perspective-[1000px] w-full flex justify-center"
-          >
-            <div ref={dragonflyPinRef} className="relative text-center">
-              <h1 className="relative flex flex-col items-center justify-center uppercase leading-none">
-                {/* "ACERVO" - Huge Text */}
-                <span 
-                  className="relative block z-0 mix-blend-difference"
-                  style={{ 
-                    fontSize: 'clamp(40px, 10vw, 135px)',
-                    fontFamily: "'Helvetica Neue LT Pro Thin Extended', Arial, Helvetica, sans-serif",
-                    fontWeight: 100,
-                    letterSpacing: '-0.02em',
-                    color: '#f5f0e6'
-                  }}
-                >
-                  ACERVO
-                </span>
-
-                {/* "MOVEO" - Subtitle */}
-                <span 
-                  className="relative z-10 -mt-[2vw] leading-none mix-blend-difference"
-                  style={{ 
-                    fontSize: 'clamp(32px, 10vw, 135px)',
-                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                    fontWeight: 700,
-                    letterSpacing: '-0.05em',
-                    display: 'block',
-                    color: '#f5f0e6'
-                  }}
-                >
-                  MOVEO
-                </span>
-              </h1>
-            </div>
-          </div>
-          
-          {/* SVG Overlay - Posicionado para transpassar ambas seções */}
-          <svg
-            data-name="Libelula"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 300 200"
-            className="absolute top-[130%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300%] opacity-0 pointer-events-none z-50"
-            style={{ maxWidth: '200vw', maxHeight: '200vh' }}
-          >
-            {/* Eixo central - cilindro elegante */}
-            <line id="spine" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" x1="150" y1="5" x2="150" y2="195" strokeLinecap="round" />
-            
-            <path id="head" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 20 C 140 35, 160 35, 150 20 Z" />
-            <path id="thorax" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 35 L 145 50 L 155 50 L 150 35 Z" /> 
-            <path id="abdomen" className="dragonfly-path draw" vectorEffect="non-scaling-stroke" d="M 150 50 L 150 180" /> 
-            <path id="wing-tl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 50 20 L 60 40 L 150 50 Z" />
-            <path id="wing-bl" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 45 80 L 55 100 L 150 55 Z" />
-            <path id="wing-tr" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 50 L 250 20 L 240 40 L 150 50 Z" />
-            <path id="wing-br" className="dragonfly-path draw wing" vectorEffect="non-scaling-stroke" d="M 150 55 L 255 80 L 245 100 L 150 55 Z" />
-          </svg>
-
-          {/* Images Grid */}
-          <div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-20 w-full max-w-6xl z-0 images"
-          >
-            {[
-              { src: '/imagens/secao2home/Rectangle 10.png', speed: '2.4' },
-              { src: '/imagens/secao2home/Rectangle 8.png', speed: '1.8' },
-              { src: '/imagens/secao2home/Rectangle 9.png', speed: '2.2' },
-              { src: '/imagens/secao2home/Rectangle 11.png', speed: '1.5' }
-            ].map((item, index) => (
-              <div 
-                key={index} 
-                className="relative w-full aspect-[3/4] overflow-hidden border border-white"
-                data-speed={item.speed}
-              >
-                <Image
-                  src={item.src}
-                  alt={`Acervo image ${index + 1}`}
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700 images-img"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  unoptimized
-                />
-              </div>
-            ))}
-          </div>
-
-          </div>
-        </section>
-      </div>
-
-      {/* Nova Seção - Image Carousel com Parallax */}
-      <div
-        ref={imageCarouselSectionRef}
-        className="relative bg-transparent text-white"
+      {/* Seção de Transição - Introdução ao Catálogo de Filmes */}
+      <div 
+        ref={dragonflySectionRef}
+        className="relative w-full bg-black"
         style={{
-          marginLeft: '0',
-          marginRight: '0',
-          marginBottom: '50px',
-          minHeight: '100vh',
+          marginBottom: '0',
         }}
       >
         <section
-          className="relative bg-transparent"
-          data-pin-animate
-          style={{ height: '100vh', display: 'flex', alignItems: 'center' }}
+          className="relative bg-black text-white"
+          style={{ 
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '50px',
+          }}
         >
-          {/* Container de imagem wide fino */}
-          <div
-            ref={imageCarouselContainerRef}
-            className="relative w-full overflow-hidden"
-            data-pin-animate
-            style={{
-              height: '40vh',
-              marginLeft: '50px',
-              marginRight: '50px',
-            }}
+          <div 
+            ref={dragonflyPinRef}
+            className="w-full max-w-7xl mx-auto"
           >
-            {/* Imagens com parallax e transição */}
-            {[
-              '/imagens/secao2home/Rectangle 122.png',
-              '/imagens/secao2home/Rectangle 8.png',
-              '/imagens/secao2home/Rectangle 9.png',
-              '/imagens/secao2home/Rectangle 10.png',
-              '/imagens/secao2home/Rectangle 11.png',
-            ].map((src, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              {/* Left - Text Content */}
+              <div style={{ width: '100%' }}>
+                <div
+                  data-catalog-label
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  }}
+                >
+                  {t('nossosFilmes')}
+                </div>
+                <h2
+                  data-catalog-title
+                  ref={dragonflyHeadingRef}
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(48px, 7vw, 120px)',
+                    lineHeight: '0.95',
+                    fontWeight: 700,
+                    letterSpacing: '-0.03em',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                    color: 'white',
+                  }}
+                >
+                  {t('catalogoEmDestaque')}
+                </h2>
+                <p
+                  data-catalog-description
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(16px, 1.5vw, 22px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    maxWidth: '100%',
+                    width: '100%',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'normal',
+                  }}
+                >
+                  {t('exploreNossaSelecao')}
+                </p>
+              </div>
+
+              {/* Right - Featured Image */}
               <div
-                key={index}
-                ref={(el) => {
-                  imageRefs.current[index] = el;
-                }}
-                className="absolute inset-0 w-full h-full"
+                className="relative w-full aspect-[4/5] overflow-hidden"
                 style={{
-                  opacity: index === 0 ? 1 : 0,
-                  transform: 'translateY(0px)',
-                  willChange: 'opacity, transform',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}
               >
                 <Image
-                  src={src}
-                  alt={`Carousel image ${index + 1}`}
+                  data-catalog-image
+                  src="/imagens/secao2home/Rectangle 10.png"
+                  alt="Catálogo em Destaque"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
-                  unoptimized
-                  priority={index === 0}
+                  style={{
+                    filter: 'brightness(0.9)',
+                  }}
                 />
               </div>
-            ))}
+            </div>
           </div>
         </section>
       </div>
@@ -2478,7 +3890,8 @@ export default function Home() {
         style={{
           height: '100vh',
           width: '100%',
-          overflow: 'visible',
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
         <div
@@ -2486,158 +3899,385 @@ export default function Home() {
           className="flex h-full will-change-transform"
           style={{ width: 'max-content', overflow: 'visible', gap: '100px' }}
         >
-          {/* Seção - A Natureza das Coisas Invisíveis */}
+          {/* Seção 1 - A Natureza das Coisas Invisíveis - Title Only */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="0"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-6 md:gap-8 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start mb-6">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        <span style={{ display: 'block' }}>A Natureza das</span>
-                        <span style={{ display: 'block' }}>Coisas Invisíveis</span>
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2015)
-                      </div>
-                    </div>
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full p-[50px] z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <h2 
+                className="data-natureza-content"
+                suppressHydrationWarning
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(60px, 8vw, 140px)',
+                  lineHeight: '0.9',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.05em',
+                  color: 'rgba(255, 255, 255, 0.95)',
+                  opacity: 1,
+                  transform: 'scale(1)',
+                  mixBlendMode: 'difference',
+                  textShadow: '0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.2)',
+                }}
+              >
+                {t('aNaturezaDasCoisasInvisiveis')}
+              </h2>
+            </div>
 
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Coprodução Brasil-Chile
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Vitrine Filmes (Brasil) e The Open Reel (Internacional)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Lançamento no Brasil: 27/11/2025
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
+            {/* Image Gallery Grid */}
+            <div 
+              className="absolute inset-0 p-[50px]"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 'clamp(20px, 3vw, 40px)',
+                zIndex: 1,
+              }}
+            >
+              {PLACEHOLDER_IMAGES.natureza.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="data-natureza-gallery-item"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: 1,
+                    transform: 'scale(1)',
+                    filter: 'saturate(0)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'saturate(1)';
+                    e.currentTarget.style.zIndex = '999';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'saturate(0)';
+                    e.currentTarget.style.zIndex = '1';
+                  }}
+                >
+                  <Image
+                    src={src}
+                    alt={`A Natureza das Coisas Invisíveis ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 30vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Seção 2 - A Natureza das Coisas Invisíveis - Editorial Split */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="1"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1.2fr 0.8fr',
+            }}
+          >
+            {/* Left - Editorial Content */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+              >
+                <div
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  {t('oFilme')}
+                </div>
+                <h1 
+                  className="data-natureza-title split-text"
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(24px, 3vw, 48px)',
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'white',
+                  }}
+                >
+                  {t('aNaturezaDasCoisasInvisiveisTitle')}
+                </h1>
+                <div 
+                  className="data-natureza-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    maxWidth: '90%',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <p className="split-text" suppressHydrationWarning>
+                    {t('naturezaDescription')}
+                  </p>
+                </div>
+
+                {/* Ficha Técnica Compacta */}
+                <div 
+                  className="data-natureza-credits"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 1vw, 13px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                    maxWidth: '90%',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('ano')}</strong> 2025
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('coproducao')}</strong> Brasil-Chile
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Editorial Image */}
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                position: 'relative',
+              }}
+            >
+              <div 
+                className="absolute inset-0"
+                style={{
+                  willChange: 'transform',
+                }}
+              >
+                <Image
+                  src={PLACEHOLDER_IMAGES.natureza[0]}
+                  alt="A Natureza das Coisas Invisíveis"
+                  fill
+                  sizes="40vw"
+                  className="object-cover data-natureza-parallax"
+                  style={{
+                    filter: 'saturate(0) brightness(0.8)',
+                    transform: 'scale(1.1)',
+                  }}
+                  data-speed="0.3"
+                  unoptimized
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Seção 3 - A Natureza das Coisas Invisíveis - Full Background */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="2"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Background Image */}
+            <div className="absolute inset-0" style={{ willChange: 'transform' }}>
+              <Image
+                src={PLACEHOLDER_IMAGES.natureza[1]}
+                alt="A Natureza das Coisas Invisíveis"
+                fill
+                sizes="100vw"
+                className="object-cover data-natureza-parallax"
+                style={{
+                  filter: 'saturate(0) brightness(0.7)',
+                  transform: 'scale(1.1)',
+                }}
+                data-speed="0.2"
+                unoptimized
+              />
+            </div>
+
+            {/* Overlay */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 2,
+              }}
+            />
+
+            {/* Content */}
+            <div 
+              className="relative data-natureza-content"
+              style={{
+                width: '80%',
+                maxWidth: '900px',
+                zIndex: 3,
+              }}
+            >
+              <div
+                suppressHydrationWarning
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 13px)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  marginBottom: 'clamp(20px, 3vh, 40px)',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                }}
+              >
+                {t('estreiaMundial')}
+              </div>
+              <h2 
+                className="data-natureza-title split-text"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 5vw, 80px)',
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'clamp(20px, 3vh, 40px)',
+                  color: 'white',
+                }}
+              >
+                75ª Berlinale
+              </h2>
+              <div 
+                className="data-natureza-text"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(14px, 1.3vw, 18px)',
+                  lineHeight: '1.6',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  marginBottom: 'clamp(30px, 4vh, 50px)',
+                }}
+              >
+                <p className="split-text">
+                  Generation KPlus, Filme de Abertura. Uma estreia histórica que marca o primeiro longa-metragem internacional da Moveo Filmes em um dos festivais mais prestigiosos do mundo.
+                </p>
+              </div>
+
+              {/* Estreias Grid */}
+              <div 
+                className="data-natureza-festivals"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: 'clamp(20px, 3vw, 40px)',
+                  marginTop: 'clamp(30px, 4vh, 50px)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  paddingTop: 'clamp(20px, 3vh, 30px)',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(10px, 0.9vw, 12px)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: 'clamp(8px, 1vh, 12px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    {t('festivais')}
+                  </div>
+                  <div
+                    suppressHydrationWarning
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(12px, 1.1vw, 15px)',
+                      lineHeight: '1.6',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                    }}
+                  >
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      <strong>{t('colombia')}</strong> 64º Cartagena
+                    </div>
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      <strong>{t('mexico')}</strong> 40º Guadalajara
+                    </div>
+                    <div>
+                      <strong>{t('eua')}</strong> 51º Seattle
                     </div>
                   </div>
-
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 75ª Berlinale (Generation KPlus, Filme de Abertura)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Colômbia:</strong> 64º Cartagena International Film Festival
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>México:</strong> 40º Guadalajara International Film Festival
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 51º Seattle International Film Festival
-                        </div>
-                      </div>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(10px, 0.9vw, 12px)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: 'clamp(8px, 1vh, 12px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    {t('premios')}
+                  </div>
+                  <div
+                    suppressHydrationWarning
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(12px, 1.1vw, 15px)',
+                      lineHeight: '1.6',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                    }}
+                  >
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      {t('melhorFilme')} — {t('uruguai')}
                     </div>
-
-                    {/* Container de Prêmios */}
-                    <div className="flex-shrink-0 mt-auto" style={{ marginTop: 'clamp(20px, 3vh, 40px)' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        PRÊMIOS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                          maxWidth: '180px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme (Young Audience Award) — 43º Festival de Cinema do Uruguai
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Menção Especial do Júri — 51º Seattle International Film Festival
-                        </div>
-                        <div>
-                          Outstanding First Feature (Jury Prize) — Frameline49
-                        </div>
-                      </div>
+                    <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
+                      {t('mencaoEspecial')} — Seattle
+                    </div>
+                    <div>
+                      Jury Prize — Frameline49
                     </div>
                   </div>
                 </div>
@@ -2645,127 +4285,675 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Seção - AS MIÇANGAS */}
+          {/* Seção 4 - A Natureza das Coisas Invisíveis - Split with Sinopse and Distribution */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-natureza-panel="3"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full" style={{ overflow: 'visible' }}>
-                    {/* Container de Informações Técnicas (topo) */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(9px, 0.75vw, 11px)',
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          FAC-DF
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Edital Cardume
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak / Moveo Filmes
-                        </div>
-                        <div>
-                          Produção: Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
+            {/* Left - Sinopse */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#121212',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  Sinopse
+                </div>
+                <div 
+                  className="data-natureza-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    maxWidth: '90%',
+                  }}
+                >
+                  <p className="split-text">
+                    Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas. O filme explora as histórias que não vemos, mas que nos definem, revelando camadas de memória, identidade e pertencimento através de uma linguagem cinematográfica ousada e poética.
+                  </p>
+                </div>
 
-                    {/* Container do Título (base) */}
-                    <div className="flex flex-col justify-start mt-auto" style={{ paddingBottom: '4vh' }}>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                        }}
-                      >
-                        As Miçangas
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2023)
-                      </div>
-                    </div>
+                {/* Quote */}
+                <div 
+                  style={{
+                    marginTop: 'clamp(30px, 4vh, 50px)',
+                    paddingLeft: 'clamp(20px, 3vw, 30px)',
+                    borderLeft: '2px solid rgba(255, 255, 255, 0.3)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(16px, 1.5vw, 22px)',
+                      lineHeight: '1.6',
+                      fontStyle: 'italic',
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      marginBottom: 'clamp(12px, 2vh, 20px)',
+                    }}
+                  >
+                    &quot;O que não vemos é o que mais nos move.&quot;
                   </div>
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(11px, 1vw, 13px)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  >
+                    — Rafaela Camelo
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                  {/* Coluna Direita - Estreias (base) */}
-                  <div className="md:col-span-5 flex flex-col h-full justify-end" style={{ overflow: 'visible' }}>
-                    {/* Container de Estreias */}
-                    <div className="flex-shrink-0 mt-auto">
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        ESTREIAS
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> 73ª Berlinale
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Asiática:</strong> 47ª Hong Kong
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Latino:</strong> 41º Uruguay
-                        </div>
-                        <div>
-                          <strong>EUA:</strong> 29º Palm Springs
-                        </div>
-                      </div>
-                    </div>
+            {/* Right - Distribution & Technical Info */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-natureza-content"
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  Distribuição
+                </div>
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(13px, 1.2vw, 16px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(12px, 2vh, 18px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Brasil:</strong> Vitrine Filmes
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Internacional:</strong> The Open Reel
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                  }}
+                >
+                  Ficha Técnica
+                </div>
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(12px, 1.1vw, 14px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('roteiro')}</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('coproducao')}</strong> Brasil-Chile
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, FSA/Ancine
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Seção - O Mistério da Carne */}
+          {/* Seção de Transição - ContentTransition */}
+          <section
+            className="horizontal-section relative flex-shrink-0"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'visible',
+              position: 'relative',
+            }}
+          >
+            <ContentTransition
+              leftText={{ 
+                line1: t('aNatureza'), 
+                line2: t('dasCoisasInvisiveis')
+              }}
+              rightText={{ 
+                line1: t('as'), 
+                line2: t('micangas')
+              }}
+              boxCount={100}
+            />
+          </section>
+
+          {/* Seção 1 - AS MIÇANGAS - Title Only with Scroll Acceleration Gallery */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="0"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+              }}
+            >
+              <h1 
+                className="data-micangas-title"
+                suppressHydrationWarning
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 6vw, 120px)',
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  maxWidth: '800px',
+                  mixBlendMode: 'difference',
+                  color: 'white',
+                  opacity: 1,
+                  transform: 'scale(1)',
+                }}
+              >
+                {t('asMicangas')}
+              </h1>
+            </div>
+
+            {/* Scroll Acceleration Gallery - 3 Columns */}
+            <div 
+              className="absolute inset-0 flex justify-center"
+              style={{
+                width: '100%',
+                height: '100%',
+                overflow: 'visible',
+                zIndex: 1,
+                padding: '50px',
+              }}
+            >
+              {/* Column 1 - Moves Up */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="0"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-start',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {PLACEHOLDER_IMAGES.micangas.map((src, idx) => (
+                  <div
+                    key={`col0-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
+                  <div
+                    key={`col0-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Column 2 - Moves Down */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="1"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-end',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {[
+                  PLACEHOLDER_IMAGES.micangas[1],
+                  PLACEHOLDER_IMAGES.micangas[2],
+                  PLACEHOLDER_IMAGES.micangas[3],
+                  PLACEHOLDER_IMAGES.micangas[0],
+                ].map((src, idx) => (
+                  <div
+                    key={`col1-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(2, 4).map((src, idx) => (
+                  <div
+                    key={`col1-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Column 3 - Moves Up */}
+              <div 
+                className="data-micangas-col flex-1 flex flex-col"
+                data-col-index="2"
+                style={{
+                  width: '100%',
+                  alignSelf: 'flex-start',
+                  gap: '20px',
+                  willChange: 'transform',
+                }}
+              >
+                {[
+                  PLACEHOLDER_IMAGES.micangas[2],
+                  PLACEHOLDER_IMAGES.micangas[3],
+                  PLACEHOLDER_IMAGES.micangas[0],
+                  PLACEHOLDER_IMAGES.micangas[1],
+                ].map((src, idx) => (
+                  <div
+                    key={`col2-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                      transition: 'filter 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'saturate(1)';
+                      e.currentTarget.style.zIndex = '999999';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'saturate(0)';
+                      e.currentTarget.style.zIndex = '1';
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      style={{
+                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
+                      }}
+                    />
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
+                  <div
+                    key={`col2-dup-${idx}`}
+                    className="data-micangas-image"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      filter: 'saturate(0)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`AS MIÇANGAS ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Seção 2 - AS MIÇANGAS - Info Panel */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="1"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+            }}
+          >
+            {/* Left - Content */}
+            <div 
+              className="flex flex-col justify-center p-[50px]"
+              style={{
+                backgroundColor: '#0a0a0a',
+              }}
+            >
+              <div 
+                className="data-micangas-content"
+              >
+                <div
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 13px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  {t('oFilme')}
+                </div>
+                <h2 
+                  className="data-micangas-title split-text"
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(24px, 3vw, 48px)',
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    color: 'white',
+                  }}
+                >
+                  {t('asMicangasTitle')}
+                </h2>
+                <div 
+                  className="data-micangas-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(14px, 1.3vw, 18px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                  }}
+                >
+                  <p className="split-text">
+                    (2023) Curta-metragem que explora a memória e a identidade através de narrativas fragmentadas e poéticas.
+                  </p>
+                </div>
+
+                {/* Ficha Técnica */}
+                <div 
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 1vw, 13px)',
+                    lineHeight: '1.6',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                  }}
+                >
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
+                  </div>
+                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
+                  </div>
+                  <div>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, Edital Cardume
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Image */}
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                position: 'relative',
+              }}
+            >
+              <div 
+                className="absolute inset-0"
+                style={{
+                  willChange: 'transform',
+                }}
+              >
+                <Image
+                  src={PLACEHOLDER_IMAGES.micangas[0]}
+                  alt="AS MIÇANGAS"
+                  fill
+                  sizes="50vw"
+                  className="object-cover data-micangas-parallax"
+                  style={{
+                    filter: 'saturate(0) brightness(0.8)',
+                    transform: 'scale(1.1)',
+                  }}
+                  data-speed="0.3"
+                  unoptimized
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Seção 1 - O Mistério da Carne - Title Only */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="0"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            {/* Title Overlay */}
+            <div 
+              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
+              style={{
+                zIndex: 10,
+              }}
+            >
+              <h1 
+                className="data-misterio-title"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(40px, 6vw, 120px)',
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  maxWidth: '800px',
+                  mixBlendMode: 'difference',
+                  color: 'white',
+                  opacity: 1,
+                  transform: 'scale(1)',
+                }}
+              >
+                O MISTÉRIO DA CARNE
+              </h1>
+            </div>
+
+            {/* Image Gallery Grid */}
+            <div 
+              className="absolute inset-0 p-[50px]"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 'clamp(20px, 3vw, 40px)',
+                zIndex: 1,
+              }}
+            >
+              {PLACEHOLDER_IMAGES.misterio.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="data-misterio-gallery-item"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: 1,
+                    transform: 'scale(1)',
+                    filter: 'saturate(0)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'saturate(1)';
+                    e.currentTarget.style.zIndex = '999';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'saturate(0)';
+                    e.currentTarget.style.zIndex = '1';
+                  }}
+                >
+                  <Image
+                    src={src}
+                    alt={`O Mistério da Carne ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 30vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Seção 2 - O Mistério da Carne - Content */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="1"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
@@ -2782,9 +4970,10 @@ export default function Home() {
                     <div className="flex flex-col justify-start">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_LARGE,
+                          fontSize: 'clamp(24px, 3vw, 48px)',
                           lineHeight: '0.95',
                           fontWeight: 700,
                           letterSpacing: '-0.02em',
@@ -2792,7 +4981,7 @@ export default function Home() {
                           color: 'white',
                         }}
                       >
-                        O Mistério da Carne
+                        {t('oMisterioDaCarne')}
                       </div>
                       <div
                         className="mix-blend-difference"
@@ -2812,6 +5001,7 @@ export default function Home() {
                     <div className="flex-shrink-0 mt-auto">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2823,13 +5013,13 @@ export default function Home() {
                           FAC-DF
                         </div>
                         <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          1º Edital de Curtas da Cardume
+                          {t('primeiroEditalCardume')}
                         </div>
                         <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          Distribuição: Agência Freak (Mundo) e Moveo Filmes (Brasil)
+                          {t('distribuicao')} {t('agenciaFreakMundo')}
                         </div>
                         <div>
-                          Produção: Moveo Filmes
+                          {t('producao')} Moveo Filmes
                         </div>
                       </div>
                     </div>
@@ -2841,6 +5031,7 @@ export default function Home() {
                     <div className="flex-shrink-0">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_MEDIUM,
@@ -2850,10 +5041,11 @@ export default function Home() {
                           letterSpacing: '0.5px',
                         }}
                       >
-                        PRÊMIOS
+                        {t('premios')}
                       </div>
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: FONT_SMALL,
@@ -2862,10 +5054,10 @@ export default function Home() {
                         }}
                       >
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          Melhor Filme — Biarritz Amérique Latine
+                          {t('melhorFilme')} — Biarritz Amérique Latine
                         </div>
                         <div>
-                          Melhor Filme — New Directors / New Films
+                          {t('melhorFilme')} — New Directors / New Films
                         </div>
                       </div>
                     </div>
@@ -2874,6 +5066,7 @@ export default function Home() {
                     <div className="flex-shrink-0 mt-auto">
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(11px, 0.95vw, 14px)',
@@ -2883,10 +5076,11 @@ export default function Home() {
                           letterSpacing: '0.5px',
                         }}
                       >
-                        ESTREIAS
+                        {t('estreias')}
                       </div>
                       <div
                         className="mix-blend-difference"
+                        suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                           fontSize: 'clamp(10px, 0.85vw, 13px)',
@@ -2895,13 +5089,13 @@ export default function Home() {
                         }}
                       >
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Mundial:</strong> Sundance Film Festival (2019)
+                          <strong>{t('mundial')}</strong> Sundance Film Festival (2019)
                         </div>
                         <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>Europa:</strong> Biarritz Amérique Latine
+                          <strong>{t('europa')}</strong> Biarritz Amérique Latine
                         </div>
                         <div>
-                          <strong>EUA:</strong> New Directors / New Films
+                          <strong>{t('eua')}</strong> New Directors / New Films
                         </div>
                       </div>
                     </div>
@@ -2924,7 +5118,7 @@ export default function Home() {
           overflow: 'visible',
         }}
       >
-        <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
+        <section ref={cinemaSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0">
@@ -2956,6 +5150,8 @@ export default function Home() {
                   {/* Título centralizado */}
                   <h3
                     className="font-black text-white transform -rotate-90 origin-center whitespace-nowrap"
+                    data-cinema-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -2965,7 +5161,7 @@ export default function Home() {
                       marginLeft: '25px',
                     }}
                   >
-                    CATÁLOGO
+                    {t('catalogo')}
                   </h3>
                 </div>
 
@@ -2976,6 +5172,7 @@ export default function Home() {
                 >
                   <h2
                     className="font-black tracking-tight text-white"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -2989,7 +5186,7 @@ export default function Home() {
                 </div>
 
                 {/* Quadrado superior direito - imagem */}
-                <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden">
+                <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 10.png"
                     alt="Catálogo Cinema placeholder 1"
@@ -3004,7 +5201,7 @@ export default function Home() {
                   className="col-span-5 row-span-3 bg-transparent p-4 md:p-8 flex items-start justify-start min-h-0"
                   style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
-                  <div>
+                  <div data-cinema-animate>
                     <p
                       className="text-white font-bold"
                       style={{
@@ -3020,11 +5217,20 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Bloco vertical médio */}
-                <div className="col-span-2 row-span-4 bg-transparent min-h-0">
-                  <p className="font-light text-sm leading-relaxed text-white mix-blend-difference" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}>
-                    {""}
-                  </p>
+                {/* Bloco vertical médio - 3D Carousel */}
+                <div className="col-span-2 row-span-4 bg-transparent min-h-0 relative overflow-visible">
+                  <div 
+                    ref={carouselScrollDistRef}
+                    className="absolute top-0 w-full pointer-events-none z-0"
+                    style={{ height: '400%', opacity: 0 }}
+                  />
+                  <div
+                    ref={carouselContainerRef}
+                    className="absolute inset-0 w-full h-full flex items-center justify-center"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                    }}
+                  />
                 </div>
 
                 {/* Quadrado inferior esquerdo */}
@@ -3034,6 +5240,7 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-bold mix-blend-difference"
+                    data-cinema-animate
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3047,7 +5254,7 @@ export default function Home() {
                 </div>
 
                 {/* Retângulo horizontal inferior - imagem */}
-                <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden">
+                <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 8.png"
                     alt="Catálogo Cinema placeholder 2"
@@ -3061,6 +5268,8 @@ export default function Home() {
                 <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                   <p
                     className="text-white font-bold mix-blend-difference"
+                    data-cinema-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3069,7 +5278,7 @@ export default function Home() {
                       lineHeight: '1.1',
                     }}
                   >
-                    EXPLORAR ARQUIVO NA ÍNTEGRA {'>>>>'}
+                    {t('explorarArquivoNaIntegra')} {'>>>>'}
                   </p>
                 </div>
               </div>
@@ -3089,12 +5298,12 @@ export default function Home() {
           overflow: 'visible',
         }}
       >
-        <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
+        <section ref={arquivoSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
             <div className="w-full h-full relative" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
                 {/* Coluna imagem esquerda */}
-                <div className="col-span-2 row-span-8 relative overflow-hidden">
+                <div className="col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 12.png"
                     alt="Arquivo móvel imagem 4"
@@ -3111,6 +5320,8 @@ export default function Home() {
                 >
                   <h1
                     className="font-black tracking-tighter leading-none text-white mix-blend-difference"
+                    data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
@@ -3118,18 +5329,25 @@ export default function Home() {
                       lineHeight: '0.9',
                     }}
                   >
-                    ALÉM<br />DOS FILMES
+                    {t('alemDosFilmes').split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < t('alemDosFilmes').split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
                   </h1>
                   <Link
                     href="/catalogo/mostras-e-exposicoes"
                     className="mt-6 inline-flex items-center gap-2 px-4 py-2 border border-white/40 hover:border-white transition-colors uppercase"
+                    data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
                       letterSpacing: '0.08em',
                     }}
                   >
-                    Ver arquivo completo
+                    {t('verArquivoCompleto')}
                   </Link>
                 </div>
 
@@ -3140,6 +5358,8 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-light leading-tight mix-blend-difference"
+                    data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontSize: FONT_MEDIUM,
@@ -3148,7 +5368,12 @@ export default function Home() {
                       fontWeight: 700,
                     }}
                   >
-                    ARQUIVO<br />MOVEO
+                    {t('arquivoMoveo').split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < t('arquivoMoveo').split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
                   </p>
                 </div>
 
@@ -3159,6 +5384,8 @@ export default function Home() {
                 >
                   <p
                     className="text-white font-light leading-relaxed mix-blend-difference"
+                    data-arquivo-animate
+                    suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                       fontSize: FONT_SMALL,
@@ -3167,12 +5394,12 @@ export default function Home() {
                       textAlign: 'justify',
                     }}
                   >
-                    mostras, exposições e outros projetos especiais dos quais fizemos parte
+                    {t('arquivoDescription')}
                   </p>
                 </div>
 
                 {/* Imagens à direita */}
-                <div className="col-start-8 col-span-4 row-start-1 row-span-3 relative overflow-hidden">
+                <div className="col-start-8 col-span-4 row-start-1 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 10.png"
                     alt="Arquivo móvel imagem 1"
@@ -3181,7 +5408,7 @@ export default function Home() {
                     unoptimized
                   />
                 </div>
-                <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden">
+                <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 9.png"
                     alt="Arquivo móvel imagem 2"
@@ -3295,7 +5522,7 @@ export default function Home() {
                           background: 'white',
                           opacity: newsIndex === idx ? 0.9 : 0.3,
                         }}
-                        aria-label={`Ir para notícia ${idx + 1}`}
+                        aria-label={`${t('irParaNoticia')} ${idx + 1}`}
                       />
                     ))}
                   </div>
@@ -3303,16 +5530,16 @@ export default function Home() {
                     <button
                       onClick={() => setNewsIndex((prev) => (prev - 1 + newsSlides.length) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
-                      aria-label="Notícia anterior"
+                      aria-label={t('noticiaAnterior')}
                     >
-                      <span className="sr-only">Anterior</span>
+                      <span className="sr-only">{t('anterior')}</span>
                     </button>
                     <button
                       onClick={() => setNewsIndex((prev) => (prev + 1) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
-                      aria-label="Próxima notícia"
+                      aria-label={t('proximaNoticia')}
                     >
-                      <span className="sr-only">Próxima</span>
+                      <span className="sr-only">{t('proxima')}</span>
                     </button>
                   </div>
                 </div>
@@ -3322,6 +5549,7 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <h2
                       className="text-white uppercase"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
@@ -3329,7 +5557,7 @@ export default function Home() {
                         letterSpacing: '-0.02em',
                       }}
                     >
-                      Notícias
+                      {t('noticias')}
                     </h2>
                     <Link
                       href="/noticias"
@@ -3340,7 +5568,7 @@ export default function Home() {
                         letterSpacing: '0.08em',
                       }}
                     >
-                      Ver página
+                      {t('verPagina')}
                     </Link>
                   </div>
 
@@ -3354,17 +5582,18 @@ export default function Home() {
                         letterSpacing: '-0.02em',
                       }}
                     >
-                      Lorem ipsum
+                      {t('loremIpsumTitle')}
                     </p>
                     <p
                       className="text-white opacity-80"
+                      suppressHydrationWarning
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
                         fontSize: FONT_SMALL,
                         lineHeight: '1.6',
                       }}
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae sem in sapien sodales tempor non ut justo.
+                      {t('loremIpsumText')}
                     </p>
                   </div>
 
@@ -3398,7 +5627,7 @@ export default function Home() {
                         letterSpacing: '0.06em',
                       }}
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      {t('loremIpsumShort')}
                     </p>
                     <div className="flex gap-3">
                       {newsSlides.map((item) => (
@@ -3461,7 +5690,7 @@ export default function Home() {
                   letterSpacing: '0.08em',
                 }}
               >
-                Ir para contato
+                {t('irParaContato')}
               </Link>
               <Link
                 href="/catalogo/cinema"
@@ -3494,7 +5723,7 @@ export default function Home() {
                 letterSpacing: '0.05em',
               }}
             >
-              Produtora boutique de filmes independentes — Brasília, desde 2018.
+              {t('produtoraBoutique')}
             </p>
           </div>
 

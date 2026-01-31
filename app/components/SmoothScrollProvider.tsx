@@ -74,7 +74,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
         cancelAnimationFrame(rafRef.current);
       }
       lenis.destroy();
-      ScrollTrigger.killAll();
+      // Only clear match media, don't kill all triggers as they're managed by gsap.context
       ScrollTrigger.clearMatchMedia();
     };
   }, []);

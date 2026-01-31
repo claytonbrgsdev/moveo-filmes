@@ -22,6 +22,10 @@ const eslintConfig = defineConfig([
     // Backup pages
     "app/backup-home/**",
     "app/backup-home-containers/**",
+    // Backup slug directories
+    "app/empresa/[slug].backup/**",
+    "app/filme/[slug].backup/**",
+    "app/pessoa/[slug].backup/**",
   ]),
 ]);
 
