@@ -97,10 +97,6 @@ const translations: Record<Language, Record<string, string>> = {
     festival: 'Festival',
     residencia: 'Residência',
     producaoTag: 'Produção',
-    // Placeholder texts
-    loremIpsumTitle: 'Lorem ipsum',
-    loremIpsumText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae sem in sapien sodales tempor non ut justo.',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   },
   en: {
     catalog: 'Catalog',
@@ -184,9 +180,6 @@ const translations: Record<Language, Record<string, string>> = {
     residencia: 'Residency',
     producaoTag: 'Production',
     // Placeholder texts
-    loremIpsumTitle: 'Lorem ipsum',
-    loremIpsumText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae sem in sapien sodales tempor non ut justo.',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     // Informações técnicas adicionais
     colombia: 'Colombia:',
     mexico: 'Mexico:',

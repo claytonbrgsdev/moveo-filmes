@@ -36,31 +36,6 @@ const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
 
-// High-quality placeholder images for featured films
-const PLACEHOLDER_IMAGES = {
-  natureza: [
-    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80', // Cinema
-    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80', // Movie theater
-    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&q=80', // Film reel
-    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80', // Cinema screen
-    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80', // Film production
-    'https://images.unsplash.com/photo-1542204165-6bfe6a7b3c73?w=800&q=80', // Director
-  ],
-  micangas: [
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mountain landscape
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic landscape
-    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Nature
-    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Forest
-  ],
-  misterio: [
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mysterious landscape
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Dramatic scene
-    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80', // Atmospheric
-    'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80', // Dark forest
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Repeat for variety
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-  ],
-};
 
 export default function Home() {
   const { language, t } = useLanguage();
@@ -113,6 +88,7 @@ export default function Home() {
   const sobreMoveoTextRef = useRef<HTMLDivElement>(null);
   const [sobreMoveoFontSize, setSobreMoveoFontSize] = useState<number>(40);
   const dragonflySectionRef = useRef<HTMLDivElement>(null);
+  const contactSectionRef = useRef<HTMLDivElement>(null);
   const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
   const dragonflyPinRef = useRef<HTMLDivElement>(null);
   const cinemaSectionRef = useRef<HTMLElement | null>(null);
@@ -2874,6 +2850,38 @@ export default function Home() {
     };
   }, []);
 
+  // Contact section entrance animation
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!contactSectionRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const contactElements = contactSectionRef.current!.querySelectorAll('[data-contact-animate]');
+      gsap.fromTo(contactElements,
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: contactSectionRef.current,
+            start: 'top 80%',
+            end: 'top 40%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    }, contactSectionRef);
+
+    return () => {
+      ctx.revert();
+    };
+  }, []);
+
   // Scroll infinito removido temporariamente
 
   useEffect(() => {
@@ -3911,17 +3919,12 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
-            {/* Title Overlay */}
-            <div 
-              className="absolute top-0 left-0 w-full p-[50px] z-10 pointer-events-none"
-              style={{
-                zIndex: 10,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            {/* Centered Title Card */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: 1 }}
             >
-              <h2 
+              <h2
                 className="data-natureza-content"
                 suppressHydrationWarning
                 style={{
@@ -3932,59 +3935,12 @@ export default function Home() {
                   textTransform: 'uppercase',
                   letterSpacing: '-0.05em',
                   color: 'rgba(255, 255, 255, 0.95)',
-                  opacity: 1,
-                  transform: 'scale(1)',
-                  mixBlendMode: 'difference',
-                  textShadow: '0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.2)',
+                  textAlign: 'center',
+                  maxWidth: '90%',
                 }}
               >
                 {t('aNaturezaDasCoisasInvisiveis')}
               </h2>
-            </div>
-
-            {/* Image Gallery Grid */}
-            <div 
-              className="absolute inset-0 p-[50px]"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 'clamp(20px, 3vw, 40px)',
-                zIndex: 1,
-              }}
-            >
-              {PLACEHOLDER_IMAGES.natureza.map((src, idx) => (
-                <div
-                  key={idx}
-                  className="data-natureza-gallery-item"
-                  style={{
-                    width: '100%',
-                    aspectRatio: '3/4',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    opacity: 1,
-                    transform: 'scale(1)',
-                    filter: 'saturate(0)',
-                    transition: 'filter 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.filter = 'saturate(1)';
-                    e.currentTarget.style.zIndex = '999';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.filter = 'saturate(0)';
-                    e.currentTarget.style.zIndex = '1';
-                  }}
-                >
-                  <Image
-                    src={src}
-                    alt={`A Natureza das Coisas Invisíveis ${idx + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 33vw, 30vw"
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              ))}
             </div>
           </section>
 
@@ -4097,7 +4053,7 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src={PLACEHOLDER_IMAGES.natureza[0]}
+                  src="/imagens/capahome.png"
                   alt="A Natureza das Coisas Invisíveis"
                   fill
                   sizes="40vw"
@@ -4129,7 +4085,7 @@ export default function Home() {
             {/* Background Image */}
             <div className="absolute inset-0" style={{ willChange: 'transform' }}>
               <Image
-                src={PLACEHOLDER_IMAGES.natureza[1]}
+                src="/imagens/capahome.png"
                 alt="A Natureza das Coisas Invisíveis"
                 fill
                 sizes="100vw"
@@ -4298,10 +4254,12 @@ export default function Home() {
             }}
           >
             {/* Left - Sinopse */}
-            <div 
+            <div
               className="flex flex-col justify-center p-[50px]"
               style={{
                 backgroundColor: '#121212',
+                paddingRight: '3vw',
+                overflow: 'hidden',
               }}
             >
               <div 
@@ -4326,7 +4284,8 @@ export default function Home() {
                     fontSize: 'clamp(14px, 1.3vw, 18px)',
                     lineHeight: '1.8',
                     color: 'rgba(255, 255, 255, 0.85)',
-                    maxWidth: '90%',
+                    maxWidth: '100%',
+                    overflow: 'hidden',
                   }}
                 >
                   <p className="split-text">
@@ -4368,10 +4327,11 @@ export default function Home() {
             </div>
 
             {/* Right - Distribution & Technical Info */}
-            <div 
+            <div
               className="flex flex-col justify-center p-[50px]"
               style={{
                 backgroundColor: '#0a0a0a',
+                overflow: 'hidden',
               }}
             >
               <div 
@@ -4486,14 +4446,12 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
-            {/* Title Overlay */}
-            <div 
-              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
-              style={{
-                zIndex: 10,
-              }}
+            {/* Centered Title Card */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: 1 }}
             >
-              <h1 
+              <h1
                 className="data-micangas-title"
                 suppressHydrationWarning
                 style={{
@@ -4502,249 +4460,11 @@ export default function Home() {
                   fontWeight: 800,
                   textAlign: 'center',
                   maxWidth: '800px',
-                  mixBlendMode: 'difference',
                   color: 'white',
-                  opacity: 1,
-                  transform: 'scale(1)',
                 }}
               >
                 {t('asMicangas')}
               </h1>
-            </div>
-
-            {/* Scroll Acceleration Gallery - 3 Columns */}
-            <div 
-              className="absolute inset-0 flex justify-center"
-              style={{
-                width: '100%',
-                height: '100%',
-                overflow: 'visible',
-                zIndex: 1,
-                padding: '50px',
-              }}
-            >
-              {/* Column 1 - Moves Up */}
-              <div 
-                className="data-micangas-col flex-1 flex flex-col"
-                data-col-index="0"
-                style={{
-                  width: '100%',
-                  alignSelf: 'flex-start',
-                  gap: '20px',
-                  willChange: 'transform',
-                }}
-              >
-                {PLACEHOLDER_IMAGES.micangas.map((src, idx) => (
-                  <div
-                    key={`col0-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                      transition: 'filter 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.filter = 'saturate(1)';
-                      e.currentTarget.style.zIndex = '999999';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.filter = 'saturate(0)';
-                      e.currentTarget.style.zIndex = '1';
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      style={{
-                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
-                      }}
-                    />
-                  </div>
-                ))}
-                {/* Duplicate for seamless loop */}
-                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
-                  <div
-                    key={`col0-dup-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Column 2 - Moves Down */}
-              <div 
-                className="data-micangas-col flex-1 flex flex-col"
-                data-col-index="1"
-                style={{
-                  width: '100%',
-                  alignSelf: 'flex-end',
-                  gap: '20px',
-                  willChange: 'transform',
-                }}
-              >
-                {[
-                  PLACEHOLDER_IMAGES.micangas[1],
-                  PLACEHOLDER_IMAGES.micangas[2],
-                  PLACEHOLDER_IMAGES.micangas[3],
-                  PLACEHOLDER_IMAGES.micangas[0],
-                ].map((src, idx) => (
-                  <div
-                    key={`col1-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                      transition: 'filter 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.filter = 'saturate(1)';
-                      e.currentTarget.style.zIndex = '999999';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.filter = 'saturate(0)';
-                      e.currentTarget.style.zIndex = '1';
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      style={{
-                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
-                      }}
-                    />
-                  </div>
-                ))}
-                {/* Duplicate for seamless loop */}
-                {PLACEHOLDER_IMAGES.micangas.slice(2, 4).map((src, idx) => (
-                  <div
-                    key={`col1-dup-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Column 3 - Moves Up */}
-              <div 
-                className="data-micangas-col flex-1 flex flex-col"
-                data-col-index="2"
-                style={{
-                  width: '100%',
-                  alignSelf: 'flex-start',
-                  gap: '20px',
-                  willChange: 'transform',
-                }}
-              >
-                {[
-                  PLACEHOLDER_IMAGES.micangas[2],
-                  PLACEHOLDER_IMAGES.micangas[3],
-                  PLACEHOLDER_IMAGES.micangas[0],
-                  PLACEHOLDER_IMAGES.micangas[1],
-                ].map((src, idx) => (
-                  <div
-                    key={`col2-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                      transition: 'filter 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.filter = 'saturate(1)';
-                      e.currentTarget.style.zIndex = '999999';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.filter = 'saturate(0)';
-                      e.currentTarget.style.zIndex = '1';
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      style={{
-                        boxShadow: '0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12)',
-                      }}
-                    />
-                  </div>
-                ))}
-                {/* Duplicate for seamless loop */}
-                {PLACEHOLDER_IMAGES.micangas.slice(0, 2).map((src, idx) => (
-                  <div
-                    key={`col2-dup-${idx}`}
-                    className="data-micangas-image"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      filter: 'saturate(0)',
-                      padding: '1rem',
-                    }}
-                  >
-                    <Image
-                      src={src}
-                      alt={`AS MIÇANGAS ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 30vw"
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ))}
-              </div>
             </div>
           </section>
 
@@ -4851,7 +4571,7 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src={PLACEHOLDER_IMAGES.micangas[0]}
+                  src="/imagens/capahome.png"
                   alt="AS MIÇANGAS"
                   fill
                   sizes="50vw"
@@ -4879,14 +4599,12 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
-            {/* Title Overlay */}
-            <div 
-              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
-              style={{
-                zIndex: 10,
-              }}
+            {/* Centered Title Card */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: 1 }}
             >
-              <h1 
+              <h1
                 className="data-misterio-title"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -4894,59 +4612,11 @@ export default function Home() {
                   fontWeight: 800,
                   textAlign: 'center',
                   maxWidth: '800px',
-                  mixBlendMode: 'difference',
                   color: 'white',
-                  opacity: 1,
-                  transform: 'scale(1)',
                 }}
               >
                 O MISTÉRIO DA CARNE
               </h1>
-            </div>
-
-            {/* Image Gallery Grid */}
-            <div 
-              className="absolute inset-0 p-[50px]"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 'clamp(20px, 3vw, 40px)',
-                zIndex: 1,
-              }}
-            >
-              {PLACEHOLDER_IMAGES.misterio.map((src, idx) => (
-                <div
-                  key={idx}
-                  className="data-misterio-gallery-item"
-                  style={{
-                    width: '100%',
-                    aspectRatio: '3/4',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    opacity: 1,
-                    transform: 'scale(1)',
-                    filter: 'saturate(0)',
-                    transition: 'filter 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.filter = 'saturate(1)';
-                    e.currentTarget.style.zIndex = '999';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.filter = 'saturate(0)';
-                    e.currentTarget.style.zIndex = '1';
-                  }}
-                >
-                  <Image
-                    src={src}
-                    alt={`O Mistério da Carne ${idx + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 33vw, 30vw"
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              ))}
             </div>
           </section>
 
@@ -5572,70 +5242,12 @@ export default function Home() {
                     </Link>
                   </div>
 
-                  <div className="space-y-3">
-                    <p
-                      className="text-white font-bold uppercase"
-                      style={{
-                        fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                        fontSize: FONT_MEDIUM,
-                        lineHeight: '1.1',
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      {t('loremIpsumTitle')}
-                    </p>
-                    <p
-                      className="text-white opacity-80"
-                      suppressHydrationWarning
-                      style={{
-                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                        fontSize: FONT_SMALL,
-                        lineHeight: '1.6',
-                      }}
-                    >
-                      {t('loremIpsumText')}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative overflow-hidden h-32">
-                      <Image
-                        src="/imagens/secao2home/Rectangle 11.png"
-                        alt="Capa notícias 1"
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                    <div className="relative overflow-hidden h-32">
-                      <Image
-                        src="/imagens/secao2home/Rectangle 8.png"
-                        alt="Capa notícias 2"
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/20 pt-4 space-y-2">
-                    <p
-                      className="text-white"
-                      style={{
-                        fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                        fontSize: FONT_SMALL,
-                        letterSpacing: '0.06em',
-                      }}
-                    >
-                      {t('loremIpsumShort')}
-                    </p>
-                    <div className="flex gap-3">
-                      {newsSlides.map((item) => (
-                        <div key={item.title} className="px-3 py-1 border border-white/25 uppercase" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL }}>
-                          {item.tag}
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap gap-3">
+                    {newsSlides.map((item) => (
+                      <div key={item.title} className="px-3 py-1 border border-white/25 uppercase" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL }}>
+                        {item.tag}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -5646,6 +5258,7 @@ export default function Home() {
 
       {/* Seção - CONTATO / FOOTER */}
       <div
+        ref={contactSectionRef}
         className="relative bg-black text-white"
         style={{
           marginLeft: '50px',
@@ -5658,6 +5271,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-6 md:gap-8 items-start">
           <div className="md:col-span-7 space-y-6">
             <h2
+              data-contact-animate
               className="text-white uppercase"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
@@ -5670,6 +5284,7 @@ export default function Home() {
               Contato
             </h2>
             <p
+              data-contact-animate
               className="text-white"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
@@ -5680,7 +5295,7 @@ export default function Home() {
             >
               Fale com a Moveo para projetos, parcerias e informações gerais.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div data-contact-animate className="flex flex-wrap gap-3">
               <Link
                 href="/contato"
                 className="px-5 py-3 border border-white/50 hover:border-white transition-colors uppercase"
@@ -5727,7 +5342,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="md:col-span-5 relative h-48 md:h-full overflow-hidden rounded">
+          <div data-contact-animate className="md:col-span-5 relative h-48 md:h-full overflow-hidden rounded">
             <Image
               src="/imagens/capahome.png"
               alt="Contato Moveo"
