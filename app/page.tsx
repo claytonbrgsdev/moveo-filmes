@@ -965,6 +965,55 @@ export default function Home() {
           });
         }
 
+        // Label animation
+        const label = panel.querySelector('.data-micangas-label') as HTMLElement;
+        if (label) {
+          gsap.fromTo(label,
+            { opacity: 0, y: 15, letterSpacing: '0.3em' },
+            {
+              opacity: 1,
+              y: 0,
+              letterSpacing: '0.1em',
+              duration: 0.7,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: label,
+                start: 'left 85%',
+                end: 'left 15%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Ficha técnica stagger animation
+        const ficha = panel.querySelector('.data-micangas-ficha') as HTMLElement;
+        if (ficha) {
+          const fichaItems = Array.from(ficha.querySelectorAll('div')) as HTMLElement[];
+          fichaItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { opacity: 0, x: -15 },
+              {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                delay: index * 0.1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: ficha,
+                  start: 'left 85%',
+                  end: 'left 15%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
         // Individual image animations for AS MIÇANGAS
         const images = Array.from(panel.querySelectorAll('.data-micangas-image')) as HTMLElement[];
         if (images.length) {
@@ -1304,6 +1353,101 @@ export default function Home() {
               }
             );
           });
+        }
+
+        // Header (title + year) animation
+        const header = panel.querySelector('.data-misterio-header') as HTMLElement;
+        if (header) {
+          gsap.fromTo(header,
+            { opacity: 0, y: 40, scale: 0.95 },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 1,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 85%',
+                end: 'left 15%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Technical info stagger
+        const tech = panel.querySelector('.data-misterio-tech') as HTMLElement;
+        if (tech) {
+          const techItems = Array.from(tech.querySelectorAll('div')) as HTMLElement[];
+          techItems.forEach((item, index) => {
+            gsap.fromTo(item,
+              { opacity: 0, x: -20 },
+              {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                delay: index * 0.1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: panel,
+                  start: 'left 80%',
+                  end: 'left 20%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Prêmios animation
+        const premios = panel.querySelector('.data-misterio-premios') as HTMLElement;
+        if (premios) {
+          gsap.fromTo(premios,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: 0.2,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Estreias animation
+        const estreias = panel.querySelector('.data-misterio-estreias') as HTMLElement;
+        if (estreias) {
+          gsap.fromTo(estreias,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: 0.35,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
         }
       });
     }, horizontalSecondTrackRef);
@@ -2503,6 +2647,81 @@ export default function Home() {
           );
         }
 
+        // Quote block animation
+        const quote = panel.querySelector('.data-natureza-quote') as HTMLElement;
+        if (quote) {
+          gsap.fromTo(quote,
+            { opacity: 0, x: -20 },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.9,
+              delay: 0.3,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 80%',
+                end: 'left 20%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                containerAnimation: horizontalTrackST as any,
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        }
+
+        // Distribution & technical info stagger animation
+        const distribution = panel.querySelector('.data-natureza-distribution') as HTMLElement;
+        if (distribution) {
+          const distChildren = Array.from(distribution.children) as HTMLElement[];
+          distChildren.forEach((child, index) => {
+            gsap.fromTo(child,
+              { opacity: 0, y: 25 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                delay: index * 0.15,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: panel,
+                  start: 'left 80%',
+                  end: 'left 20%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
+        // Overlay content children stagger (panel 2 label, title, text)
+        const overlayContent = panel.querySelector('.data-natureza-overlay-content') as HTMLElement;
+        if (overlayContent) {
+          const overlayChildren = Array.from(overlayContent.children).filter(el => !el.classList.contains('data-natureza-festivals')) as HTMLElement[];
+          overlayChildren.forEach((child, index) => {
+            gsap.fromTo(child,
+              { opacity: 0, y: 30 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: index * 0.12,
+                ease: 'power3.out',
+                scrollTrigger: {
+                  trigger: panel,
+                  start: 'left 80%',
+                  end: 'left 20%',
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  containerAnimation: horizontalTrackST as any,
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
+          });
+        }
+
         // Info grid fade in - Individual animations
         if (infoGrid) {
           const gridItems = Array.from(infoGrid.querySelectorAll('div > div')) as HTMLElement[];
@@ -2848,6 +3067,62 @@ export default function Home() {
     return () => {
       ctx.revert();
     };
+  }, []);
+
+  // NOTÍCIAS section entrance animation
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const noticiasSection = document.querySelector('[data-noticias-section]') as HTMLElement;
+    if (!noticiasSection) return;
+
+    const ctx = gsap.context(() => {
+      // Carousel entrance
+      const carousel = noticiasSection.querySelector('.col-span-8') as HTMLElement;
+      if (carousel) {
+        gsap.fromTo(carousel,
+          { opacity: 0, x: -60, scale: 0.95 },
+          {
+            opacity: 1,
+            x: 0,
+            scale: 1,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: noticiasSection,
+              start: 'top 80%',
+              end: 'top 40%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+
+      // Sidebar entrance
+      const sidebar = noticiasSection.querySelector('.col-span-4') as HTMLElement;
+      if (sidebar) {
+        gsap.fromTo(sidebar,
+          { opacity: 0, x: 40 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.9,
+            delay: 0.2,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: noticiasSection,
+              start: 'top 80%',
+              end: 'top 40%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+    });
+
+    return () => ctx.revert();
   }, []);
 
   // Contact section entrance animation
@@ -4109,8 +4384,8 @@ export default function Home() {
             />
 
             {/* Content */}
-            <div 
-              className="relative data-natureza-content"
+            <div
+              className="relative data-natureza-content data-natureza-overlay-content"
               style={{
                 width: '80%',
                 maxWidth: '900px',
@@ -4294,7 +4569,8 @@ export default function Home() {
                 </div>
 
                 {/* Quote */}
-                <div 
+                <div
+                  className="data-natureza-quote"
                   style={{
                     marginTop: 'clamp(30px, 4vh, 50px)',
                     paddingLeft: 'clamp(20px, 3vw, 30px)',
@@ -4334,8 +4610,8 @@ export default function Home() {
                 overflow: 'hidden',
               }}
             >
-              <div 
-                className="data-natureza-content"
+              <div
+                className="data-natureza-content data-natureza-distribution"
               >
                 <div
                   style={{
@@ -4491,6 +4767,7 @@ export default function Home() {
                 className="data-micangas-content"
               >
                 <div
+                  className="data-micangas-label"
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
@@ -4503,7 +4780,7 @@ export default function Home() {
                 >
                   {t('oFilme')}
                 </div>
-                <h2 
+                <h2
                   className="data-micangas-title split-text"
                   suppressHydrationWarning
                   style={{
@@ -4534,7 +4811,8 @@ export default function Home() {
                 </div>
 
                 {/* Ficha Técnica */}
-                <div 
+                <div
+                  className="data-micangas-ficha"
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -4637,7 +4915,7 @@ export default function Home() {
                   {/* Coluna Esquerda - Título e Informações Técnicas */}
                   <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
                     {/* Container do Título */}
-                    <div className="flex flex-col justify-start">
+                    <div className="flex flex-col justify-start data-misterio-header">
                       <div
                         className="mix-blend-difference"
                         suppressHydrationWarning
@@ -4668,7 +4946,7 @@ export default function Home() {
                     </div>
 
                     {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto">
+                    <div className="flex-shrink-0 mt-auto data-misterio-tech">
                       <div
                         className="mix-blend-difference"
                         suppressHydrationWarning
@@ -4698,7 +4976,7 @@ export default function Home() {
                   {/* Coluna Direita - Estreias e Prêmios */}
                   <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
                     {/* Container de Prêmios (topo) */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 data-misterio-premios">
                       <div
                         className="mix-blend-difference"
                         suppressHydrationWarning
@@ -4733,7 +5011,7 @@ export default function Home() {
                     </div>
 
                     {/* Container de Estreias (base) */}
-                    <div className="flex-shrink-0 mt-auto">
+                    <div className="flex-shrink-0 mt-auto data-misterio-estreias">
                       <div
                         className="mix-blend-difference"
                         suppressHydrationWarning
@@ -5105,6 +5383,7 @@ export default function Home() {
       {/* Seção - NOTÍCIAS */}
       <div
         className="relative bg-black text-white"
+        data-noticias-section
         style={{
           marginLeft: '50px',
           marginRight: '50px',
