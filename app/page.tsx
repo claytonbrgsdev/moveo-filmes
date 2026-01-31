@@ -759,72 +759,28 @@ export default function Home() {
       const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
       if (!horizontalTrackST) return;
 
-      // Scroll Acceleration para primeira seção (galeria)
+      // First panel title entrance
       const firstPanel = panels[0];
       if (firstPanel) {
-        const cols = Array.from(firstPanel.querySelectorAll('.data-micangas-col')) as HTMLElement[];
-        
-        if (cols.length) {
-          const additionalY = { val: 0 };
-          let additionalYAnim: gsap.core.Tween | null = null;
-          let offset = 0;
-
-          cols.forEach((col, i) => {
-            const images = Array.from(col.querySelectorAll('.data-micangas-image')) as HTMLElement[];
-            if (!images.length) return;
-
-            // Duplicate images for seamless loop
-            images.forEach((image) => {
-              const clone = image.cloneNode(true) as HTMLElement;
-              col.appendChild(clone);
-            });
-
-            // Set animation with different directions
-            const direction = i % 2 !== 0 ? '+=' : '-='; // Odd columns move down, even move up
-            const columnHeight = col.scrollHeight;
-
-            images.forEach((item) => {
-              gsap.to(item, {
-                y: direction + (columnHeight / 2),
-                duration: 20,
-                repeat: -1,
-                ease: 'none',
-                modifiers: {
-                  y: gsap.utils.unitize((y) => {
-                    if (direction === '+=') {
-                      offset += additionalY.val;
-                      y = (parseFloat(y) - offset) % (columnHeight * 0.5);
-                    } else {
-                      offset += additionalY.val;
-                      y = (parseFloat(y) + offset) % -(columnHeight * 0.5);
-                    }
-                    return y;
-                  })
-                }
-              });
-            });
-          });
-
-          // Scroll velocity acceleration
-          ScrollTrigger.create({
-            trigger: firstPanel,
-            start: 'left 100%',
-            end: 'left 0%',
-            containerAnimation: secondTrackTweenRef.current || undefined,
-            onUpdate: (self) => {
-              const velocity = self.getVelocity();
-              if (velocity > 0) {
-                if (additionalYAnim) additionalYAnim.kill();
-                additionalY.val = -velocity / 2000;
-                additionalYAnim = gsap.to(additionalY, { val: 0 });
-              }
-              if (velocity < 0) {
-                if (additionalYAnim) additionalYAnim.kill();
-                additionalY.val = -velocity / 3000;
-                additionalYAnim = gsap.to(additionalY, { val: 0 });
-              }
-            },
-          });
+        // Parallax image on first panel
+        const parallaxImg = firstPanel.querySelector('[data-micangas-parallax]') as HTMLElement;
+        if (parallaxImg) {
+          gsap.fromTo(parallaxImg,
+            { scale: 1.15, filter: 'blur(3px)' },
+            {
+              scale: 1,
+              filter: 'blur(0px)',
+              duration: 1.6,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: firstPanel,
+                start: 'left 90%',
+                end: 'left 10%',
+                containerAnimation: secondTrackTweenRef.current || undefined,
+                scrub: 1,
+              },
+            }
+          );
         }
       }
 
@@ -1018,42 +974,6 @@ export default function Home() {
           });
         }
 
-        // Individual image animations for AS MIÇANGAS
-        const images = Array.from(panel.querySelectorAll('.data-micangas-image')) as HTMLElement[];
-        if (images.length) {
-          images.forEach((img, index) => {
-            if (isFirstPanel) {
-              // For first panel, set visible immediately
-              gsap.set(img, { opacity: 1, scale: 1, rotation: 0, y: 0 });
-            }
-            
-            gsap.fromTo(img,
-              { 
-                opacity: isFirstPanel ? 1 : 0, 
-                scale: isFirstPanel ? 1 : 0.8,
-                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
-                y: isFirstPanel ? 0 : 30,
-              },
-              {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                y: 0,
-                duration: 0.9,
-                delay: index * 0.06,
-                ease: 'back.out(1.1)',
-                scrollTrigger: {
-                  trigger: img,
-                  start: 'left 85%',
-                  end: 'left 15%',
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: secondTrackTweenRef.current || undefined,
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
-          });
-        }
       });
 
       // Parallax effect for background images
@@ -1286,8 +1206,6 @@ export default function Home() {
       // Animate each panel when it enters viewport
       panels.forEach((panel) => {
         const title = panel.querySelector('.data-misterio-title') as HTMLElement;
-        const galleryItems = Array.from(panel.querySelectorAll('.data-misterio-gallery-item')) as HTMLElement[];
-
         // Check if this is the first panel (panel 0) - make it visible immediately
         const isFirstPanel = panel.getAttribute('data-misterio-panel') === '0';
 
@@ -1322,42 +1240,6 @@ export default function Home() {
               },
             }
           );
-        }
-
-        // Gallery items fade in - Individual animations
-        if (galleryItems.length) {
-          galleryItems.forEach((item, index) => {
-            if (isFirstPanel) {
-              // For first panel, set visible immediately
-              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
-            }
-            
-            gsap.fromTo(item,
-              { 
-                opacity: isFirstPanel ? 1 : 0, 
-                scale: isFirstPanel ? 1 : 0.7,
-                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -8 : 8),
-                y: isFirstPanel ? 0 : 50,
-              },
-              {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                y: 0,
-                duration: 1,
-                delay: index * 0.1,
-                ease: 'back.out(1.3)',
-                scrollTrigger: {
-                  trigger: item,
-                  start: 'left 85%',
-                  end: 'left 15%',
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: secondTrackTweenRef.current || undefined,
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
-          });
         }
 
         // Header (title + year) — drops from above with 3D flip and blur
@@ -2146,6 +2028,7 @@ export default function Home() {
   // ScrollTrigger animations for Cinema Section (CATÁLOGO/CINEMA)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!cinemaSectionRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -2207,11 +2090,12 @@ export default function Home() {
     }, cinemaSectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // ScrollTrigger animations for Arquivo Section (ARQUIVO MOVEL)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!arquivoSectionRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -2273,7 +2157,7 @@ export default function Home() {
     }, arquivoSectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // ScrollTrigger para segundo track horizontal (AS MIÇANGAS)
   useLayoutEffect(() => {
@@ -2414,11 +2298,9 @@ export default function Home() {
       // Animate each panel when it enters viewport
       panels.forEach((panel) => {
         const content = panel.querySelector('.data-natureza-content') as HTMLElement;
-        const megaText = panel.querySelector('.data-natureza-mega-text') as HTMLElement;
         const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
         const credits = panel.querySelector('.data-natureza-credits') as HTMLElement;
         const festivals = panel.querySelector('.data-natureza-festivals') as HTMLElement;
-        const infoGrid = panel.querySelector('.data-natureza-info-grid') as HTMLElement;
 
         // Content — slides from left with 3D rotation and blur (Panel 1 editorial)
         if (content) {
@@ -2451,28 +2333,6 @@ export default function Home() {
               toggleActions: 'play none none reverse',
             },
           });
-        }
-
-        // Mega text — scale bounce with blur
-        if (megaText) {
-          gsap.fromTo(megaText,
-            { opacity: 0, scale: 0.8, filter: 'blur(10px)' },
-            {
-              opacity: 1,
-              scale: 1,
-              filter: 'blur(0px)',
-              duration: 1.4,
-              ease: 'back.out(1.3)',
-              scrollTrigger: {
-                trigger: panel,
-                start: 'left 80%',
-                end: 'left 20%',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                containerAnimation: secondTrackTweenRef.current || undefined,
-                toggleActions: 'play none none reverse',
-              },
-            }
-          );
         }
 
         // Credits — skewed slide-up with bounce
@@ -2596,78 +2456,6 @@ export default function Home() {
                 toggleActions: 'play none none reverse',
               },
             });
-          });
-        }
-
-        // Info grid fade in - Individual animations
-        if (infoGrid) {
-          const gridItems = Array.from(infoGrid.querySelectorAll('div > div')) as HTMLElement[];
-          gridItems.forEach((item, index) => {
-            gsap.fromTo(item,
-              { 
-                opacity: 0, 
-                y: 40,
-                scale: 0.9,
-                rotation: index % 2 === 0 ? -3 : 3,
-              },
-              {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                rotation: 0,
-                duration: 0.8,
-                delay: index * 0.12,
-                ease: 'back.out(1.1)',
-                scrollTrigger: {
-                  trigger: item,
-                  start: 'left 85%',
-                  end: 'left 15%',
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: secondTrackTweenRef.current || undefined,
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
-          });
-        }
-
-        // Gallery items fade in - Individual animations
-        const galleryItems = Array.from(panel.querySelectorAll('.data-natureza-gallery-item')) as HTMLElement[];
-        if (galleryItems.length) {
-          // Check if this is the first panel (panel 0) - make items visible immediately
-          const isFirstPanel = panel.getAttribute('data-natureza-panel') === '0';
-          
-          galleryItems.forEach((item, index) => {
-            if (isFirstPanel) {
-              // For first panel, set visible immediately
-              gsap.set(item, { opacity: 1, scale: 1, rotation: 0, y: 0 });
-            }
-            
-            gsap.fromTo(item,
-              { 
-                opacity: isFirstPanel ? 1 : 0, 
-                scale: isFirstPanel ? 1 : 0.8,
-                rotation: isFirstPanel ? 0 : (index % 2 === 0 ? -5 : 5),
-                y: isFirstPanel ? 0 : 30,
-              },
-              {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                y: 0,
-                duration: 0.9,
-                delay: index * 0.08,
-                ease: 'back.out(1.2)',
-                scrollTrigger: {
-                  trigger: item,
-                  start: 'left 85%',
-                  end: 'left 15%',
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: secondTrackTweenRef.current || undefined,
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
           });
         }
 
@@ -2827,6 +2615,7 @@ export default function Home() {
   // NOTÍCIAS section entrance animation
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -2882,11 +2671,12 @@ export default function Home() {
     });
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // Contact section entrance animation
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!contactSectionRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -2916,7 +2706,7 @@ export default function Home() {
     return () => {
       ctx.revert();
     };
-  }, []);
+  }, [secondTrackReady]);
 
   // Scroll infinito removido temporariamente
 
