@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import FilmeContent from "./FilmeContent";
 
@@ -8,9 +7,38 @@ interface PageProps {
   }>;
 }
 
+export async function generateStaticParams() {
+  try {
+    // Criar cliente sem cookies para uso durante build estático
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    
+    const { data: filmes } = await supabase
+      .from("filmes")
+      .select("slug");
+    
+    if (!filmes) return [];
+    
+    return filmes.map((filme) => ({
+      slug: filme.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
+
 export default async function FilmeMostrasExposicoesPage({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = await createClient();
+  // Usar cliente sem cookies para build estático
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // Buscar filme pelo slug
   const { data: filme, error } = await supabase
@@ -66,7 +94,6 @@ export default async function FilmeMostrasExposicoesPage({ params }: PageProps) 
       .order("ordem", { ascending: true }),
   ]);
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   return (
     <FilmeContent
       filme={filme}

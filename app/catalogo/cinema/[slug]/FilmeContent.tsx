@@ -3,6 +3,16 @@
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { MainLayout } from '@/app/components/MainLayout';
 import Image from 'next/image';
+import {
+  getMarkerPosition,
+  getHorizontalLinePosition,
+  getWidthBetweenMarkers,
+  getHeightBetweenLines,
+} from '@/lib/utils/gridCoordinates';
+
+const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
+const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
+const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
 
 interface Pessoa {
   id?: string | null;
@@ -101,7 +111,6 @@ interface FilmeContentProps {
   assets?: Asset[];
 }
 
-// Função helper para determinar o ano a exibir
 const getAnoDisplay = (ano: number | null | undefined, anoPrevisto: number | null | undefined): string => {
   if (ano) return ano.toString();
   if (anoPrevisto) return anoPrevisto.toString();
@@ -123,42 +132,173 @@ export default function FilmeContent({
   if (filme.poster_principal_url) imageUrls.push(filme.poster_principal_url);
   if (filme.thumbnail_card_url) imageUrls.push(filme.thumbnail_card_url);
   if (filme.imagem_og_url) imageUrls.push(filme.imagem_og_url);
-  // Adicionar URLs dos assets
   assets.forEach((asset: Asset) => {
     if (asset.url) imageUrls.push(asset.url);
   });
 
   return (
     <MainLayout>
-      <div className="relative w-full h-full overflow-auto px-4 py-8">
-      <div className="max-w-7xl mx-auto w-full">
-        <div className="flex flex-col gap-8">
-          {/* Container Título */}
-            <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-              <h1 className="text-4xl md:text-5xl font-bold text-white">
-              {language === 'pt' ? filme.titulo_pt : filme.titulo_en || filme.titulo_pt}
-            </h1>
-            {filme.titulo_en && language === 'pt' && (
-                <h2 className="text-2xl md:text-3xl font-light text-white opacity-70 mt-2">
-                {filme.titulo_en}
-              </h2>
-            )}
-            {filme.titulo_pt && language === 'en' && (
-                <h2 className="text-2xl md:text-3xl font-light text-white opacity-70 mt-2">
-                {filme.titulo_pt}
-              </h2>
-            )}
-          </div>
+      <div className="relative w-full text-white" style={{ paddingBottom: getHeightBetweenLines('A', 'B') }}>
+        {/* Hero Section */}
+        <section 
+          className="relative"
+          style={{
+            width: getWidthBetweenMarkers(1, 14),
+            minHeight: 'calc(100vh - 100px)',
+            marginBottom: getHeightBetweenLines('A', 'B'),
+          }}
+        >
+          {/* Background Image/Poster */}
+          {filme.poster_principal_url && (
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+              }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)',
+                  zIndex: 1,
+                }}
+              />
+              <Image
+                src={filme.poster_principal_url}
+                alt={language === 'pt' ? filme.titulo_pt || '' : filme.titulo_en || filme.titulo_pt || ''}
+                fill
+                className="object-cover"
+                priority
+                unoptimized
+                style={{ zIndex: 0 }}
+              />
+            </div>
+          )}
 
-          {/* Container Informações Básicas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Content Container */}
+          <div
+            className="relative z-10 flex flex-col justify-end"
+            style={{
+              paddingLeft: getMarkerPosition(1),
+              paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+              paddingTop: getHorizontalLinePosition('A'),
+              paddingBottom: getHorizontalLinePosition('A'),
+              height: '100%',
+              minHeight: 'calc(100vh - 100px)',
+            }}
+          >
+            {/* Título Principal */}
+            <div
+              style={{
+                width: getWidthBetweenMarkers(1, 10),
+                marginBottom: getHeightBetweenLines('A', 'B'),
+              }}
+            >
+              <h1
+                className="text-white uppercase mix-blend-difference"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
+                  fontSize: 'clamp(64px, 8vw, 180px)',
+                  lineHeight: '0.85',
+                  letterSpacing: '-0.07em',
+                  margin: 0,
+                  padding: 0,
+                  textShadow: '0 0 40px rgba(0,0,0,0.5)',
+                }}
+              >
+                {language === 'pt' ? filme.titulo_pt : filme.titulo_en || filme.titulo_pt}
+              </h1>
+              
+              {/* Subtítulo (título no outro idioma) */}
+              {(filme.titulo_en && language === 'pt') || (filme.titulo_pt && language === 'en') ? (
+                <h2
+                  className="text-white opacity-70 mix-blend-difference"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
+                    fontSize: 'clamp(20px, 2vw, 36px)',
+                    lineHeight: '1.3',
+                    fontWeight: 300,
+                    marginTop: 'clamp(16px, 2vw, 32px)',
+                    marginLeft: 0,
+                    marginRight: 0,
+                    marginBottom: 0,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {filme.titulo_en && language === 'pt' ? filme.titulo_en : filme.titulo_pt}
+                </h2>
+              ) : null}
+
+              {/* Decorative Lines */}
+              <div
+                className="absolute"
+                style={{
+                  left: 0,
+                  bottom: '-2em',
+                  width: getWidthBetweenMarkers(1, 3),
+                  height: '2px',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)',
+                }}
+              />
+              <div
+                className="absolute"
+                style={{
+                  left: 0,
+                  bottom: '-2.5em',
+                  width: getWidthBetweenMarkers(1, 2),
+                  height: '1px',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)',
+                }}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Seção Informações Básicas - Grid organizado */}
+        <div 
+          className="mb-8"
+          style={{
+            width: getWidthBetweenMarkers(1, 14),
+          }}
+        >
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: getWidthBetweenMarkers(1, 2),
+              paddingLeft: getMarkerPosition(1),
+              paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+            }}
+          >
             {/* Ano */}
             {(filme.ano || filme.ano_previsto) && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
+              <div>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
                   {language === 'pt' ? 'Ano' : 'Year'}
-                </h3>
-                  <p className="text-2xl font-bold text-white">
+                </p>
+                <p
+                  className="text-white"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_LARGE,
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    margin: 0,
+                  }}
+                >
                   {getAnoDisplay(filme.ano, filme.ano_previsto)}
                 </p>
               </div>
@@ -166,11 +306,29 @@ export default function FilmeContent({
 
             {/* Tipo de Obra */}
             {filme.tipo_obra && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
-                  {language === 'pt' ? 'Tipo de Obra' : 'Type'}
-                </h3>
-                  <p className="text-xl font-semibold text-white capitalize">
+              <div>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  {language === 'pt' ? 'Tipo' : 'Type'}
+                </p>
+                <p
+                  className="text-white capitalize"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_MEDIUM,
+                    lineHeight: '1.4',
+                    margin: 0,
+                  }}
+                >
                   {filme.tipo_obra}
                 </p>
               </div>
@@ -178,11 +336,29 @@ export default function FilmeContent({
 
             {/* Duração */}
             {filme.duracao_min && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
+              <div>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
                   {language === 'pt' ? 'Duração' : 'Duration'}
-                </h3>
-                  <p className="text-xl font-semibold text-white">
+                </p>
+                <p
+                  className="text-white"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_MEDIUM,
+                    lineHeight: '1.4',
+                    margin: 0,
+                  }}
+                >
                   {filme.duracao_min} {language === 'pt' ? 'min' : 'min'}
                 </p>
               </div>
@@ -190,27 +366,62 @@ export default function FilmeContent({
 
             {/* Status */}
             {filme.status_interno_pt && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
+              <div>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
                   {language === 'pt' ? 'Status' : 'Status'}
-                </h3>
-                  <p className="text-xl font-semibold text-white italic">
+                </p>
+                <p
+                  className="text-white italic"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_MEDIUM,
+                    lineHeight: '1.4',
+                    margin: 0,
+                  }}
+                >
                   {language === 'pt' ? filme.status_interno_pt : filme.status_interno_en || filme.status_interno_pt}
                 </p>
               </div>
             )}
 
-            {/* Gêneros */}
+            {/* Gêneros - Span 2 colunas */}
             {filme.generos && filme.generos.length > 0 && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
+              <div style={{ gridColumn: 'span 2' }}>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
                   {language === 'pt' ? 'Gêneros' : 'Genres'}
-                </h3>
-                <div className="flex flex-wrap gap-2">
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em' }}>
                   {filme.generos.map((genero: string, index: number) => (
                     <span
                       key={index}
-                        className="px-3 py-1 bg-gray-800 text-white rounded-full text-sm capitalize"
+                      className="text-white capitalize"
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                        fontSize: FONT_SMALL,
+                        lineHeight: '1.4',
+                        padding: '0.25em 0.75em',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                      }}
                     >
                       {genero}
                     </span>
@@ -219,17 +430,34 @@ export default function FilmeContent({
               </div>
             )}
 
-            {/* Países de Produção */}
+            {/* Países de Produção - Span 2 colunas */}
             {filme.paises_producao && filme.paises_producao.length > 0 && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
-                  {language === 'pt' ? 'Países de Produção' : 'Production Countries'}
-                </h3>
-                <div className="flex flex-wrap gap-2">
+              <div style={{ gridColumn: 'span 2' }}>
+                <p
+                  className="text-white opacity-60"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_SMALL,
+                    lineHeight: '1.4',
+                    marginBottom: '0.5em',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  {language === 'pt' ? 'Países' : 'Countries'}
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em' }}>
                   {filme.paises_producao.map((pais: string, index: number) => (
                     <span
                       key={index}
-                        className="px-3 py-1 bg-gray-800 text-white rounded-full text-sm"
+                      className="text-white"
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                        fontSize: FONT_SMALL,
+                        lineHeight: '1.4',
+                        padding: '0.25em 0.75em',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                      }}
                     >
                       {pais}
                     </span>
@@ -237,57 +465,143 @@ export default function FilmeContent({
                 </div>
               </div>
             )}
-
-            {/* Categoria Site */}
-            {filme.categoria_site && (
-                <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                  <h3 className="text-sm font-semibold text-white opacity-70 mb-2">
-                  {language === 'pt' ? 'Categoria' : 'Category'}
-                </h3>
-                  <p className="text-xl font-semibold text-white capitalize">
-                  {filme.categoria_site}
-                </p>
-              </div>
-            )}
+          </div>
           </div>
 
-          {/* Container Sinopse */}
+        {/* Seção Sinopse */}
           {(filme.sinopse_pt || filme.sinopse_en) && (
-              <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                <h3 className="text-xl font-bold text-white mb-4">
+          <div 
+            className="mb-8"
+            style={{
+              width: getWidthBetweenMarkers(1, 14),
+            }}
+          >
+            <div
+              style={{
+                paddingLeft: getMarkerPosition(1),
+                paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+                width: getWidthBetweenMarkers(1, 10),
+              }}
+            >
+              <h3
+                className="text-white uppercase"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_LARGE,
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  marginBottom: '1em',
+                  letterSpacing: '-0.02em',
+                }}
+              >
                 {language === 'pt' ? 'Sinopse' : 'Synopsis'}
               </h3>
-                <p className="text-white leading-relaxed">
+              <p
+                className="text-white"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_MEDIUM,
+                  lineHeight: '1.6',
+                  margin: 0,
+                }}
+              >
                 {language === 'pt' 
                   ? filme.sinopse_pt 
                   : filme.sinopse_en || filme.sinopse_pt}
               </p>
             </div>
+            </div>
           )}
 
-          {/* Container Buscando */}
+        {/* Seção Buscando */}
           {(filme.buscando_pt || filme.buscando_en) && (
-              <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                <h3 className="text-xl font-bold text-white mb-4">
+          <div 
+            className="mb-8"
+            style={{
+              width: getWidthBetweenMarkers(1, 14),
+            }}
+          >
+            <div
+              style={{
+                paddingLeft: getMarkerPosition(1),
+                paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+                width: getWidthBetweenMarkers(1, 10),
+              }}
+            >
+              <h3
+                className="text-white uppercase"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_LARGE,
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  marginBottom: '1em',
+                  letterSpacing: '-0.02em',
+                }}
+              >
                 {language === 'pt' ? 'Buscando' : 'Looking For'}
               </h3>
-                <p className="text-white leading-relaxed">
+              <p
+                className="text-white"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_MEDIUM,
+                  lineHeight: '1.6',
+                  margin: 0,
+                }}
+              >
                 {language === 'pt' 
                   ? filme.buscando_pt 
                   : filme.buscando_en || filme.buscando_pt}
               </p>
             </div>
+            </div>
           )}
 
-          {/* Container Imagens - Dinâmico (mínimo 1) */}
-            <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-              <h3 className="text-xl font-bold text-white mb-4">
+        {/* Seção Imagens - Grid organizado */}
+        {imageUrls.length > 0 && (
+          <div 
+            className="mb-8"
+            style={{
+              width: getWidthBetweenMarkers(1, 14),
+            }}
+          >
+            <div
+              style={{
+                paddingLeft: getMarkerPosition(1),
+                paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+                width: getWidthBetweenMarkers(1, 14),
+              }}
+            >
+              <h3
+                className="text-white uppercase"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_LARGE,
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  marginBottom: '1.5em',
+                  letterSpacing: '-0.02em',
+                }}
+              >
               {language === 'pt' ? 'Imagens' : 'Images'}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {imageUrls.length > 0 ? (
-                imageUrls.map((url, index) => (
-                    <div key={index} className="relative w-full aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden">
+              <div 
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                  gap: getWidthBetweenMarkers(1, 2),
+                }}
+              >
+                {imageUrls.map((url, index) => (
+                  <div 
+                    key={index} 
+                    className="relative overflow-hidden"
+                    style={{
+                      aspectRatio: '2/3',
+                      width: '100%',
+                    }}
+                  >
                     <Image
                       src={url}
                       alt={`${language === 'pt' ? 'Imagem' : 'Image'} ${index + 1}`}
@@ -296,35 +610,85 @@ export default function FilmeContent({
                       unoptimized
                     />
                   </div>
-                ))
-              ) : (
-                  <div className="relative w-full aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">Image Placeholder</span>
+                ))}
                 </div>
-              )}
             </div>
           </div>
+        )}
 
-          {/* Container Ficha Técnica */}
+        {/* Seção Ficha Técnica - Duas Colunas */}
           {(creditos.length > 0 || financiamentos.length > 0) && (
-              <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                <h3 className="text-xl font-bold text-white mb-4">
+          <div 
+            className="mb-8"
+            style={{
+              width: getWidthBetweenMarkers(1, 14),
+            }}
+          >
+            <div
+              style={{
+                paddingLeft: getMarkerPosition(1),
+                paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+                width: getWidthBetweenMarkers(1, 14),
+                display: 'grid',
+                gridTemplateColumns: `1fr 1fr`,
+                gap: getWidthBetweenMarkers(7, 8),
+              }}
+            >
+              {/* Coluna Esquerda */}
+              <div>
+                <h3
+                  className="text-white uppercase"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                    fontSize: FONT_LARGE,
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    marginBottom: '1.5em',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
                 {language === 'pt' ? 'Ficha Técnica' : 'Technical Details'}
               </h3>
               
               {/* Créditos */}
               {creditos.length > 0 && (
-                <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">
+                  <div style={{ marginBottom: '2.5em' }}>
+                    <h4
+                      className="text-white uppercase"
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                        fontSize: FONT_MEDIUM,
+                        lineHeight: '1.4',
+                        fontWeight: 700,
+                        marginBottom: '1em',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
                     {language === 'pt' ? 'Créditos' : 'Credits'}
                   </h4>
-                  <div className="space-y-2">
-                    {creditos.map((credito: Credito) => (
-                      <div key={credito.id} className="flex flex-col gap-1">
-                          <span className="font-semibold text-white capitalize">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
+                      {creditos.slice(0, Math.ceil(creditos.length / 2)).map((credito: Credito) => (
+                        <div key={credito.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                          <span
+                            className="text-white uppercase"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_SMALL,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              letterSpacing: '0.05em',
+                            }}
+                          >
                           {credito.cargo}:
                         </span>
-                          <span className="text-white">
+                          <span
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                            }}
+                          >
                           {credito.pessoa_id && credito.pessoas
                             ? (credito.pessoas.nome_exibicao || credito.pessoas.nome)
                             : credito.empresa_id && credito.empresas
@@ -340,141 +704,530 @@ export default function FilmeContent({
               {/* Financiamentos */}
               {financiamentos.length > 0 && (
                 <div>
-                    <h4 className="text-lg font-semibold text-white mb-3">
+                    <h4
+                      className="text-white uppercase"
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                        fontSize: FONT_MEDIUM,
+                        lineHeight: '1.4',
+                        fontWeight: 700,
+                        marginBottom: '1em',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
                     {language === 'pt' ? 'Financiamentos' : 'Financing'}
                   </h4>
-                  <div className="space-y-3">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
                     {financiamentos.map((financiamento: Financiamento) => (
-                        <div key={financiamento.id} className="border-l-2 border-gray-700 pl-4">
-                          <p className="font-semibold text-white">
+                        <div 
+                          key={financiamento.id}
+                          style={{
+                            paddingLeft: '1em',
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+                          }}
+                        >
+                          <p
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              marginBottom: '0.25em',
+                            }}
+                          >
                           {financiamento.nome}
-                        </p>
-                        {financiamento.tipo && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {financiamento.tipo}
                           </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em', marginTop: '0.25em' }}>
+                            {financiamento.tipo && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {financiamento.tipo}
+                              </span>
                         )}
                         {financiamento.ano && (
-                            <p className="text-sm text-white opacity-70">
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
                             {financiamento.ano}
-                          </p>
+                              </span>
                         )}
                         {financiamento.fase && (
-                            <p className="text-sm text-white opacity-70 capitalize">
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
                             {language === 'pt' ? 'Fase' : 'Phase'}: {financiamento.fase}
-                          </p>
+                              </span>
                         )}
                         {financiamento.resultado && (
-                            <p className="text-sm text-white opacity-70 capitalize">
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
                             {language === 'pt' ? 'Resultado' : 'Result'}: {financiamento.resultado}
-                          </p>
-                        )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Coluna Direita - Resto dos Créditos */}
+              {creditos.length > 0 && (
+                <div style={{ paddingTop: 'calc(1.5em + 1.5em)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em', marginTop: '1em' }}>
+                    {creditos.slice(Math.ceil(creditos.length / 2)).map((credito: Credito) => (
+                      <div key={credito.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                        <span
+                          className="text-white uppercase"
+                          style={{
+                            fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                            fontSize: FONT_SMALL,
+                            lineHeight: '1.4',
+                            fontWeight: 700,
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          {credito.cargo}:
+                        </span>
+                        <span
+                          className="text-white"
+                          style={{
+                            fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                            fontSize: FONT_MEDIUM,
+                            lineHeight: '1.4',
+                          }}
+                        >
+                          {credito.pessoa_id && credito.pessoas
+                            ? (credito.pessoas.nome_exibicao || credito.pessoas.nome)
+                            : credito.empresa_id && credito.empresas
+                            ? (credito.empresas.nome_exibicao || credito.empresas.nome)
+                            : credito.nome_exibicao || 'N/A'}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
             </div>
+            </div>
           )}
 
-          {/* Container Exibições, Festivais e Premiações */}
-          {(festivais.length > 0 || premiacoes.length > 0) && (
-              <div className="border border-gray-700 rounded-lg p-6 bg-gray-900">
-                <h3 className="text-xl font-bold text-white mb-4">
+        {/* Seção Festivais e Premiações - Duas Colunas */}
+        {(festivais.length > 0 || premiacoes.length > 0) && (
+          <div 
+            style={{
+              width: getWidthBetweenMarkers(1, 14),
+            }}
+          >
+            <div
+              style={{
+                paddingLeft: getMarkerPosition(1),
+                paddingRight: `calc(100% - ${getMarkerPosition(14)})`,
+                width: getWidthBetweenMarkers(1, 14),
+              }}
+            >
+              <h3
+                className="text-white uppercase"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                  fontSize: FONT_LARGE,
+                  lineHeight: '1.2',
+                  fontWeight: 700,
+                  marginBottom: '1.5em',
+                  letterSpacing: '-0.02em',
+                }}
+              >
                 {language === 'pt' ? 'Exibições e Premiações' : 'Screenings and Awards'}
               </h3>
-              
-              {/* Festivais */}
-              {festivais.length > 0 && (
-                <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">
-                    {language === 'pt' ? 'Festivais' : 'Festivals'}
+
+              {/* Premiações - Distribuídas entre 2 colunas */}
+              {premiacoes.length > 0 && (
+                <div style={{ marginBottom: '2.5em' }}>
+                  <h4
+                    className="text-white uppercase"
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                      fontSize: FONT_MEDIUM,
+                      lineHeight: '1.4',
+                      fontWeight: 700,
+                      marginBottom: '1em',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {language === 'pt' ? 'Premiações' : 'Awards'}
                   </h4>
-                  <div className="space-y-3">
-                    {festivais.map((festival: Festival) => (
-                        <div key={festival.id} className="border-l-2 border-gray-700 pl-4">
-                          <p className="font-semibold text-white">
-                          {festival.nome}
-                        </p>
-                        {festival.edicao && (
-                            <p className="text-sm text-white opacity-70">
-                            {language === 'pt' ? 'Edição' : 'Edition'}: {festival.edicao}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: `1fr 1fr`,
+                      gap: getWidthBetweenMarkers(7, 8),
+                    }}
+                  >
+                    {/* Coluna Esquerda - Primeira metade das premiações */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
+                      {premiacoes.slice(0, Math.ceil(premiacoes.length / 2)).map((premiacao: Premiacao) => (
+                        <div
+                          key={premiacao.id}
+                          style={{
+                            paddingLeft: '1em',
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+                          }}
+                        >
+                          <p
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              marginBottom: '0.5em',
+                            }}
+                          >
+                            {premiacao.titulo_do_premio}
                           </p>
-                        )}
-                        {festival.ano && (
-                            <p className="text-sm text-white opacity-70">
-                            {festival.ano}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                            {premiacao.categoria && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Categoria' : 'Category'}: {premiacao.categoria}
+                              </span>
+                            )}
+                            {premiacao.ano && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {premiacao.ano}
+                              </span>
+                            )}
+                            {premiacao.festival_nome && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Festival' : 'Festival'}: {premiacao.festival_nome}
+                              </span>
+                            )}
+                            {premiacao.tipo && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Tipo' : 'Type'}: {premiacao.tipo}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Coluna Direita - Segunda metade das premiações */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
+                      {premiacoes.slice(Math.ceil(premiacoes.length / 2)).map((premiacao: Premiacao) => (
+                        <div
+                          key={premiacao.id}
+                          style={{
+                            paddingLeft: '1em',
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+                          }}
+                        >
+                          <p
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              marginBottom: '0.5em',
+                            }}
+                          >
+                            {premiacao.titulo_do_premio}
                           </p>
-                        )}
-                        {(festival.cidade || festival.pais) && (
-                            <p className="text-sm text-white opacity-70">
-                            {festival.cidade && `${festival.cidade}`}
-                            {festival.cidade && festival.pais && ', '}
-                            {festival.pais}
-                          </p>
-                        )}
-                        {festival.secao && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {language === 'pt' ? 'Seção' : 'Section'}: {festival.secao}
-                          </p>
-                        )}
-                        {festival.tipo_evento && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {language === 'pt' ? 'Tipo' : 'Type'}: {festival.tipo_evento}
-                          </p>
-                        )}
-                        {festival.tipo_estreia && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {language === 'pt' ? 'Estreia' : 'Premiere'}: {festival.tipo_estreia}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                            {premiacao.categoria && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Categoria' : 'Category'}: {premiacao.categoria}
+                              </span>
+                            )}
+                            {premiacao.ano && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {premiacao.ano}
+                              </span>
+                            )}
+                            {premiacao.festival_nome && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Festival' : 'Festival'}: {premiacao.festival_nome}
+                              </span>
+                            )}
+                            {premiacao.tipo && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Tipo' : 'Type'}: {premiacao.tipo}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Premiações */}
-              {premiacoes.length > 0 && (
+              {/* Festivais - Distribuídos entre 2 colunas */}
+              {festivais.length > 0 && (
                 <div>
-                    <h4 className="text-lg font-semibold text-white mb-3">
-                    {language === 'pt' ? 'Premiações' : 'Awards'}
+                  <h4
+                    className="text-white uppercase"
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                      fontSize: FONT_MEDIUM,
+                      lineHeight: '1.4',
+                      fontWeight: 700,
+                      marginBottom: '1em',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {language === 'pt' ? 'Festivais' : 'Festivals'}
                   </h4>
-                  <div className="space-y-3">
-                    {premiacoes.map((premiacao: Premiacao) => (
-                        <div key={premiacao.id} className="border-l-2 border-gray-700 pl-4">
-                          <p className="font-semibold text-white">
-                          {premiacao.titulo_do_premio}
-                        </p>
-                        {premiacao.categoria && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {language === 'pt' ? 'Categoria' : 'Category'}: {premiacao.categoria}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: `1fr 1fr`,
+                      gap: getWidthBetweenMarkers(7, 8),
+                    }}
+                  >
+                    {/* Coluna Esquerda - Primeira metade dos festivais */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
+                      {festivais.slice(0, Math.ceil(festivais.length / 2)).map((festival: Festival) => (
+                        <div
+                          key={festival.id}
+                          style={{
+                            paddingLeft: '1em',
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+                          }}
+                        >
+                          <p
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              marginBottom: '0.5em',
+                            }}
+                          >
+                            {festival.nome}
                           </p>
-                        )}
-                        {premiacao.ano && (
-                            <p className="text-sm text-white opacity-70">
-                            {premiacao.ano}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                            {festival.edicao && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Edição' : 'Edition'}: {festival.edicao}
+                              </span>
+                            )}
+                            {festival.ano && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {festival.ano}
+                              </span>
+                            )}
+                            {(festival.cidade || festival.pais) && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {festival.cidade && `${festival.cidade}`}
+                                {festival.cidade && festival.pais && ', '}
+                                {festival.pais}
+                              </span>
+                            )}
+                            {festival.secao && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Seção' : 'Section'}: {festival.secao}
+                                {festival.tipo_estreia && ` (${festival.tipo_estreia})`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Coluna Direita - Segunda metade dos festivais */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
+                      {festivais.slice(Math.ceil(festivais.length / 2)).map((festival: Festival) => (
+                        <div
+                          key={festival.id}
+                          style={{
+                            paddingLeft: '1em',
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+                          }}
+                        >
+                          <p
+                            className="text-white"
+                            style={{
+                              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                              fontSize: FONT_MEDIUM,
+                              lineHeight: '1.4',
+                              fontWeight: 700,
+                              marginBottom: '0.5em',
+                            }}
+                          >
+                            {festival.nome}
                           </p>
-                        )}
-                        {premiacao.festival_nome && (
-                            <p className="text-sm text-white opacity-70">
-                            {language === 'pt' ? 'Festival' : 'Festival'}: {premiacao.festival_nome}
-                          </p>
-                        )}
-                        {premiacao.tipo && (
-                            <p className="text-sm text-white opacity-70 capitalize">
-                            {language === 'pt' ? 'Tipo' : 'Type'}: {premiacao.tipo}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
+                            {festival.edicao && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Edição' : 'Edition'}: {festival.edicao}
+                              </span>
+                            )}
+                            {festival.ano && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {festival.ano}
+                              </span>
+                            )}
+                            {(festival.cidade || festival.pais) && (
+                              <span
+                                className="text-white opacity-60"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {festival.cidade && `${festival.cidade}`}
+                                {festival.cidade && festival.pais && ', '}
+                                {festival.pais}
+                              </span>
+                            )}
+                            {festival.secao && (
+                              <span
+                                className="text-white opacity-60 capitalize"
+                                style={{
+                                  fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                                  fontSize: FONT_SMALL,
+                                  lineHeight: '1.4',
+                                }}
+                              >
+                                {language === 'pt' ? 'Seção' : 'Section'}: {festival.secao}
+                                {festival.tipo_estreia && ` (${festival.tipo_estreia})`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
