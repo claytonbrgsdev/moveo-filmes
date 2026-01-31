@@ -75,13 +75,13 @@ export default function Home() {
   const thirdSectionRef = useRef<HTMLElement | null>(null);
   const horizontalSecondWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalSecondTrackRef = useRef<HTMLDivElement>(null);
-  const horizontalThirdWrapperRef = useRef<HTMLDivElement>(null);
-  const horizontalThirdTrackRef = useRef<HTMLDivElement>(null);
+
   const verticalReverseWrapperRef = useRef<HTMLDivElement>(null);
   const verticalReverseContentRef = useRef<HTMLDivElement>(null);
   const carouselContainerRef = useRef<HTMLDivElement>(null);
   const carouselScrollDistRef = useRef<HTMLDivElement>(null);
   const [mainTrackReady, setMainTrackReady] = useState(false);
+  const [secondTrackReady, setSecondTrackReady] = useState(false);
   const mainTrackTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const [newsIndex, setNewsIndex] = useState(0);
   const sobreMoveoContainerRef = useRef<HTMLDivElement>(null);
@@ -746,6 +746,7 @@ export default function Home() {
   // Animações para seções de "AS MIÇANGAS" - Scroll Acceleration
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -1081,7 +1082,7 @@ export default function Home() {
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // 3D Carousel Animation - Catálogo Section
   useLayoutEffect(() => {
@@ -1270,6 +1271,7 @@ export default function Home() {
   // Animações para seções de "O Mistério da Carne"
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -1461,7 +1463,7 @@ export default function Home() {
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // Entrada suave da segunda seção (primeiro track horizontal)
   useLayoutEffect(() => {
@@ -2273,91 +2275,6 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
-  // ScrollTrigger para terceiro track horizontal (Além dos filmes / Notícias / Contato)
-  useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!horizontalThirdWrapperRef.current || !horizontalThirdTrackRef.current) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const wrapper = horizontalThirdWrapperRef.current;
-    const track = horizontalThirdTrackRef.current;
-
-    ScrollTrigger.getAll().forEach((st) => {
-      if (st.vars?.id === 'horizontal-third-track' || st.trigger === wrapper || (st.vars?.trigger && st.vars.trigger === wrapper)) {
-        try {
-          st.kill();
-        } catch {
-          // ignore
-        }
-      }
-    });
-
-    let ctx: gsap.Context | null = null;
-    let handleResize: (() => void) | null = null;
-
-    const timer = setTimeout(() => {
-      if (!wrapper || !track || !wrapper.isConnected || !track.isConnected) return;
-
-      ctx = gsap.context(() => {
-        gsap.set(track, { clearProps: 'all', x: 0 });
-
-        gsap.to(track, {
-          x: () => {
-            if (!track || !wrapper) return 0;
-            return -(track.scrollWidth - wrapper.offsetWidth);
-          },
-          ease: 'none',
-          scrollTrigger: {
-            trigger: wrapper,
-            start: 'top 50px',
-            end: () => {
-              if (!track || !wrapper) return '+=0';
-              return `+=${track.scrollWidth + window.innerHeight}`;
-            },
-            scrub: 0.5,
-            pin: true,
-            pinType: 'transform',
-            pinSpacing: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            id: 'horizontal-third-track',
-          },
-        });
-
-        requestAnimationFrame(() => ScrollTrigger.refresh());
-      }, horizontalThirdWrapperRef);
-
-      handleResize = () => {
-        if (wrapper && track && wrapper.isConnected && track.isConnected) {
-          ScrollTrigger.refresh();
-        }
-      };
-      window.addEventListener('resize', handleResize);
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (handleResize) window.removeEventListener('resize', handleResize);
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars?.id === 'horizontal-third-track' || st.trigger === wrapper) {
-          try {
-            st.kill();
-          } catch {
-            // ignore
-          }
-        }
-      });
-      if (ctx) {
-        try {
-          ctx.revert();
-        } catch {
-          // ignore
-        }
-      }
-    };
-  }, []);
-
   // ScrollTrigger para segundo track horizontal (AS MIÇANGAS)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2434,6 +2351,7 @@ export default function Home() {
 
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
+          setSecondTrackReady(true);
         });
       }, horizontalSecondWrapperRef);
 
@@ -2473,6 +2391,7 @@ export default function Home() {
   // Animações para seções de "A Natureza das Coisas Invisíveis"
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -2801,7 +2720,7 @@ export default function Home() {
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [secondTrackReady]);
 
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
   useLayoutEffect(() => {
