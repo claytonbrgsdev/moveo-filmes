@@ -11,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
+import { FilmGrain } from './components/FilmGrain';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
@@ -3201,8 +3202,8 @@ export default function Home() {
         }}
       />
       
-      {/* Subtle Noise Overlay */}
-      <div className="noise-overlay grain-animation" />
+      {/* 16mm Film Grain Overlay */}
+      <FilmGrain />
 
       {/* Scroll Hint Indicator */}
       <div 
