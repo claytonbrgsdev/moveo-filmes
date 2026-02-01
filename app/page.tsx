@@ -8,7 +8,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
-import ContentTransition from './components/ContentTransition';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
@@ -2509,6 +2508,123 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
+  // Cinematic film-strip wipe transitions between movies
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
+    if (!horizontalSecondTrackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const transitionPanels = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-movie-transition]') || []
+      ) as HTMLElement[];
+      if (!transitionPanels.length) return;
+
+      transitionPanels.forEach((panel) => {
+        const transitionType = panel.getAttribute('data-movie-transition');
+        const bars = Array.from(panel.querySelectorAll('[data-transition-bar]')) as HTMLElement[];
+        const titleEl = panel.querySelector('[data-transition-title] h2') as HTMLElement;
+
+        if (transitionType === 'finale') {
+          // Finale: fade in overlay + text with letterSpacing reveal
+          const finaleText = panel.querySelector('[data-finale-text] h2') as HTMLElement;
+
+          if (finaleText) {
+            const finaleTl = gsap.timeline({
+              scrollTrigger: {
+                trigger: panel,
+                start: 'left 70%',
+                end: 'right -10%',
+                scrub: 0.5,
+                containerAnimation: secondTrackTweenRef.current || undefined,
+              },
+            });
+
+            // Scale down the last Mistério panel as we enter finale
+            const lastMisterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
+            if (lastMisterioPanel) {
+              finaleTl.fromTo(lastMisterioPanel,
+                { scale: 1, borderRadius: '0px', filter: 'brightness(1)' },
+                { scale: 0.85, borderRadius: '24px', filter: 'brightness(0.3)', duration: 0.5, ease: 'power2.inOut' },
+                0
+              );
+            }
+
+            // Reveal "MOVEO FILMES" text
+            finaleTl.fromTo(finaleText,
+              { opacity: 0, y: 40, letterSpacing: '0.6em', scale: 0.9 },
+              { opacity: 1, y: 0, letterSpacing: '0.3em', scale: 1, duration: 0.5, ease: 'power3.out' },
+              0.3
+            );
+
+            // Hold, then fade out
+            finaleTl.to(finaleText,
+              { opacity: 0.6, y: -10, duration: 0.3, ease: 'power1.in' },
+              0.75
+            );
+          }
+          return;
+        }
+
+        // Standard film-strip wipe transitions (natureza-micangas, micangas-misterio)
+        if (!bars.length) return;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left 80%',
+            end: 'right 20%',
+            scrub: 0.5,
+            containerAnimation: secondTrackTweenRef.current || undefined,
+          },
+        });
+
+        // Phase 1: Bars slide in from alternating sides (shutter close)
+        tl.fromTo(bars,
+          { xPercent: (i: number) => i % 2 === 0 ? -110 : 110 },
+          {
+            xPercent: 0,
+            duration: 0.4,
+            stagger: { amount: 0.15, from: 'edges' },
+            ease: 'power2.inOut',
+          },
+          0
+        );
+
+        // Phase 2: Title fades in with scale + blur clear
+        if (titleEl) {
+          tl.fromTo(titleEl,
+            { opacity: 0, scale: 0.75, filter: 'blur(20px)' },
+            { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' },
+            0.35
+          );
+        }
+
+        // Phase 3: Bars slide out (opposite directions) + title fades
+        tl.to(bars,
+          {
+            xPercent: (i: number) => i % 2 === 0 ? 110 : -110,
+            duration: 0.4,
+            stagger: { amount: 0.15, from: 'center' },
+            ease: 'power2.inOut',
+          },
+          0.6
+        );
+
+        if (titleEl) {
+          tl.to(titleEl,
+            { opacity: 0, scale: 1.1, filter: 'blur(8px)', duration: 0.15, ease: 'power1.in' },
+            0.6
+          );
+        }
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -4238,27 +4354,33 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Seção de Transição - ContentTransition */}
+          {/* Transition: Natureza → Miçangas */}
           <section
-            className="horizontal-section relative flex-shrink-0"
+            className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
+            data-movie-transition="natureza-micangas"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              position: 'relative',
             }}
           >
-            <ContentTransition
-              leftText={{ 
-                line1: t('aNatureza'), 
-                line2: t('dasCoisasInvisiveis')
-              }}
-              rightText={{ 
-                line1: t('as'), 
-                line2: t('micangas')
-              }}
-              boxCount={100}
-            />
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                data-transition-bar=""
+                className="absolute w-full bg-[#0a0a0a] transform-gpu"
+                style={{
+                  height: 'calc(100% / 10)',
+                  top: `${i * 10}%`,
+                  willChange: 'transform',
+                  transform: `translateX(${i % 2 === 0 ? '-110' : '110'}%)`,
+                }}
+              />
+            ))}
+            <div data-transition-title="" className="absolute inset-0 flex items-center justify-center z-10">
+              <h2 className="text-white text-[clamp(32px,5vw,80px)] font-semibold tracking-tight text-center uppercase opacity-0" style={{ willChange: 'transform, opacity, filter' }}>
+                {t('as')}<br/>{t('micangas')}
+              </h2>
+            </div>
           </section>
 
           {/* Seção 1 - AS MIÇANGAS - Title Only with Scroll Acceleration Gallery */}
@@ -4413,6 +4535,35 @@ export default function Home() {
                   unoptimized
                 />
               </div>
+            </div>
+          </section>
+
+          {/* Transition: Miçangas → Mistério */}
+          <section
+            className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
+            data-movie-transition="micangas-misterio"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+            }}
+          >
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                data-transition-bar=""
+                className="absolute w-full bg-[#0a0a0a] transform-gpu"
+                style={{
+                  height: 'calc(100% / 10)',
+                  top: `${i * 10}%`,
+                  willChange: 'transform',
+                  transform: `translateX(${i % 2 === 0 ? '-110' : '110'}%)`,
+                }}
+              />
+            ))}
+            <div data-transition-title="" className="absolute inset-0 flex items-center justify-center z-10">
+              <h2 className="text-white text-[clamp(32px,5vw,80px)] font-semibold tracking-tight text-center uppercase opacity-0" style={{ willChange: 'transform, opacity, filter' }}>
+                {t('oMisterio')}<br/>{t('daCarne')}
+              </h2>
             </div>
           </section>
 
@@ -4601,6 +4752,30 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Finale: End of showcase */}
+          <section
+            className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
+            data-movie-transition="finale"
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+            }}
+          >
+            <div data-finale-overlay className="absolute inset-0 bg-black z-10" />
+            <div data-finale-text className="absolute inset-0 flex items-center justify-center z-20">
+              <h2
+                className="text-white font-light uppercase opacity-0"
+                style={{
+                  fontSize: 'clamp(24px, 4vw, 60px)',
+                  letterSpacing: '0.3em',
+                  willChange: 'transform, opacity',
+                }}
+              >
+                MOVEO FILMES
+              </h2>
             </div>
           </section>
         </div>
