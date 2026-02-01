@@ -1982,9 +1982,9 @@ export default function Home() {
           typewriterTl.to(span, {
             opacity: 1,
             y: 0,
-            duration: 0.03,
+            duration: 0.02,
             ease: 'none',
-          }, i * 0.018); // Slower spacing for organic reveal
+          }, i * 0.008); // Fast character reveal
         });
       }
 
@@ -2822,6 +2822,41 @@ export default function Home() {
     return () => {
       ctx.revert();
     };
+  }, [secondTrackReady]);
+
+  // Section divider line animations — gradient lines expand from center on scroll
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const dividers = Array.from(document.querySelectorAll('[data-section-divider]')) as HTMLElement[];
+    if (!dividers.length) return;
+
+    const ctx = gsap.context(() => {
+      dividers.forEach((divider) => {
+        const line = divider.querySelector('div') as HTMLElement;
+        if (!line) return;
+
+        gsap.fromTo(line,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            duration: 1.2,
+            ease: 'power3.inOut',
+            scrollTrigger: {
+              trigger: divider,
+              start: 'top 90%',
+              end: 'top 60%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+    });
+
+    return () => ctx.revert();
   }, [secondTrackReady]);
 
   // Scroll infinito removido temporariamente
@@ -4781,6 +4816,28 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Divider: Horizontal Track → Cinema */}
+      <div
+        data-section-divider
+        className="relative bg-black"
+        style={{
+          marginLeft: '50px',
+          marginRight: '50px',
+          height: '2px',
+          marginBottom: '50px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)',
+            transform: 'scaleX(0)',
+            transformOrigin: 'center',
+          }}
+        />
+      </div>
+
       {/* Seção - CATÁLOGO/CINEMA (Vertical) */}
       <div
         className="relative bg-black text-white"
@@ -4821,9 +4878,9 @@ export default function Home() {
                       borderRight: '1px solid rgba(255, 255, 255, 0.8)',
                     }}
                   />
-                  {/* Título centralizado */}
+                  {/* Título centralizado - vertical bottom-to-top */}
                   <h3
-                    className="font-black text-white transform -rotate-90 origin-center whitespace-nowrap"
+                    className="font-black text-white whitespace-nowrap"
                     data-cinema-animate
                     suppressHydrationWarning
                     style={{
@@ -4832,7 +4889,8 @@ export default function Home() {
                       fontSize: 'clamp(48px, 6vw, 96px)',
                       letterSpacing: '-0.02em',
                       lineHeight: '0.9',
-                      marginLeft: '25px',
+                      writingMode: 'vertical-rl',
+                      transform: 'rotate(180deg)',
                     }}
                   >
                     {t('catalogo')}
@@ -4959,6 +5017,15 @@ export default function Home() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* Divider: Cinema → Arquivo */}
+      <div
+        data-section-divider
+        className="relative bg-black"
+        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+      >
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
       </div>
 
       {/* Seção - ARQUIVO MOVEL */}
@@ -5104,6 +5171,15 @@ export default function Home() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* Divider: Arquivo → Notícias */}
+      <div
+        data-section-divider
+        className="relative bg-black"
+        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+      >
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
       </div>
 
       {/* Seção - NOTÍCIAS */}
@@ -5261,6 +5337,15 @@ export default function Home() {
         </section>
       </div>
 
+      {/* Divider: Notícias → Contato */}
+      <div
+        data-section-divider
+        className="relative bg-black"
+        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+      >
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
+      </div>
+
       {/* Seção - CONTATO / FOOTER */}
       <div
         ref={contactSectionRef}
@@ -5270,7 +5355,7 @@ export default function Home() {
           marginRight: '50px',
           marginBottom: '50px',
           padding: '50px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.15)',
+          borderTop: 'none',
         }}
       >
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-6 md:gap-8 items-start">
