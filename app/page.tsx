@@ -2208,7 +2208,7 @@ export default function Home() {
           ease: 'none',
           scrollTrigger: {
             trigger: wrapper,
-            start: 'top top',
+            start: 'top 50px',
             end: () => {
               if (!track || !wrapper) return '+=0';
               const travel = getTravel();
@@ -3975,7 +3975,7 @@ export default function Home() {
         <div
           ref={horizontalSecondTrackRef}
           className="flex h-full will-change-transform"
-          style={{ width: 'max-content', overflow: 'visible', gap: '100px' }}
+          style={{ width: 'max-content', gap: '100px' }}
         >
           {/* Seção 1 - A Natureza das Coisas Invisíveis - Title Only */}
           <section
