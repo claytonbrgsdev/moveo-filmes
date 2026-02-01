@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
@@ -16,12 +19,6 @@ import {
   getWidthBetweenMarkers,
   getHeightBetweenLines,
 } from '@/lib/utils/gridCoordinates';
-import {
-  useMagneticElements,
-  use3DCardTilt,
-  useFloatingElements,
-  useScrollProgress,
-} from './hooks/useSpectacularAnimations';
 
 
 const newsImages = [
@@ -94,12 +91,6 @@ export default function Home() {
   const cinemaSectionRef = useRef<HTMLElement | null>(null);
   const arquivoSectionRef = useRef<HTMLElement | null>(null);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-
-  // Activate spectacular animation hooks
-  useMagneticElements();
-  use3DCardTilt();
-  useFloatingElements();
-  useScrollProgress();
 
   // Cursor glow effect
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -211,7 +202,7 @@ export default function Home() {
   }));
 
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!horizontalWrapperRef.current || !horizontalTrackRef.current) return;
 
     // Garantir que a página comece absolutamente do topo
@@ -219,7 +210,7 @@ export default function Home() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const wrapper = horizontalWrapperRef.current;
     const track = horizontalTrackRef.current;
@@ -288,12 +279,12 @@ export default function Home() {
 
   // Pin dedicado para manter a seção 2 fixa enquanto o trilho horizontal avança
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!mainTrackReady) return;
     if (!mainTrackTimelineRef.current) return;
     if (!horizontalWrapperRef.current || !secondSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     ScrollTrigger.getAll().forEach((st) => {
       if (st.vars?.id === 'second-section-pin') {
@@ -328,12 +319,12 @@ export default function Home() {
 
   // Pin dedicado para manter a seção 3 fixa enquanto o trilho horizontal avança
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!mainTrackReady) return;
     if (!mainTrackTimelineRef.current) return;
     if (!horizontalWrapperRef.current || !thirdSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     ScrollTrigger.getAll().forEach((st) => {
       if (st.vars?.id === 'third-section-pin') {
@@ -371,12 +362,12 @@ export default function Home() {
   // Animate MOVEO title synchronized with horizontal scroll timeline
   // Prevents premature displacement before other elements start scrolling
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!mainTrackReady) return;
     if (!mainTrackTimelineRef.current) return;
     if (!firstSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
@@ -407,10 +398,10 @@ export default function Home() {
 
   // Spectacular entrance animation for first section
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!firstSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const allTargets = Array.from(firstSectionRef.current?.querySelectorAll('[data-first-animate]') || []) as HTMLElement[];
@@ -496,7 +487,7 @@ export default function Home() {
 
   // Animate image on scroll - with reverse animation on scroll back
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!firstSectionRef.current) return;
 
     const imageElement = firstSectionRef.current.querySelector('[data-animate][data-first-animate]') as HTMLElement;
@@ -507,7 +498,7 @@ export default function Home() {
     if (!hasImage) return;
 
     // Register ScrollTrigger plugin
-    gsap.registerPlugin(ScrollTrigger);
+
 
     // Set initial state - ensure element starts invisible
     gsap.set(imageElement, { 
@@ -562,7 +553,7 @@ export default function Home() {
 
   // Animate produtora text on scroll with split text effect - with reverse animation
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!firstSectionRef.current) return;
 
     // Find the text element - try ref first, then fallback to querySelector
@@ -583,7 +574,7 @@ export default function Home() {
     if (!textElement) return;
 
     // Register ScrollTrigger plugin
-    gsap.registerPlugin(ScrollTrigger);
+
 
     // Store original HTML before any modifications
     const originalHTML = textElement.innerHTML;
@@ -745,11 +736,11 @@ export default function Home() {
 
   // Animações para seções de "AS MIÇANGAS" - Scroll Acceleration
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-panel]') || []) as HTMLElement[];
@@ -793,60 +784,20 @@ export default function Home() {
         textEl.innerHTML = words.map(word => `<span class="word" style="display: inline-block; opacity: 0; transform: translateY(15px);">${word}</span>`).join(' ');
       });
 
-      // Animate other panels - Individual animations
-      panels.forEach((panel, index) => {
-        if (index === 0) {
-          // Title animation for first panel - Individual
-          const title = panel.querySelector('.data-micangas-title') as HTMLElement;
-          if (title) {
-            gsap.fromTo(title,
-              { 
-                opacity: 0, 
-                scale: 0.6,
-                rotation: -5,
-                y: 50,
-              },
-              {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                y: 0,
-                duration: 1.4,
-                ease: 'back.out(1.5)',
-                scrollTrigger: {
-                  trigger: panel,
-                  start: 'left 80%',
-                  end: 'left 20%',
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  containerAnimation: secondTrackTweenRef.current || undefined,
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
-          }
-          return;
-        }
-
+      // Animate panels - Individual animations
+      panels.forEach((panel) => {
         const content = panel.querySelector('.data-micangas-content') as HTMLElement;
         const title = panel.querySelector('.data-micangas-title') as HTMLElement;
         const words = Array.from(panel.querySelectorAll('.word')) as HTMLElement[];
 
-        // Check if this is the first panel (panel 0) - make it visible immediately
-        const isFirstPanel = panel.getAttribute('data-micangas-panel') === '0';
-
         // Title animation - Individual
         if (title) {
-          if (isFirstPanel) {
-            // For first panel, set visible immediately
-            gsap.set(title, { opacity: 1, scale: 1, x: 0, rotation: 0 });
-          }
-          
           gsap.fromTo(title,
-            { 
-              opacity: isFirstPanel ? 1 : 0, 
-              scale: isFirstPanel ? 1 : 0.7,
-              x: isFirstPanel ? 0 : -50,
-              rotation: isFirstPanel ? 0 : -3,
+            {
+              opacity: 0,
+              scale: 0.7,
+              x: -50,
+              rotation: -3,
             },
             {
               opacity: 1,
@@ -869,16 +820,12 @@ export default function Home() {
 
         // Content — slides from right with 3D rotation and blur
         if (content) {
-          if (isFirstPanel) {
-            gsap.set(content, { opacity: 1, x: 0, rotationY: 0, filter: 'blur(0px)' });
-          }
-
           gsap.fromTo(content,
             {
-              opacity: isFirstPanel ? 1 : 0,
-              x: isFirstPanel ? 0 : 60,
-              rotationY: isFirstPanel ? 0 : -6,
-              filter: isFirstPanel ? 'blur(0px)' : 'blur(5px)',
+              opacity: 0,
+              x: 60,
+              rotationY: -6,
+              filter: 'blur(5px)',
             },
             {
               opacity: 1,
@@ -1005,10 +952,10 @@ export default function Home() {
 
   // 3D Carousel Animation - Catálogo Section
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!carouselContainerRef.current || !carouselScrollDistRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const container = carouselContainerRef.current;
     const scrollDist = carouselScrollDistRef.current;
@@ -1189,11 +1136,11 @@ export default function Home() {
 
   // Animações para seções de "O Mistério da Carne"
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-misterio-panel]') || []) as HTMLElement[];
@@ -1205,22 +1152,15 @@ export default function Home() {
       // Animate each panel when it enters viewport
       panels.forEach((panel) => {
         const title = panel.querySelector('.data-misterio-title') as HTMLElement;
-        // Check if this is the first panel (panel 0) - make it visible immediately
-        const isFirstPanel = panel.getAttribute('data-misterio-panel') === '0';
 
         // Title animation - Individual
         if (title) {
-          if (isFirstPanel) {
-            // For first panel, set visible immediately
-            gsap.set(title, { opacity: 1, scale: 1, rotation: 0, y: 0 });
-          }
-          
           gsap.fromTo(title,
-            { 
-              opacity: isFirstPanel ? 1 : 0, 
-              scale: isFirstPanel ? 1 : 0.6,
-              rotation: isFirstPanel ? 0 : 5,
-              y: isFirstPanel ? 0 : 50,
+            {
+              opacity: 0,
+              scale: 0.6,
+              rotation: 5,
+              y: 50,
             },
             {
               opacity: 1,
@@ -1348,11 +1288,11 @@ export default function Home() {
 
   // Entrada suave da segunda seção (primeiro track horizontal)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!mainTrackReady) return;
     if (!secondSectionRef.current || !mainTrackTimelineRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(secondSectionRef.current);
@@ -1581,10 +1521,10 @@ export default function Home() {
 
   // ScrollTrigger animations for third section (images and text)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!thirdSectionRef.current || !mainTrackReady) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(thirdSectionRef.current);
@@ -1871,10 +1811,10 @@ export default function Home() {
 
   // ScrollTrigger animations for Catalog Section (Catálogo em Destaque) - Individual animations
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!dragonflySectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(dragonflySectionRef.current);
@@ -2026,11 +1966,11 @@ export default function Home() {
 
   // ScrollTrigger animations for Cinema Section (CATÁLOGO/CINEMA)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!cinemaSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(cinemaSectionRef.current);
@@ -2093,11 +2033,11 @@ export default function Home() {
 
   // ScrollTrigger animations for Arquivo Section (ARQUIVO MOVEL)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!arquivoSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(arquivoSectionRef.current);
@@ -2160,12 +2100,12 @@ export default function Home() {
 
   // ScrollTrigger para segundo track horizontal (AS MIÇANGAS)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!horizontalSecondWrapperRef.current || !horizontalSecondTrackRef.current) return;
     // Aguardar o primeiro track estar pronto antes de inicializar o segundo
     if (!mainTrackReady) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const wrapper = horizontalSecondWrapperRef.current;
     const track = horizontalSecondTrackRef.current;
@@ -2273,11 +2213,11 @@ export default function Home() {
 
   // Animações para seções de "A Natureza das Coisas Invisíveis"
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []) as HTMLElement[];
@@ -2510,11 +2450,11 @@ export default function Home() {
 
   // Cinematic film-strip wipe transitions between movies
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!horizontalSecondTrackRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const transitionPanels = Array.from(
@@ -2627,10 +2567,10 @@ export default function Home() {
 
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!verticalReverseWrapperRef.current || !verticalReverseContentRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const wrapper = verticalReverseWrapperRef.current;
     const content = verticalReverseContentRef.current;
@@ -2677,9 +2617,9 @@ export default function Home() {
 
   // Pin dedicado para seções verticais com entrada/pausa/saída gradual
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
+
 
     const sections = gsap.utils.toArray<HTMLElement>('[data-pin-block]');
     if (!sections.length) return;
@@ -2730,10 +2670,10 @@ export default function Home() {
 
   // NOTÍCIAS section entrance animation
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const noticiasSection = document.querySelector('[data-noticias-section]') as HTMLElement;
     if (!noticiasSection) return;
@@ -2791,11 +2731,11 @@ export default function Home() {
 
   // Contact section entrance animation
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
     if (!contactSectionRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const ctx = gsap.context(() => {
       const contactElements = Array.from(contactSectionRef.current!.querySelectorAll('[data-contact-animate]')) as HTMLElement[];
@@ -2826,10 +2766,10 @@ export default function Home() {
 
   // Section divider line animations — gradient lines expand from center on scroll
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const dividers = Array.from(document.querySelectorAll('[data-section-divider]')) as HTMLElement[];
     if (!dividers.length) return;
@@ -2861,10 +2801,10 @@ export default function Home() {
 
   // Animated border drawing — lines draw themselves on scroll
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+
     if (!secondTrackReady) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+
 
     const borderElements = Array.from(document.querySelectorAll('[data-draw-border]')) as HTMLElement[];
     if (!borderElements.length) return;
@@ -4511,41 +4451,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Seção 1 - AS MIÇANGAS - Title Only with Scroll Acceleration Gallery */}
-          <section
-            className="horizontal-section relative flex-shrink-0 text-white"
-            data-micangas-panel="0"
-            style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundColor: '#0a0a0a',
-            }}
-          >
-            {/* Centered Title Card */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ zIndex: 1 }}
-            >
-              <h1
-                className="data-micangas-title"
-                suppressHydrationWarning
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(40px, 6vw, 120px)',
-                  fontWeight: 800,
-                  textAlign: 'center',
-                  maxWidth: '800px',
-                  color: 'white',
-                }}
-              >
-                {t('asMicangas')}
-              </h1>
-            </div>
-          </section>
-
-          {/* Seção 2 - AS MIÇANGAS - Info Panel */}
+          {/* AS MIÇANGAS - Info Panel */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-micangas-panel="1"
@@ -4695,40 +4601,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Seção 1 - O Mistério da Carne - Title Only */}
-          <section
-            className="horizontal-section relative flex-shrink-0 text-white"
-            data-misterio-panel="0"
-            style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundColor: '#0a0a0a',
-            }}
-          >
-            {/* Centered Title Card */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ zIndex: 1 }}
-            >
-              <h1
-                className="data-misterio-title"
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(40px, 6vw, 120px)',
-                  fontWeight: 800,
-                  textAlign: 'center',
-                  maxWidth: '800px',
-                  color: 'white',
-                }}
-              >
-                O MISTÉRIO DA CARNE
-              </h1>
-            </div>
-          </section>
-
-          {/* Seção 2 - O Mistério da Carne - Content */}
+          {/* O Mistério da Carne - Content */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-misterio-panel="1"
