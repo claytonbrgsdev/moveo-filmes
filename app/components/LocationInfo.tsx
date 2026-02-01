@@ -29,87 +29,46 @@ export function LocationInfo() {
     return () => clearInterval(interval);
   }, []);
 
+  const fontStyle = {
+    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+  };
+
   return (
     <>
-      {/* Brasília-DF, Brasil - Coluna 1 */}
-      <div 
-        className="fixed text-white text-xs z-40" 
-        style={{ 
+      {/* Brasília-DF, Brasil — col 1 (mirrors REC at col 1) */}
+      <div
+        className="fixed text-white text-xs z-40"
+        style={{
           left: getMarkerPosition(1),
           top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
+          ...fontStyle,
         }}
       >
         Brasília-DF, Brasil
       </div>
 
-      {/* Divider entre coluna 1 e 3 */}
-      <div 
-        className="fixed text-white text-xs z-40 opacity-50" 
-        style={{ 
-          left: getMarkerPosition(2),
-          top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
-        }}
-      >
-        |
-      </div>
-
-      {/* Coordenadas - Coluna 3 */}
-      <div 
-        className="fixed text-white text-xs z-40" 
-        style={{ 
+      {/* GPS coordinates — col 3 (mirrors logo at col 3) */}
+      <div
+        className="fixed text-white text-xs z-40"
+        style={{
           left: getMarkerPosition(3),
           top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
+          ...fontStyle,
+          letterSpacing: '0.02em',
         }}
       >
         -15.7942°S, -47.8822°W
       </div>
 
-      {/* Divider entre coluna 3 e 7 */}
-      <div 
-        className="fixed text-white text-xs z-40 opacity-50" 
-        style={{ 
-          left: getMarkerPosition(4),
-          top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
-        }}
-      >
-        |
-      </div>
-
-      {/* Timezone - Coluna 7 */}
-      <div 
-        className="fixed text-white text-xs z-40" 
-        style={{ 
-          left: getMarkerPosition(7),
-          top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
-        }}
-      >
-        America/Sao_Paulo (UTC-3)
-      </div>
-
-      {/* Divider entre coluna 7 e 11 */}
-      <div 
-        className="fixed text-white text-xs z-40 opacity-50" 
-        style={{ 
-          left: getMarkerPosition(9),
-          top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
-        }}
-      >
-        |
-      </div>
-
-      {/* Horário - Coluna 11 */}
-      <div 
-        className="fixed text-white text-xs z-40" 
-        style={{ 
+      {/* Timecode — col 11 (mirrors date at col 11) */}
+      <div
+        className="fixed text-white text-xs z-40"
+        suppressHydrationWarning
+        style={{
           left: getMarkerPosition(11),
           top: 'calc(100vh - 50px + 2px)',
-          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
+          ...fontStyle,
+          letterSpacing: '0.05em',
         }}
       >
         {currentTime}
@@ -117,4 +76,3 @@ export function LocationInfo() {
     </>
   );
 }
-

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
@@ -8,6 +8,7 @@ import { useLanguage } from '@/lib/hooks/useLanguage';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState('');
   const router = useRouter();
   const { t } = useLanguage();
 
@@ -17,6 +18,21 @@ export default function Navbar() {
     { label: t('media'), path: '/posts' },
     { label: t('contact'), path: '/contato' },
   ];
+
+  useEffect(() => {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year')?.value || '';
+    const month = parts.find(p => p.type === 'month')?.value || '';
+    const day = parts.find(p => p.type === 'day')?.value || '';
+    setCurrentDate(`${year}.${month}.${day}`);
+  }, []);
 
   const handleMenuClick = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -31,43 +47,66 @@ export default function Navbar() {
     router.push('/');
   };
 
+  const fontStyle = {
+    fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+  };
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent" style={{ height: '50px', mixBlendMode: 'difference' }}>
-      <div className="relative w-full h-full flex items-center">
-          {/* Logo na posição A1 (linha A, coluna 1) */}
-          <div 
+        <div className="relative w-full h-full flex items-center">
+          {/* REC indicator — col 1 */}
+          <div
+            className="absolute flex items-center gap-1.5 text-white text-xs"
+            style={{ left: getMarkerPosition(1), bottom: '0px', ...fontStyle }}
+          >
+            <span
+              className="inline-block rounded-full"
+              style={{
+                width: '6px',
+                height: '6px',
+                backgroundColor: '#ff3333',
+                animation: 'pulse-rec 2s ease-in-out infinite',
+              }}
+            />
+            <span style={{ letterSpacing: '0.1em' }}>REC</span>
+          </div>
+
+          {/* Logo — col 3 */}
+          <div
             className="absolute flex items-center cursor-pointer hover:opacity-70 transition-opacity"
-            style={{ 
-              left: getMarkerPosition(1),
-              bottom: '0px'
-            }}
+            style={{ left: getMarkerPosition(3), bottom: '0px' }}
             onClick={handleLogoClick}
           >
-              <Image
+            <Image
               src="/imagens/logomarca.png"
-                alt="Logo Moveo"
-                width={64}
-                height={64}
-                className="object-contain"
-              style={{ 
+              alt="Logo Moveo"
+              width={64}
+              height={64}
+              className="object-contain"
+              style={{
                 mixBlendMode: 'difference',
                 filter: 'brightness(0) invert(1)',
                 height: '1.125rem',
-                width: 'auto'
+                width: 'auto',
               }}
-                unoptimized
-              />
-            </div>
+              unoptimized
+            />
+          </div>
 
-          {/* Tab MENU na posição A13 - canto inferior esquerdo do quadrante dentro da Navbar */}
-          <div 
+          {/* Date stamp — col 11 */}
+          <div
+            className="absolute text-white text-xs"
+            suppressHydrationWarning
+            style={{ left: getMarkerPosition(11), bottom: '0px', ...fontStyle, letterSpacing: '0.05em' }}
+          >
+            {currentDate}
+          </div>
+
+          {/* MENU — col 13 */}
+          <div
             className="absolute text-white text-xs cursor-pointer hover:opacity-70 transition-opacity uppercase"
-            style={{ 
-              left: getMarkerPosition(13),
-              bottom: '0px',
-              fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
-            }}
+            style={{ left: getMarkerPosition(13), bottom: '0px', ...fontStyle }}
             onClick={handleMenuClick}
             data-magnetic
           >
@@ -75,16 +114,24 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-          
+
+      {/* Pulse animation for REC dot */}
+      <style jsx>{`
+        @keyframes pulse-rec {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
+
       {/* Dropdown Menu */}
       {isMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black z-[60] flex items-center justify-center"
           onClick={() => setIsMenuOpen(false)}
         >
-          <div 
+          <div
             className="flex flex-col gap-8 text-white text-2xl uppercase"
-            style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif" }}
+            style={fontStyle}
             onClick={(e) => e.stopPropagation()}
           >
             {menuItems.map((item, index) => (
@@ -97,10 +144,9 @@ export default function Navbar() {
                 {item.label}
               </div>
             ))}
-            </div>
+          </div>
         </div>
       )}
     </>
   );
 }
-

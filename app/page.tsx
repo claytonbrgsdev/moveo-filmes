@@ -2859,6 +2859,99 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
+  // Animated border drawing — lines draw themselves on scroll
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!secondTrackReady) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const borderElements = Array.from(document.querySelectorAll('[data-draw-border]')) as HTMLElement[];
+    if (!borderElements.length) return;
+
+    const createdElements: HTMLElement[] = [];
+
+    const ctx = gsap.context(() => {
+      borderElements.forEach((el) => {
+        const sides = (el.getAttribute('data-draw-border') || '').split(',').map(s => s.trim());
+        const opacity = parseFloat(el.getAttribute('data-draw-border-opacity') || '0.2');
+        const color = `rgba(255, 255, 255, ${opacity})`;
+
+        // Ensure parent is positioned for absolute children
+        const computed = window.getComputedStyle(el);
+        if (computed.position === 'static') {
+          el.style.position = 'relative';
+        }
+
+        const borderDivs: { div: HTMLElement; side: string }[] = [];
+
+        sides.forEach((side) => {
+          const div = document.createElement('div');
+          div.style.position = 'absolute';
+          div.style.backgroundColor = color;
+          div.style.pointerEvents = 'none';
+          div.style.willChange = 'transform';
+
+          if (side === 'top') {
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.height = '1px';
+            div.style.transformOrigin = 'left center';
+            div.style.transform = 'scaleX(0)';
+          } else if (side === 'bottom') {
+            div.style.bottom = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.height = '1px';
+            div.style.transformOrigin = 'right center';
+            div.style.transform = 'scaleX(0)';
+          } else if (side === 'left') {
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '1px';
+            div.style.height = '100%';
+            div.style.transformOrigin = 'center bottom';
+            div.style.transform = 'scaleY(0)';
+          } else if (side === 'right') {
+            div.style.top = '0';
+            div.style.right = '0';
+            div.style.width = '1px';
+            div.style.height = '100%';
+            div.style.transformOrigin = 'center top';
+            div.style.transform = 'scaleY(0)';
+          }
+
+          el.appendChild(div);
+          createdElements.push(div);
+          borderDivs.push({ div, side });
+        });
+
+        // Animate each border line with stagger
+        borderDivs.forEach(({ div, side }, index) => {
+          const prop = (side === 'top' || side === 'bottom') ? 'scaleX' : 'scaleY';
+          gsap.to(div, {
+            [prop]: 1,
+            duration: 0.8,
+            delay: index * 0.12,
+            ease: 'power3.inOut',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              end: 'top 50%',
+              toggleActions: 'play none none reverse',
+            },
+          });
+        });
+      });
+    });
+
+    return () => {
+      createdElements.forEach(div => div.remove());
+      ctx.revert();
+    };
+  }, [secondTrackReady]);
+
   // Scroll infinito removido temporariamente
 
   useEffect(() => {
@@ -4858,24 +4951,24 @@ export default function Home() {
                   {/* Cantoneiras */}
                   <div
                     className="absolute"
+                    data-draw-border="top,left"
+                    data-draw-border-opacity="0.8"
                     style={{
                       top: 0,
                       left: 0,
                       width: '40px',
                       height: '80px',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.8)',
-                      borderLeft: '1px solid rgba(255, 255, 255, 0.8)',
                     }}
                   />
                   <div
                     className="absolute"
+                    data-draw-border="bottom,right"
+                    data-draw-border-opacity="0.8"
                     style={{
                       bottom: 0,
                       right: 0,
                       width: '40px',
                       height: '80px',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.8)',
-                      borderRight: '1px solid rgba(255, 255, 255, 0.8)',
                     }}
                   />
                   {/* Título centralizado - vertical bottom-to-top */}
@@ -4899,8 +4992,8 @@ export default function Home() {
 
                 {/* Bloco horizontal superior largo */}
                 <div
-                  className="col-span-7 row-span-2 bg-transparent p-4 md:p-8 flex items-end justify-start min-h-0"
-                  style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-span-7 row-span-2 bg-transparent p-4 md:p-8 flex items-end justify-start min-h-0 relative"
+                  data-draw-border="top,right"
                 >
                   <h2
                     className="font-black tracking-tight text-white"
@@ -4930,8 +5023,8 @@ export default function Home() {
 
                 {/* Retângulo horizontal médio */}
                 <div
-                  className="col-span-5 row-span-3 bg-transparent p-4 md:p-8 flex items-start justify-start min-h-0"
-                  style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-span-5 row-span-3 bg-transparent p-4 md:p-8 flex items-start justify-start min-h-0 relative"
+                  data-draw-border="top,left"
                 >
                   <div data-cinema-animate>
                     <p
@@ -4967,8 +5060,8 @@ export default function Home() {
 
                 {/* Quadrado inferior esquerdo */}
                 <div
-                  className="col-span-3 row-span-3 bg-transparent p-4 md:p-6 flex items-end min-h-0"
-                  style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-span-3 row-span-3 bg-transparent p-4 md:p-6 flex items-end min-h-0 relative"
+                  data-draw-border="bottom,left"
                 >
                   <p
                     className="text-white font-bold mix-blend-difference"
@@ -4997,7 +5090,7 @@ export default function Home() {
                 </div>
 
                 {/* Bloco final inferior direito */}
-                <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0 relative" data-draw-border="top,right,bottom,left">
                   <p
                     className="text-white font-bold mix-blend-difference"
                     data-cinema-animate
@@ -5056,8 +5149,8 @@ export default function Home() {
 
                 {/* Bloco principal - ALÉM DOS FILMES */}
                 <div
-                  className="col-start-3 col-span-6 row-span-5 bg-black p-8 md:p-12 flex flex-col items-start justify-end min-h-0"
-                  style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-start-3 col-span-6 row-span-5 bg-black p-8 md:p-12 flex flex-col items-start justify-end min-h-0 relative"
+                  data-draw-border="top,right"
                 >
                   <h1
                     className="font-black tracking-tighter leading-none text-white mix-blend-difference"
@@ -5094,8 +5187,8 @@ export default function Home() {
 
                 {/* Bloco secundário - ARQUIVO MOVEO */}
                 <div
-                  className="col-start-9 col-span-3 row-span-3 bg-black p-6 flex items-end justify-start min-h-0"
-                  style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-start-9 col-span-3 row-span-3 bg-black p-6 flex items-end justify-start min-h-0 relative"
+                  data-draw-border="bottom,left"
                 >
                   <p
                     className="text-white font-light leading-tight mix-blend-difference"
@@ -5120,8 +5213,8 @@ export default function Home() {
 
                 {/* Texto descritivo compacto */}
                 <div
-                  className="col-start-3 col-span-4 row-start-6 row-span-3 bg-black p-6 md:p-8 flex items-start justify-start min-h-0"
-                  style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}
+                  className="col-start-3 col-span-4 row-start-6 row-span-3 bg-black p-6 md:p-8 flex items-start justify-start min-h-0 relative"
+                  data-draw-border="top,left"
                 >
                   <p
                     className="text-white font-light leading-relaxed mix-blend-difference"
