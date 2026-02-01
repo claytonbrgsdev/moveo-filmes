@@ -2006,6 +2006,7 @@ export default function Home() {
             start: 'top 80%',
             end: 'top 40%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -2,
           },
         });
       });
@@ -2021,11 +2022,11 @@ export default function Home() {
             start: 'top 85%',
             end: 'top 50%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -2,
           },
         });
       });
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
     }, cinemaSectionRef);
 
     return () => ctx.revert();
@@ -2073,6 +2074,7 @@ export default function Home() {
             start: 'top 80%',
             end: 'top 40%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -2,
           },
         });
       });
@@ -2088,11 +2090,11 @@ export default function Home() {
             start: 'top 85%',
             end: 'top 50%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -2,
           },
         });
       });
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
     }, arquivoSectionRef);
 
     return () => ctx.revert();
@@ -2697,6 +2699,7 @@ export default function Home() {
               start: 'top 80%',
               end: 'top 40%',
               toggleActions: 'play none none reverse',
+              refreshPriority: -2,
             },
           }
         );
@@ -2720,6 +2723,7 @@ export default function Home() {
               start: 'top 80%',
               end: 'top 40%',
               toggleActions: 'play none none reverse',
+              refreshPriority: -2,
             },
           }
         );
@@ -2754,6 +2758,7 @@ export default function Home() {
             start: 'top 80%',
             end: 'top 40%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -2,
           },
         });
       });
@@ -2790,6 +2795,7 @@ export default function Home() {
               start: 'top 90%',
               end: 'top 60%',
               toggleActions: 'play none none reverse',
+              refreshPriority: -2,
             },
           }
         );
@@ -2880,6 +2886,7 @@ export default function Home() {
               start: 'top 85%',
               end: 'top 50%',
               toggleActions: 'play none none reverse',
+              refreshPriority: -2,
             },
           });
         });
@@ -2890,6 +2897,16 @@ export default function Home() {
       createdElements.forEach(div => div.remove());
       ctx.revert();
     };
+  }, [secondTrackReady]);
+
+  // Single coordinated refresh for all vertical section ScrollTriggers
+  // Must run AFTER all animation hooks above have registered their triggers
+  useLayoutEffect(() => {
+    if (!secondTrackReady) return;
+    const raf = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+    return () => cancelAnimationFrame(raf);
   }, [secondTrackReady]);
 
   // Scroll infinito removido temporariamente
