@@ -61,6 +61,7 @@ export default function Home() {
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
+  const [moveoWidth, setMoveoWidth] = useState<number>(0);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const produtoraTextRef = useRef<HTMLDivElement>(null);
@@ -3097,6 +3098,17 @@ export default function Home() {
     };
   }, []);
 
+  // Update moveoWidth whenever dynamicFontSize changes
+  useEffect(() => {
+    const updateWidth = () => {
+      if (textRef.current) {
+        setMoveoWidth(textRef.current.offsetWidth);
+      }
+    };
+    // Small delay to ensure font has rendered
+    const timer = setTimeout(updateWidth, 50);
+    return () => clearTimeout(timer);
+  }, [dynamicFontSize]);
 
   // Calculate font size for "SOBRE A MOVEO" to fill container
   useEffect(() => {
@@ -3297,45 +3309,33 @@ export default function Home() {
               MOVEO
             </div>
 
+            {/* Subtitle positioned directly above MOVEO title */}
             <div
+              ref={produtoraTextRef}
               data-first-animate
-              className="absolute z-30"
+              data-animate
+              className="absolute z-30 text-white mix-blend-difference produtora-subtitle"
+              suppressHydrationWarning
               style={{
-                left: 0,
-                width: getWidthBetweenMarkers(1, 10),
-                top: 0,
-                height: getHeightBetweenLines('A', 'C'),
+                left: '-20px',
+                bottom: `calc(100% - 180px + 10px)`,
+                transform: 'translateX(-1.55%)',
+                width: moveoWidth > 0 ? `${moveoWidth}px` : 'auto',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                fontWeight: 700,
+                fontSize: FONT_LARGE,
+                lineHeight: '100%',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                margin: 0,
+                padding: 0,
               }}
             >
-              <div
-                ref={produtoraTextRef}
-                data-animate
-                className="absolute text-white mix-blend-difference produtora-subtitle flex flex-col"
-                suppressHydrationWarning
-                style={{
-                  left: '0',
-                  top: '25%',
-                  width: '100%',
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                  fontWeight: 700,
-                  fontSize: FONT_LARGE,
-                  lineHeight: '90%',
-                  margin: 0,
-                  padding: 0,
-                }}
-              >
-                {t('produtoraBoutiqueShort').split('\n').map((line, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      display: 'block',
-                      textAlign: i === 0 ? 'left' : 'right',
-                    }}
-                  >
-                    {line}
-                  </span>
-                ))}
-              </div>
+              <span>{t('produtoraBoutiqueShort').split('\n')[0]}</span>
+              <span>{t('produtoraBoutiqueShort').split('\n')[1]}</span>
             </div>
 
             <div
