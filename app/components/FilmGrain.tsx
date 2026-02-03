@@ -32,8 +32,8 @@ export function FilmGrain() {
 
     // Small canvas — CSS scales it to viewport. The upscaling creates
     // the coarse, chunky grain characteristic of 16mm film stock.
-    const W = 256
-    const H = 256
+    const W = 512
+    const H = 512
     canvas.width = W
     canvas.height = H
 
@@ -55,7 +55,7 @@ export function FilmGrain() {
         // ~40% of pixels get grain, rest transparent.
         // This creates the irregular clustering of real film grain
         // (silver halide crystals are not uniformly distributed).
-        if (Math.random() > 0.6) {
+        if (Math.random() > 0.85) {
           // Variable intensity — grain particles differ in brightness,
           // mimicking different crystal sizes in the emulsion
           const intensity = 120 + (Math.random() * 135) | 0
@@ -64,7 +64,7 @@ export function FilmGrain() {
           data[i + 2] = intensity // B
           // Very low alpha — keeps grain subtle. Per-pixel alpha
           // gives finer control than a global opacity value.
-          data[i + 3] = (Math.random() * 25) | 0
+          data[i + 3] = (Math.random() * 12) | 0
         } else {
           data[i + 3] = 0 // fully transparent
         }
@@ -74,8 +74,8 @@ export function FilmGrain() {
 
       // Gate weave — subtle random drift each frame simulating
       // film not sitting perfectly in the camera gate
-      const weaveX = (Math.random() - 0.5) * 1.0
-      const weaveY = (Math.random() - 0.5) * 0.8
+      const weaveX = (Math.random() - 0.5) * 0.5
+      const weaveY = (Math.random() - 0.5) * 0.4
       canvas.style.transform = `translate(${weaveX}px, ${weaveY}px)`
     }
 
@@ -86,12 +86,12 @@ export function FilmGrain() {
     } else {
       // Render one static frame for reduced-motion users
       for (let i = 0; i < data.length; i += 4) {
-        if (Math.random() > 0.7) {
+        if (Math.random() > 0.88) {
           const intensity = 150 + (Math.random() * 105) | 0
           data[i] = intensity
           data[i + 1] = intensity
           data[i + 2] = intensity
-          data[i + 3] = (Math.random() * 15) | 0
+          data[i + 3] = (Math.random() * 8) | 0
         } else {
           data[i + 3] = 0
         }
