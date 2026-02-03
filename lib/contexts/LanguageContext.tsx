@@ -77,8 +77,6 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     produtoraBoutique: 'Produtora boutique de filmes independentes — Brasília, desde 2018.',
     produtoraBoutiqueShort: 'Produtora boutique\nde filmes independentes',
-    subtitleLeft: 'Produtora boutique',
-    subtitleRight: 'de filmes independentes',
     mencaoEspecial: 'Menção Especial',
     irParaContato: 'Ir para contato',
     // ContentTransition
@@ -161,8 +159,6 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     produtoraBoutique: 'Boutique production company for independent films — Brasília, since 2018.',
     produtoraBoutiqueShort: 'Boutique production company\nfor independent films',
-    subtitleLeft: 'Boutique production',
-    subtitleRight: 'for independent films',
     mencaoEspecial: 'Special Mention',
     irParaContato: 'Go to contact',
     // ContentTransition
