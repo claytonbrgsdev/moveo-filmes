@@ -3329,13 +3329,12 @@ export default function Home() {
                 fontSize: FONT_LARGE,
                 lineHeight: '100%',
                 textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
                 margin: 0,
                 padding: 0,
               }}
             >
-              <span>{t('produtoraBoutiqueShort').split('\n')[0]}</span>
-              <span>{t('produtoraBoutiqueShort').split('\n')[1]}</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{t('subtitleLeft')}</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{t('subtitleRight')}</span>
             </div>
 
             <div
