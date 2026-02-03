@@ -55,9 +55,9 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent" style={{ height: '50px', mixBlendMode: 'difference' }}>
         <div className="relative w-full h-full flex items-center">
-          {/* REC indicator — col 1 */}
+          {/* REC indicator — col 1, aligned by "R" */}
           <div
-            className="absolute flex items-center gap-1.5 text-white text-xs"
+            className="absolute flex items-center text-white text-xs"
             style={{ left: getMarkerPosition(1), bottom: '0px', ...fontStyle }}
           >
             <span
@@ -67,6 +67,8 @@ export default function Navbar() {
                 height: '6px',
                 backgroundColor: '#ff3333',
                 animation: 'pulse-rec 2s ease-in-out infinite',
+                marginRight: '6px',
+                marginLeft: '-12px',
               }}
             />
             <span style={{ letterSpacing: '0.1em' }}>REC</span>

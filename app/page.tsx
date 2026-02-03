@@ -3310,11 +3310,12 @@ export default function Home() {
               <div
                 ref={produtoraTextRef}
                 data-animate
-                className="absolute text-white mix-blend-difference produtora-subtitle"
+                className="absolute text-white mix-blend-difference produtora-subtitle flex flex-col"
                 suppressHydrationWarning
                 style={{
                   left: '0',
                   top: '25%',
+                  width: '100%',
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                   fontWeight: 700,
                   fontSize: FONT_LARGE,
@@ -3324,10 +3325,15 @@ export default function Home() {
                 }}
               >
                 {t('produtoraBoutiqueShort').split('\n').map((line, i) => (
-                  <React.Fragment key={i}>
+                  <span
+                    key={i}
+                    style={{
+                      display: 'block',
+                      textAlign: i === 0 ? 'left' : 'right',
+                    }}
+                  >
                     {line}
-                    {i < t('produtoraBoutiqueShort').split('\n').length - 1 && <br />}
-                  </React.Fragment>
+                  </span>
                 ))}
               </div>
             </div>
