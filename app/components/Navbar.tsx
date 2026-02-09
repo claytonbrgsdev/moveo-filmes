@@ -61,18 +61,25 @@ export default function Navbar() {
             style={{ left: getMarkerPosition(1), bottom: '0px', ...fontStyle }}
           >
             <span
-              className="inline-block rounded-full"
               style={{
-                width: '6px',
-                height: '6px',
-                backgroundColor: '#ff3333',
-                animation: 'pulse-rec 2s ease-in-out infinite',
-                marginRight: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
                 marginLeft: '-12px',
-                alignSelf: 'center',
               }}
-            />
-            <span style={{ letterSpacing: '0.1em' }}>REC</span>
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  backgroundColor: '#ff3333',
+                  borderRadius: '50%',
+                  animation: 'pulse-rec 2s ease-in-out infinite',
+                  marginRight: '6px',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ letterSpacing: '0.1em' }}>REC</span>
+            </span>
           </div>
 
           {/* Logo — col 3 */}
