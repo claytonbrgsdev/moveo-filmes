@@ -2736,6 +2736,138 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
+  // Title Section Stripe Reveal - bars slide away to reveal video as user scrolls
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const titlePanels = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-title-reveal]') || []
+      ) as HTMLElement[];
+
+      titlePanels.forEach((panel) => {
+        const bars = Array.from(panel.querySelectorAll('[data-title-bar]')) as HTMLElement[];
+        const primaryVideo = panel.querySelector('[data-title-video="primary"]') as HTMLVideoElement;
+        const secondaryVideo = panel.querySelector('[data-title-video="secondary"]') as HTMLVideoElement;
+        const vignette = panel.querySelector('[data-video-vignette]') as HTMLElement;
+        const gradient = panel.querySelector('[data-video-gradient]') as HTMLElement;
+        const titleText = panel.querySelector('[data-title-text]') as HTMLElement;
+
+        if (!bars.length) return;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left 60%',
+            end: 'right 30%',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 0.8,
+          },
+        });
+
+        // Phase 0: Secondary video fades in first (background depth layer)
+        if (secondaryVideo) {
+          tl.to(secondaryVideo, {
+            opacity: 0.2,
+            duration: 0.2,
+            ease: 'power2.out',
+          }, 0);
+        }
+
+        // Phase 1: Primary video starts fading in
+        if (primaryVideo) {
+          tl.to(primaryVideo, {
+            opacity: 1,
+            duration: 0.3,
+            ease: 'power2.out',
+          }, 0.1);
+        }
+
+        // Phase 2: Bars slide away from center (alternating directions)
+        tl.to(bars, {
+          xPercent: (i: number) => i % 2 === 0 ? -110 : 110,
+          duration: 0.5,
+          stagger: { amount: 0.2, from: 'center' },
+          ease: 'power3.inOut',
+        }, 0.15);
+
+        // Phase 3: Vignette and gradient fade in
+        if (vignette) {
+          tl.to(vignette, {
+            opacity: 1,
+            duration: 0.3,
+            ease: 'power2.out',
+          }, 0.35);
+        }
+        if (gradient) {
+          tl.to(gradient, {
+            opacity: 1,
+            duration: 0.3,
+            ease: 'power2.out',
+          }, 0.35);
+        }
+
+        // Phase 4: Title text subtle enhancement
+        if (titleText) {
+          tl.fromTo(titleText,
+            { textShadow: '0 4px 30px rgba(0,0,0,0.8)' },
+            { textShadow: '0 8px 60px rgba(0,0,0,0.9)', duration: 0.3, ease: 'power2.out' },
+            0.4
+          );
+        }
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Pinned Video Parallax - secondary videos move even slower for depth
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const pinnedVideos = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-video-pinned]') || []
+      ) as HTMLVideoElement[];
+
+      pinnedVideos.forEach((video) => {
+        const panel = video.closest('section');
+        if (!panel) return;
+
+        // Much slower parallax for depth effect
+        gsap.to(video, {
+          xPercent: -5,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left right',
+            end: 'right left',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 2, // Even slower scrub
+          },
+        });
+
+        // Scale animation for pinned effect
+        gsap.fromTo(video,
+          { scale: 1.4 },
+          {
+            scale: 1.2,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 150%',
+              end: 'right -50%',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 1.5,
+            },
+          }
+        );
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
   // ScrollTrigger para seção 7 - Scroll Vertical (de cima para baixo)
   useLayoutEffect(() => {
 
@@ -4107,15 +4239,16 @@ export default function Home() {
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-natureza-panel="0"
+            data-title-reveal="natureza"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
               overflow: 'hidden',
               position: 'relative',
-              backgroundColor: '#0a0a0a',
+              backgroundColor: '#000',
             }}
           >
-            {/* Video background */}
+            {/* Primary Video background - revealed through stripes */}
             <video
               autoPlay
               muted
@@ -4123,18 +4256,56 @@ export default function Home() {
               playsInline
               data-video-parallax="natureza"
               data-parallax-speed="0.15"
+              data-title-video="primary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)', opacity: 0 }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
+
+            {/* Secondary Video - desaturated, pinned/slower parallax for depth */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-pinned="natureza"
+              data-title-video="secondary"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                willChange: 'transform, filter',
+                transform: 'scale(1.3)',
+                opacity: 0,
+                filter: 'saturate(0) brightness(0.4)',
+              }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+
+            {/* Horizontal stripe overlay bars - initially cover the video */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                data-title-bar=""
+                className="absolute w-full bg-black transform-gpu"
+                style={{
+                  height: `calc(100% / 12)`,
+                  top: `${i * (100 / 12)}%`,
+                  willChange: 'transform, opacity',
+                  zIndex: 5,
+                }}
+              />
+            ))}
+
             {/* Cinematic vignette */}
             <div
               data-video-vignette=""
               className="absolute inset-0 pointer-events-none"
               style={{
-                zIndex: 1,
+                zIndex: 6,
                 background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
+                opacity: 0,
               }}
             />
             {/* Horizontal gradient for depth */}
@@ -4142,20 +4313,20 @@ export default function Home() {
               data-video-gradient=""
               className="absolute inset-0 pointer-events-none"
               style={{
-                zIndex: 1,
+                zIndex: 6,
                 background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
+                opacity: 0,
               }}
             />
-            {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
-            {/* Centered Title Card */}
+            {/* Centered Title Card - always visible, on top */}
             <div
               className="absolute inset-0 flex items-center justify-center"
-              style={{ zIndex: 1 }}
+              style={{ zIndex: 10 }}
             >
               <h2
                 className="data-natureza-content"
+                data-title-text=""
                 suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -4167,6 +4338,7 @@ export default function Home() {
                   color: 'rgba(255, 255, 255, 0.95)',
                   textAlign: 'center',
                   maxWidth: '90%',
+                  textShadow: '0 4px 30px rgba(0,0,0,0.8)',
                 }}
               >
                 {t('aNaturezaDasCoisasInvisiveis')}
@@ -4186,11 +4358,52 @@ export default function Home() {
               gridTemplateColumns: '1.2fr 0.8fr',
             }}
           >
-            {/* Left - Editorial Content */}
-            <div 
-              className="flex flex-col justify-center p-[50px]"
+            {/* Primary Video - subtle parallax background */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-parallax="natureza-editorial"
+              data-parallax-speed="0.1"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
-                backgroundColor: '#0a0a0a',
+                zIndex: 0,
+                willChange: 'transform, filter',
+                transform: 'scale(1.2)',
+                opacity: 0.15,
+                filter: 'brightness(0.6)',
+              }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+
+            {/* Secondary Video - pinned/fixed effect, desaturated */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-pinned="natureza-editorial"
+              className="absolute w-1/2 h-full object-cover transform-gpu"
+              style={{
+                zIndex: 0,
+                right: 0,
+                willChange: 'transform, filter',
+                transform: 'scale(1.1)',
+                opacity: 0.4,
+                filter: 'saturate(0) brightness(0.5)',
+              }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+
+            {/* Left - Editorial Content */}
+            <div
+              className="flex flex-col justify-center p-[50px] relative"
+              style={{
+                backgroundColor: 'rgba(10, 10, 10, 0.85)',
+                zIndex: 1,
               }}
             >
               <div 
@@ -4269,14 +4482,29 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right - Editorial Image */}
-            <div 
+            {/* Right - Editorial Image with video peek */}
+            <div
               className="relative overflow-hidden"
               style={{
                 position: 'relative',
+                zIndex: 1,
               }}
             >
-              <div 
+              {/* Video peek through the image */}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover transform-gpu"
+                style={{
+                  willChange: 'transform',
+                  transform: 'scale(1.15)',
+                }}
+              >
+                <source src="/videos/natureza.mp4" type="video/mp4" />
+              </video>
+              <div
                 className="absolute inset-0"
                 style={{
                   willChange: 'transform',
@@ -4291,11 +4519,19 @@ export default function Home() {
                   style={{
                     filter: 'saturate(0) brightness(0.8)',
                     transform: 'scale(1.1)',
+                    mixBlendMode: 'multiply',
                   }}
                   data-speed="0.3"
                   unoptimized
                 />
               </div>
+              {/* Gradient overlay for blending */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(90deg, rgba(10,10,10,1) 0%, transparent 30%)',
+                }}
+              />
             </div>
           </section>
 
@@ -4312,28 +4548,57 @@ export default function Home() {
               justifyContent: 'center',
             }}
           >
-            {/* Background Image */}
-            <div className="absolute inset-0" style={{ willChange: 'transform' }}>
-              <Image
-                src="/imagens/capahome.png"
-                alt="A Natureza das Coisas Invisíveis"
-                fill
-                sizes="100vw"
-                className="object-cover data-natureza-parallax"
-                style={{
-                  filter: 'saturate(0) brightness(0.7)',
-                  transform: 'scale(1.1)',
-                }}
-                data-speed="0.2"
-                unoptimized
-              />
-            </div>
+            {/* Primary Video - full background with parallax */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-parallax="natureza-berlinale"
+              data-parallax-speed="0.12"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: 0,
+                willChange: 'transform, filter',
+                transform: 'scale(1.2)',
+              }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+
+            {/* Secondary Video - slower, desaturated layer for depth */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-pinned="natureza-berlinale"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                willChange: 'transform, filter',
+                transform: 'scale(1.4)',
+                opacity: 0.3,
+                filter: 'saturate(0) blur(3px)',
+              }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+
+            {/* Cinematic vignette */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'radial-gradient(ellipse 70% 70% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.8) 100%)',
+              }}
+            />
 
             {/* Overlay */}
-            <div 
+            <div
               className="absolute inset-0"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
                 zIndex: 2,
               }}
             />
@@ -4700,7 +4965,7 @@ export default function Home() {
               gridTemplateColumns: '1fr 1fr',
             }}
           >
-            {/* Video background */}
+            {/* Primary Video - parallax background */}
             <video
               autoPlay
               muted
@@ -4713,6 +4978,26 @@ export default function Home() {
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
+
+            {/* Secondary Video - pinned/slower, desaturated for depth */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-pinned="micangas"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                willChange: 'transform, filter',
+                transform: 'scale(1.4)',
+                opacity: 0.25,
+                filter: 'saturate(0) brightness(0.4) blur(2px)',
+              }}
+            >
+              <source src="/videos/micangas.mp4" type="video/mp4" />
+            </video>
+
             {/* Cinematic vignette */}
             <div
               data-video-vignette=""
@@ -4902,7 +5187,7 @@ export default function Home() {
               border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
-            {/* Video background */}
+            {/* Primary Video - parallax background */}
             <video
               autoPlay
               muted
@@ -4915,6 +5200,26 @@ export default function Home() {
             >
               <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
+
+            {/* Secondary Video - pinned/slower, desaturated for depth */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-pinned="misterio"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                willChange: 'transform, filter',
+                transform: 'scale(1.5)',
+                opacity: 0.2,
+                filter: 'saturate(0) brightness(0.35) blur(3px)',
+              }}
+            >
+              <source src="/videos/misterio.mp4" type="video/mp4" />
+            </video>
+
             {/* Cinematic vignette */}
             <div
               data-video-vignette=""
