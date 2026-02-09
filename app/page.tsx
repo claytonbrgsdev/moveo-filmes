@@ -2014,8 +2014,10 @@ export default function Home() {
 
       contentTargets.forEach((target, index) => {
         const cfg = cinemaContentConfigs[index] || cinemaContentConfigs[0];
+        // Preserve rotate(180deg) for vertical "CATÁLOGO" text (writing-mode: vertical-lr)
+        const targetRotation = (target as HTMLElement).style.writingMode === 'vertical-lr' ? 180 : 0;
         gsap.fromTo(target, cfg.from, {
-          autoAlpha: 1, x: 0, y: 0, scale: 1, rotation: 0, skewX: 0, filter: 'blur(0px)',
+          autoAlpha: 1, x: 0, y: 0, scale: 1, rotation: targetRotation, skewX: 0, filter: 'blur(0px)',
           duration: cfg.dur,
           ease: cfg.ease,
           scrollTrigger: {

@@ -58,7 +58,7 @@ export default function Navbar() {
           {/* REC indicator — col 1 */}
           <div
             className="absolute flex items-center text-white text-xs"
-            style={{ left: getMarkerPosition(1), bottom: '0px', ...fontStyle }}
+            style={{ left: getMarkerPosition(1), top: '50%', transform: 'translateY(-50%)', ...fontStyle }}
           >
             <span
               style={{
