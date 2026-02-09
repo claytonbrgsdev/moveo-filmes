@@ -69,6 +69,7 @@ export default function Navbar() {
                 animation: 'pulse-rec 2s ease-in-out infinite',
                 marginRight: '6px',
                 marginLeft: '-12px',
+                alignSelf: 'center',
               }}
             />
             <span style={{ letterSpacing: '0.1em' }}>REC</span>

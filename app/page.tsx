@@ -4919,7 +4919,7 @@ export default function Home() {
                       fontSize: 'clamp(48px, 6vw, 96px)',
                       letterSpacing: '-0.02em',
                       lineHeight: '0.9',
-                      writingMode: 'vertical-rl',
+                      writingMode: 'vertical-lr',
                       transform: 'rotate(180deg)',
                     }}
                   >
