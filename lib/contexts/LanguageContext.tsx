@@ -57,6 +57,8 @@ const translations: Record<Language, Record<string, string>> = {
     asMicangasTitle: 'As Miçangas',
     oFilme: 'O Filme',
     oMisterioDaCarne: 'O Mistério da Carne',
+    oMisterio: 'O Mistério',
+    daCarne: 'da Carne',
     // Arquivo
     alemDosFilmes: 'ALÉM\nDOS FILMES',
     verArquivoCompleto: 'Ver arquivo completo',
@@ -139,6 +141,8 @@ const translations: Record<Language, Record<string, string>> = {
     asMicangasTitle: 'The Beads',
     oFilme: 'The Film',
     oMisterioDaCarne: 'The Mystery of Meat',
+    oMisterio: 'The Mystery',
+    daCarne: 'of Meat',
     // Arquivo
     alemDosFilmes: 'BEYOND\nTHE FILMS',
     verArquivoCompleto: 'View full archive',

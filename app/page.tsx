@@ -4920,6 +4920,7 @@ export default function Home() {
                       letterSpacing: '-0.02em',
                       lineHeight: '0.9',
                       writingMode: 'vertical-rl',
+                      transform: 'rotate(180deg)',
                     }}
                   >
                     {t('catalogo')}
