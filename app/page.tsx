@@ -4646,8 +4646,10 @@ export default function Home() {
                           lineHeight: '0.95',
                           fontWeight: 700,
                           letterSpacing: '-0.02em',
+                          wordSpacing: '0.1em',
                           marginBottom: 'clamp(6px, 0.8vh, 12px)',
                           color: 'white',
+                          textTransform: 'uppercase',
                         }}
                       >
                         {t('oMisterioDaCarne')}
@@ -4874,7 +4876,6 @@ export default function Home() {
                       letterSpacing: '-0.02em',
                       lineHeight: '0.9',
                       writingMode: 'vertical-rl',
-                      transform: 'rotate(180deg)',
                     }}
                   >
                     {t('catalogo')}
