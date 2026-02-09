@@ -2538,6 +2538,17 @@ export default function Home() {
           0
         );
 
+        // Phase 1.5: Video preview clears blur and reveals
+        const transitionVideo = panel.querySelector('[data-transition-video]') as HTMLVideoElement;
+        if (transitionVideo) {
+          tl.to(transitionVideo, {
+            opacity: 0.8,
+            filter: 'blur(0px) saturate(1)',
+            duration: 0.35,
+            ease: 'power2.out',
+          }, 0.1);
+        }
+
         // Phase 2: Title fades in with scale + blur clear
         if (titleEl) {
           tl.fromTo(titleEl,
@@ -2564,6 +2575,161 @@ export default function Home() {
             0.6
           );
         }
+
+        // Phase 3.5: Video fades as bars exit
+        if (transitionVideo) {
+          tl.to(transitionVideo, {
+            scale: 1.05,
+            opacity: 0,
+            filter: 'blur(4px) saturate(0.5)',
+            duration: 0.3,
+            ease: 'power2.in',
+          }, 0.65);
+        }
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Video Parallax Effects - videos move slower than content for depth
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const videos = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-video-parallax]') || []
+      ) as HTMLVideoElement[];
+
+      videos.forEach((video) => {
+        const speed = parseFloat(video.getAttribute('data-parallax-speed') || '0.15');
+        const panel = video.closest('section');
+        if (!panel) return;
+
+        // Subtle horizontal parallax - video moves slower than scroll
+        gsap.to(video, {
+          xPercent: -10 * speed,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left right',
+            end: 'right left',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 1.2,
+          },
+        });
+
+        // Scale down subtly as panel enters and exits
+        gsap.fromTo(video,
+          { scale: 1.15 },
+          {
+            scale: 1.05,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 120%',
+              end: 'right -20%',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 0.8,
+            },
+          }
+        );
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Scroll-Linked Video Filters - brightness/saturation on entry/exit
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const panels = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll(
+          '[data-natureza-panel="0"], [data-micangas-panel="1"], [data-misterio-panel="1"]'
+        ) || []
+      ) as HTMLElement[];
+
+      panels.forEach((panel) => {
+        const video = panel.querySelector('video') as HTMLVideoElement;
+        if (!video) return;
+
+        // Entry: video brightens and saturates
+        gsap.fromTo(video,
+          { filter: 'brightness(0.4) saturate(0.3)' },
+          {
+            filter: 'brightness(1) saturate(1)',
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 100%',
+              end: 'left 30%',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 0.8,
+            },
+          }
+        );
+
+        // Exit: video dims and desaturates
+        gsap.to(video, {
+          filter: 'brightness(0.6) saturate(0.5)',
+          ease: 'power2.in',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'right 70%',
+            end: 'right -30%',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 0.8,
+          },
+        });
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Cinematic Vignette Animation - intensifies at panel edges
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const vignettes = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-video-vignette]') || []
+      ) as HTMLElement[];
+
+      vignettes.forEach((vignette) => {
+        const panel = vignette.closest('section');
+        if (!panel) return;
+
+        // Entry: vignette fades from strong to subtle
+        gsap.fromTo(vignette,
+          { opacity: 0.9 },
+          {
+            opacity: 0.5,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 80%',
+              end: 'center center',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 0.5,
+            },
+          }
+        );
+
+        // Exit: vignette intensifies
+        gsap.to(vignette, {
+          opacity: 0.9,
+          ease: 'power2.in',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'center center',
+            end: 'right 20%',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 0.5,
+          },
+        });
       });
     }, horizontalSecondTrackRef);
 
@@ -3955,13 +4121,33 @@ export default function Home() {
               muted
               loop
               playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 0 }}
+              data-video-parallax="natureza"
+              data-parallax-speed="0.15"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
+            {/* Cinematic vignette */}
+            <div
+              data-video-vignette=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
+              }}
+            />
+            {/* Horizontal gradient for depth */}
+            <div
+              data-video-gradient=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
+              }}
+            />
             {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
             {/* Centered Title Card */}
             <div
@@ -4465,6 +4651,23 @@ export default function Home() {
               height: 'calc(100vh - 100px)',
             }}
           >
+            {/* Preview of next video - revealed through bars */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-transition-video="micangas"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                opacity: 0.3,
+                filter: 'blur(8px) saturate(0.5)',
+                willChange: 'transform, opacity, filter',
+              }}
+            >
+              <source src="/videos/micangas.mp4" type="video/mp4" />
+            </video>
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
@@ -4503,13 +4706,33 @@ export default function Home() {
               muted
               loop
               playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 0 }}
+              data-video-parallax="micangas"
+              data-parallax-speed="0.15"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
+            {/* Cinematic vignette */}
+            <div
+              data-video-vignette=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
+              }}
+            />
+            {/* Horizontal gradient for depth */}
+            <div
+              data-video-gradient=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
+              }}
+            />
             {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
             {/* Left - Content */}
             <div
@@ -4631,6 +4854,23 @@ export default function Home() {
               height: 'calc(100vh - 100px)',
             }}
           >
+            {/* Preview of next video - revealed through bars */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-transition-video="misterio"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: -1,
+                opacity: 0.3,
+                filter: 'blur(8px) saturate(0.5)',
+                willChange: 'transform, opacity, filter',
+              }}
+            >
+              <source src="/videos/misterio.mp4" type="video/mp4" />
+            </video>
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
@@ -4668,15 +4908,35 @@ export default function Home() {
               muted
               loop
               playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 0 }}
+              data-video-parallax="misterio"
+              data-parallax-speed="0.15"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
             >
               <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
+            {/* Cinematic vignette */}
+            <div
+              data-video-vignette=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
+              }}
+            />
+            {/* Horizontal gradient for depth */}
+            <div
+              data-video-gradient=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
+              }}
+            />
             {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
-            <div className="p-[50px] box-border h-full relative" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 1 }}>
+            <div className="p-[50px] box-border h-full relative" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 3 }}>
               <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
                 <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
                   {/* Coluna Esquerda - Título e Informações Técnicas */}

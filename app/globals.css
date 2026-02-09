@@ -290,6 +290,44 @@ nextjs-portal {
   }
 }
 
+/* Video Performance Optimizations */
+video[data-video-parallax] {
+  will-change: transform, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+[data-video-vignette],
+[data-video-gradient] {
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+[data-transition-video] {
+  will-change: transform, opacity, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Reduced motion support for videos */
+@media (prefers-reduced-motion: reduce) {
+  video[data-video-parallax] {
+    will-change: auto;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  [data-video-vignette],
+  [data-video-gradient],
+  [data-transition-video] {
+    will-change: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
 /* Reveal Line Animation */
 @keyframes reveal-line {
   from {
