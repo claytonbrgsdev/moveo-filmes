@@ -328,6 +328,195 @@ video[data-video-parallax] {
   }
 }
 
+/* ===== FILM SHOWCASE ENHANCEMENTS ===== */
+
+/* Per-character animation styles */
+.char-reveal {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Dynamic underline effect */
+[data-underline-reveal] {
+  position: relative;
+  display: inline-block;
+}
+
+[data-underline-reveal]::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.9) 15%,
+    rgba(255, 255, 255, 0.9) 85%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-underline-reveal].revealed::after {
+  transform: scaleX(1);
+}
+
+/* Film panel hover depth */
+[data-film-panel] {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+[data-film-panel]:hover {
+  transform: translateZ(15px) scale(1.005);
+  box-shadow:
+    0 30px 60px -15px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+[data-film-panel]:hover video {
+  filter: brightness(1.08) saturate(1.1);
+  transition: filter 0.5s ease;
+}
+
+[data-film-panel]:hover [data-video-vignette] {
+  opacity: 0.4 !important;
+  transition: opacity 0.5s ease;
+}
+
+/* Light ray overlay */
+[data-light-rays] {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 7;
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+}
+
+[data-light-rays]::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(255, 255, 255, 0.02) 15deg,
+    transparent 30deg,
+    rgba(255, 255, 255, 0.04) 50deg,
+    transparent 65deg,
+    rgba(255, 255, 255, 0.02) 80deg,
+    transparent 95deg,
+    rgba(255, 255, 255, 0.03) 110deg,
+    transparent 125deg,
+    rgba(255, 255, 255, 0.02) 145deg,
+    transparent 160deg,
+    rgba(255, 255, 255, 0.04) 180deg,
+    transparent 195deg,
+    rgba(255, 255, 255, 0.02) 215deg,
+    transparent 230deg,
+    rgba(255, 255, 255, 0.03) 250deg,
+    transparent 265deg,
+    rgba(255, 255, 255, 0.02) 285deg,
+    transparent 300deg,
+    rgba(255, 255, 255, 0.04) 320deg,
+    transparent 335deg,
+    rgba(255, 255, 255, 0.02) 350deg,
+    transparent 360deg
+  );
+  will-change: transform;
+  animation: light-ray-rotate 25s linear infinite;
+}
+
+@keyframes light-ray-rotate {
+  from { transform: translate(-50%, 0) rotate(0deg); }
+  to { transform: translate(-50%, 0) rotate(360deg); }
+}
+
+/* Mouse parallax layers */
+[data-parallax-layer] {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Morphing stripe bars */
+[data-title-bar],
+[data-transition-bar] {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Color grading container */
+[data-color-grade] {
+  will-change: filter;
+  transition: filter 0.3s ease-out;
+}
+
+/* Vignette breathing */
+[data-vignette-breathing] {
+  will-change: opacity;
+}
+
+/* Reduced motion support for film showcase */
+@media (prefers-reduced-motion: reduce) {
+  .char-reveal {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  [data-underline-reveal]::after {
+    transform: scaleX(1);
+    transition: none;
+  }
+
+  [data-light-rays]::before {
+    animation: none;
+    opacity: 0.2;
+  }
+
+  [data-film-panel]:hover {
+    transform: none;
+  }
+
+  [data-parallax-layer] {
+    transform: none !important;
+  }
+
+  [data-title-bar],
+  [data-transition-bar] {
+    transition: none !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  [data-light-rays] {
+    opacity: 0.2;
+  }
+
+  [data-light-rays]::before {
+    animation-duration: 40s;
+  }
+
+  [data-film-panel]:hover {
+    transform: none;
+  }
+}
+
 /* Reveal Line Animation */
 @keyframes reveal-line {
   from {

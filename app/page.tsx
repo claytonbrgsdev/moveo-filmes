@@ -2526,14 +2526,22 @@ export default function Home() {
           },
         });
 
-        // Phase 1: Bars slide in from alternating sides (shutter close)
+        // Phase 1: Bars slide in with morphing effect (shutter close)
         tl.fromTo(bars,
-          { xPercent: (i: number) => i % 2 === 0 ? -110 : 110 },
+          {
+            xPercent: (i: number) => i % 2 === 0 ? -120 : 120,
+            skewX: (i: number) => i % 2 === 0 ? 12 : -12,
+            scaleY: 1.15,
+            rotationZ: (i: number) => i % 2 === 0 ? -1.5 : 1.5,
+          },
           {
             xPercent: 0,
-            duration: 0.4,
-            stagger: { amount: 0.15, from: 'edges' },
-            ease: 'power2.inOut',
+            skewX: 0,
+            scaleY: 1,
+            rotationZ: 0,
+            duration: 0.45,
+            stagger: { amount: 0.18, from: 'edges', ease: 'power2.out' },
+            ease: 'power3.inOut',
           },
           0
         );
@@ -2542,49 +2550,54 @@ export default function Home() {
         const transitionVideo = panel.querySelector('[data-transition-video]') as HTMLVideoElement;
         if (transitionVideo) {
           tl.to(transitionVideo, {
-            opacity: 0.8,
-            filter: 'blur(0px) saturate(1)',
-            duration: 0.35,
+            opacity: 0.85,
+            filter: 'blur(0px) saturate(1.1)',
+            scale: 1.02,
+            duration: 0.4,
             ease: 'power2.out',
-          }, 0.1);
+          }, 0.12);
         }
 
-        // Phase 2: Title fades in with scale + blur clear
+        // Phase 2: Title fades in with scale + blur clear + letter spacing
         if (titleEl) {
           tl.fromTo(titleEl,
-            { opacity: 0, scale: 0.75, filter: 'blur(20px)' },
-            { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' },
-            0.35
+            { opacity: 0, scale: 0.7, filter: 'blur(25px)', letterSpacing: '0.3em' },
+            { opacity: 1, scale: 1, filter: 'blur(0px)', letterSpacing: '0.05em', duration: 0.25, ease: 'power3.out' },
+            0.38
           );
         }
 
-        // Phase 3: Bars slide out (opposite directions) + title fades
+        // Phase 3: Bars slide out with reverse morphing + fade
         tl.to(bars,
           {
-            xPercent: (i: number) => i % 2 === 0 ? 110 : -110,
+            xPercent: (i: number) => i % 2 === 0 ? 120 : -120,
+            skewX: (i: number) => i % 2 === 0 ? -10 : 10,
+            scaleY: 0.85,
+            rotationZ: (i: number) => i % 2 === 0 ? 2 : -2,
+            opacity: 0,
             duration: 0.4,
-            stagger: { amount: 0.15, from: 'center' },
-            ease: 'power2.inOut',
+            stagger: { amount: 0.15, from: 'center', ease: 'power2.in' },
+            ease: 'power3.in',
           },
           0.6
         );
 
         if (titleEl) {
           tl.to(titleEl,
-            { opacity: 0, scale: 1.1, filter: 'blur(8px)', duration: 0.15, ease: 'power1.in' },
-            0.6
+            { opacity: 0, scale: 1.15, filter: 'blur(12px)', letterSpacing: '0.15em', duration: 0.18, ease: 'power2.in' },
+            0.62
           );
         }
 
-        // Phase 3.5: Video fades as bars exit
+        // Phase 3.5: Video fades as bars exit with subtle zoom
         if (transitionVideo) {
           tl.to(transitionVideo, {
-            scale: 1.05,
+            scale: 1.08,
             opacity: 0,
-            filter: 'blur(4px) saturate(0.5)',
-            duration: 0.3,
+            filter: 'blur(6px) saturate(0.4)',
+            duration: 0.32,
             ease: 'power2.in',
-          }, 0.65);
+          }, 0.68);
         }
       });
     }, horizontalSecondTrackRef);
@@ -2783,11 +2796,15 @@ export default function Home() {
           }, 0.1);
         }
 
-        // Phase 2: Bars slide away from center (alternating directions)
+        // Phase 2: Bars slide away from center with morphing effect
         tl.to(bars, {
-          xPercent: (i: number) => i % 2 === 0 ? -110 : 110,
-          duration: 0.5,
-          stagger: { amount: 0.2, from: 'center' },
+          xPercent: (i: number) => i % 2 === 0 ? -115 : 115,
+          skewX: (i: number) => i % 2 === 0 ? -8 : 8,
+          scaleY: 0.9,
+          rotationZ: (i: number) => i % 2 === 0 ? 1.5 : -1.5,
+          opacity: 0,
+          duration: 0.55,
+          stagger: { amount: 0.22, from: 'center', ease: 'power2.out' },
           ease: 'power3.inOut',
         }, 0.15);
 
@@ -2862,6 +2879,221 @@ export default function Home() {
             },
           }
         );
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Per-Character 3D Title Animation - cinematic reveal for film titles
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const filmTitles = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-film-title-reveal]') || []
+      ) as HTMLElement[];
+
+      filmTitles.forEach((title) => {
+        const text = title.textContent || '';
+        // Split into characters, preserving spaces
+        title.innerHTML = text.split('').map((char, i) =>
+          `<span class="char-reveal" style="display:inline-block;transform-origin:50% 100%" data-char-index="${i}">${char === ' ' ? '&nbsp;' : char}</span>`
+        ).join('');
+
+        const chars = Array.from(title.querySelectorAll('.char-reveal')) as HTMLElement[];
+        const panel = title.closest('section');
+        if (!panel || !chars.length) return;
+
+        // Set initial state
+        gsap.set(chars, {
+          opacity: 0,
+          rotationX: -90,
+          rotationY: (i: number) => (i % 2 === 0 ? -12 : 12),
+          y: 40,
+          scale: 0.8,
+        });
+
+        // Animate characters in
+        gsap.to(chars, {
+          opacity: 1,
+          rotationX: 0,
+          rotationY: 0,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          stagger: {
+            each: 0.035,
+            from: 'start',
+            ease: 'power2.out',
+          },
+          ease: 'back.out(1.2)',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left 75%',
+            end: 'left 40%',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            toggleActions: 'play none none reverse',
+          },
+          onComplete: () => {
+            // Add revealed class to trigger underline
+            title.classList.add('revealed');
+          },
+        });
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Mouse-Responsive Content Parallax - subtle depth on cursor movement
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+    if (typeof window === 'undefined') return;
+
+    // Skip on mobile
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const panels = Array.from(
+      horizontalSecondTrackRef.current?.querySelectorAll('[data-mouse-parallax]') || []
+    ) as HTMLElement[];
+
+    const handleMouseMove = (e: MouseEvent) => {
+      panels.forEach((panel) => {
+        const rect = panel.getBoundingClientRect();
+        // Only respond if mouse is within panel bounds
+        if (e.clientX < rect.left || e.clientX > rect.right ||
+            e.clientY < rect.top || e.clientY > rect.bottom) return;
+
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+        const layers = Array.from(panel.querySelectorAll('[data-parallax-layer]')) as HTMLElement[];
+        layers.forEach((layer) => {
+          const depth = parseFloat(layer.dataset.parallaxDepth || '1');
+          gsap.to(layer, {
+            x: x * 15 * depth,
+            y: y * 10 * depth,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+        });
+      });
+    };
+
+    const handleMouseLeave = () => {
+      panels.forEach((panel) => {
+        const layers = Array.from(panel.querySelectorAll('[data-parallax-layer]')) as HTMLElement[];
+        layers.forEach((layer) => {
+          gsap.to(layer, {
+            x: 0,
+            y: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+          });
+        });
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    horizontalSecondTrackRef.current?.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      horizontalSecondTrackRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [secondTrackReady]);
+
+  // Color Grading Master Timeline - shifts color temperature between movies
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Get movie sections for color grading
+      const naturezaPanels = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []
+      ) as HTMLElement[];
+      const micangasPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-panel="1"]') as HTMLElement;
+      const misterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
+
+      // Natureza: Neutral/cool (daylight feel)
+      naturezaPanels.forEach((panel) => {
+        gsap.to(panel, {
+          filter: 'hue-rotate(0deg) brightness(1) contrast(1.05) saturate(1.1)',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: panel,
+            start: 'left 80%',
+            end: 'center center',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 1,
+          },
+        });
+      });
+
+      // Miçangas: Slightly warm
+      if (micangasPanel) {
+        gsap.fromTo(micangasPanel,
+          { filter: 'hue-rotate(0deg) brightness(1) contrast(1) saturate(1)' },
+          {
+            filter: 'hue-rotate(5deg) brightness(1.02) contrast(1.08) saturate(0.95)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: micangasPanel,
+              start: 'left 80%',
+              end: 'center center',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 1,
+            },
+          }
+        );
+      }
+
+      // Mistério: Warm/moody
+      if (misterioPanel) {
+        gsap.fromTo(misterioPanel,
+          { filter: 'hue-rotate(0deg) brightness(1) contrast(1) saturate(1)' },
+          {
+            filter: 'hue-rotate(8deg) brightness(0.98) contrast(1.12) saturate(0.85)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: misterioPanel,
+              start: 'left 80%',
+              end: 'center center',
+              containerAnimation: secondTrackTweenRef.current || undefined,
+              scrub: 1,
+            },
+          }
+        );
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // Vignette Breathing Animation - subtle organic pulse
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      const vignettes = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-video-vignette]') || []
+      ) as HTMLElement[];
+
+      vignettes.forEach((vignette) => {
+        // Add breathing class
+        vignette.setAttribute('data-vignette-breathing', '');
+
+        // Subtle opacity pulse
+        gsap.to(vignette, {
+          opacity: '+=0.15',
+          duration: 3,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        });
       });
     }, horizontalSecondTrackRef);
 
@@ -4240,6 +4472,8 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             data-natureza-panel="0"
             data-title-reveal="natureza"
+            data-film-panel=""
+            data-mouse-parallax=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
@@ -4319,14 +4553,21 @@ export default function Home() {
               }}
             />
 
+            {/* Light rays overlay */}
+            <div data-light-rays="" />
+
             {/* Centered Title Card - always visible, on top */}
             <div
               className="absolute inset-0 flex items-center justify-center"
               style={{ zIndex: 10 }}
+              data-parallax-layer=""
+              data-parallax-depth="0.3"
             >
               <h2
                 className="data-natureza-content"
                 data-title-text=""
+                data-film-title-reveal=""
+                data-underline-reveal=""
                 suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -4957,6 +5198,8 @@ export default function Home() {
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-micangas-panel="1"
+            data-film-panel=""
+            data-mouse-parallax=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
@@ -5019,15 +5262,20 @@ export default function Home() {
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
+            {/* Light rays overlay */}
+            <div data-light-rays="" />
+
             {/* Left - Content */}
             <div
               className="flex flex-col justify-center p-[50px] relative"
+              data-parallax-layer=""
+              data-parallax-depth="0.4"
               style={{
                 backgroundColor: 'transparent',
-                zIndex: 1,
+                zIndex: 3,
               }}
             >
-              <div 
+              <div
                 className="data-micangas-content"
               >
                 <div
@@ -5046,6 +5294,8 @@ export default function Home() {
                 </div>
                 <h2
                   className="data-micangas-title split-text"
+                  data-film-title-reveal=""
+                  data-underline-reveal=""
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -5180,6 +5430,8 @@ export default function Home() {
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-misterio-panel="1"
+            data-film-panel=""
+            data-mouse-parallax=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
@@ -5241,7 +5493,15 @@ export default function Home() {
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
-            <div className="p-[50px] box-border h-full relative" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 3 }}>
+            {/* Light rays overlay */}
+            <div data-light-rays="" />
+
+            <div
+              className="p-[50px] box-border h-full relative"
+              data-parallax-layer=""
+              data-parallax-depth="0.35"
+              style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 3 }}
+            >
               <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
                 <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
                   {/* Coluna Esquerda - Título e Informações Técnicas */}
@@ -5250,6 +5510,8 @@ export default function Home() {
                     <div className="flex flex-col justify-start data-misterio-header">
                       <div
                         className="mix-blend-difference"
+                        data-film-title-reveal=""
+                        data-underline-reveal=""
                         suppressHydrationWarning
                         style={{
                           fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
