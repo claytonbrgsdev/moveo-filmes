@@ -3947,6 +3947,20 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
+            {/* Video background */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 0 }}
+            >
+              <source src="/videos/natureza.mp4" type="video/mp4" />
+            </video>
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+
             {/* Centered Title Card */}
             <div
               className="absolute inset-0 flex items-center justify-center"
@@ -4481,11 +4495,26 @@ export default function Home() {
               gridTemplateColumns: '1fr 1fr',
             }}
           >
+            {/* Video background */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 0 }}
+            >
+              <source src="/videos/micangas.mp4" type="video/mp4" />
+            </video>
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+
             {/* Left - Content */}
-            <div 
-              className="flex flex-col justify-center p-[50px]"
+            <div
+              className="flex flex-col justify-center p-[50px] relative"
               style={{
-                backgroundColor: '#0a0a0a',
+                backgroundColor: 'transparent',
+                zIndex: 1,
               }}
             >
               <div 
@@ -4561,13 +4590,14 @@ export default function Home() {
             </div>
 
             {/* Right - Image */}
-            <div 
+            <div
               className="relative overflow-hidden"
               style={{
                 position: 'relative',
+                zIndex: 1,
               }}
             >
-              <div 
+              <div
                 className="absolute inset-0"
                 style={{
                   willChange: 'transform',
@@ -4630,7 +4660,21 @@ export default function Home() {
               border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
-            <div className="p-[50px] box-border h-full" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content' }}>
+            {/* Video background */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 0 }}
+            >
+              <source src="/videos/misterio.mp4" type="video/mp4" />
+            </video>
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 0 }} />
+
+            <div className="p-[50px] box-border h-full relative" style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 1 }}>
               <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
                 <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
                   {/* Coluna Esquerda - Título e Informações Técnicas */}
