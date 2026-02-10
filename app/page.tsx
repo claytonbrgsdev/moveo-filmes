@@ -3276,6 +3276,28 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
+  // ===== NATUREZA: Title Glow Animation =====
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      const naturezaTitle = horizontalSecondTrackRef.current?.querySelector('[data-natureza-title-glow]') as HTMLElement;
+      if (!naturezaTitle) return;
+
+      // Subtle text-shadow glow pulse
+      gsap.to(naturezaTitle, {
+        textShadow: '0 4px 60px rgba(255,255,255,0.15), 0 8px 80px rgba(0,0,0,0.9)',
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
   // ===== MIÇANGAS: Iris Aperture Reveal Animation =====
   useLayoutEffect(() => {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
@@ -5056,8 +5078,7 @@ export default function Home() {
               <h2
                 className="data-natureza-content"
                 data-title-text=""
-                data-film-title-reveal=""
-                data-underline-reveal=""
+                data-natureza-title-glow=""
                 suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -5682,11 +5703,6 @@ export default function Home() {
                 }}
               />
             ))}
-            <div data-transition-title="" className="absolute inset-0 flex items-center justify-center z-10">
-              <h2 className="text-white text-[clamp(32px,5vw,80px)] font-semibold tracking-tight text-center uppercase opacity-0" style={{ willChange: 'transform, opacity, filter' }}>
-                {t('as')}<br/>{t('micangas')}
-              </h2>
-            </div>
           </section>
 
           {/* ===== AS MIÇANGAS - Panel 0: Circular Iris Reveal ===== */}
@@ -6367,37 +6383,66 @@ export default function Home() {
                 opacity: 0,
               }}
             >
+              {/* Laurel Wreath - styled with SVG-like approach */}
               <div
-                style={{
-                  fontSize: 'clamp(40px, 6vw, 80px)',
-                  marginBottom: 'clamp(10px, 1.5vh, 20px)',
-                }}
+                className="flex items-center justify-center gap-4"
+                style={{ marginBottom: 'clamp(15px, 2vh, 25px)' }}
               >
-                🏆
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(14px, 1.8vw, 24px)',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.15em',
-                  textAlign: 'center',
-                  color: 'white',
-                  textShadow: '0 2px 20px rgba(0,0,0,0.8)',
-                }}
-              >
-                World Premiere
+                {/* Left laurel branch */}
+                <div
+                  style={{
+                    fontSize: 'clamp(28px, 4vw, 50px)',
+                    transform: 'scaleX(-1)',
+                    opacity: 0.9,
+                    filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.5))',
+                  }}
+                >
+                  🌿
+                </div>
+                {/* Center star */}
+                <div
+                  style={{
+                    fontSize: 'clamp(24px, 3.5vw, 45px)',
+                    color: 'rgba(255,200,100,0.95)',
+                    filter: 'drop-shadow(0 2px 15px rgba(255,180,80,0.4))',
+                  }}
+                >
+                  ★
+                </div>
+                {/* Right laurel branch */}
+                <div
+                  style={{
+                    fontSize: 'clamp(28px, 4vw, 50px)',
+                    opacity: 0.9,
+                    filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.5))',
+                  }}
+                >
+                  🌿
+                </div>
               </div>
               <div
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(18px, 2.5vw, 36px)',
-                  fontWeight: 700,
-                  letterSpacing: '0.2em',
-                  marginTop: 'clamp(5px, 1vh, 15px)',
-                  color: 'rgba(255,200,100,0.9)',
+                  fontSize: 'clamp(10px, 1.1vw, 14px)',
+                  fontWeight: 400,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  textAlign: 'center',
+                  color: 'rgba(255,255,255,0.7)',
                   textShadow: '0 2px 20px rgba(0,0,0,0.8)',
+                  marginBottom: 'clamp(8px, 1vh, 12px)',
+                }}
+              >
+                Official Selection
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(22px, 3vw, 42px)',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  color: 'rgba(255,200,100,0.95)',
+                  textShadow: '0 2px 30px rgba(255,180,80,0.3), 0 4px 20px rgba(0,0,0,0.8)',
                 }}
               >
                 SUNDANCE
@@ -6405,13 +6450,13 @@ export default function Home() {
               <div
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(12px, 1.2vw, 16px)',
+                  fontSize: 'clamp(11px, 1vw, 14px)',
                   letterSpacing: '0.3em',
-                  color: 'rgba(255,255,255,0.6)',
-                  marginTop: 'clamp(3px, 0.5vh, 8px)',
+                  color: 'rgba(255,255,255,0.5)',
+                  marginTop: 'clamp(6px, 0.8vh, 12px)',
                 }}
               >
-                2019
+                FILM FESTIVAL 2019
               </div>
             </div>
 
