@@ -14,6 +14,8 @@ import { ScrollHint } from './components/ScrollHint';
 import { FilmGrain } from './components/FilmGrain';
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useLoading } from '@/lib/contexts/LoadingContext';
+import { useVideoLazyLoad } from '@/lib/hooks/useVideoLazyLoad';
 import {
   getMarkerPosition,
   getHorizontalLinePosition,
@@ -60,6 +62,10 @@ export default function Home() {
   ];
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
+  const { setGsapReady } = useLoading();
+
+  // Initialize video lazy loading
+  useVideoLazyLoad();
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2180,6 +2186,8 @@ export default function Home() {
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
           setSecondTrackReady(true);
+          // Signal that GSAP is ready for the loading screen
+          setGsapReady();
         });
       }, horizontalSecondWrapperRef);
 
@@ -3109,7 +3117,7 @@ export default function Home() {
             start: 'left 75%',
             end: 'left 40%',
             containerAnimation: secondTrackTweenRef.current || undefined,
-            toggleActions: 'play none none reverse',
+            toggleActions: 'play none none none', // No reverse to prevent flashing
           },
           onComplete: () => {
             // Add revealed class to trigger underline
@@ -3135,7 +3143,19 @@ export default function Home() {
       horizontalSecondTrackRef.current?.querySelectorAll('[data-mouse-parallax]') || []
     ) as HTMLElement[];
 
-    const handleMouseMove = (e: MouseEvent) => {
+    // Throttle utility for performance
+    const throttle = <Args extends unknown[]>(fn: (...args: Args) => void, ms: number) => {
+      let lastCall = 0;
+      return (...args: Args) => {
+        const now = Date.now();
+        if (now - lastCall >= ms) {
+          lastCall = now;
+          fn(...args);
+        }
+      };
+    };
+
+    const rawHandleMouseMove = (e: MouseEvent) => {
       panels.forEach((panel) => {
         const rect = panel.getBoundingClientRect();
         // Only respond if mouse is within panel bounds
@@ -3157,6 +3177,9 @@ export default function Home() {
         });
       });
     };
+
+    // Throttle mouse move to ~60fps for better performance
+    const handleMouseMove = throttle(rawHandleMouseMove, 16);
 
     const handleMouseLeave = () => {
       panels.forEach((panel) => {
@@ -6307,33 +6330,7 @@ export default function Home() {
               }}
             />
 
-            <div data-transition-title="" className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <h2
-                className="text-white text-center uppercase opacity-0"
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(32px,5vw,80px)',
-                  fontWeight: 700,
-                  letterSpacing: '-0.01em',
-                  textShadow: '0 0 80px rgba(180,100,50,0.4)',
-                  willChange: 'transform, opacity, filter',
-                }}
-              >
-                {t('oMisterio')}<br/>{t('daCarne')}
-              </h2>
-              <div
-                style={{
-                  marginTop: 'clamp(10px, 1.5vh, 20px)',
-                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(12px, 1.2vw, 16px)',
-                  letterSpacing: '0.25em',
-                  color: 'rgba(255,200,150,0.6)',
-                  opacity: 0,
-                }}
-              >
-                2019
-              </div>
-            </div>
+{/* Title removed - displayed in Panel 0 venetian reveal instead */}
           </section>
 
           {/* ===== O MISTÉRIO DA CARNE - Panel 0: Venetian Blind Reveal ===== */}
