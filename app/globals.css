@@ -517,6 +517,118 @@ video[data-video-parallax] {
   }
 }
 
+/* ===== MIÇANGAS - Fragments of Memory ===== */
+
+/* Iris Aperture Blades */
+[data-iris-blade] {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Kaleidoscope Quadrants */
+[data-micangas-quadrant] {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Frosted glass panel */
+[data-micangas-frosted] {
+  will-change: transform, opacity, border-radius;
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+}
+
+/* Diagonal transition bars */
+[data-diagonal-bar] {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* ===== MISTÉRIO - Cinematic Noir ===== */
+
+/* Venetian Blind Slats */
+[data-blind-slat] {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Spotlight overlay */
+[data-spotlight] {
+  will-change: opacity;
+}
+
+/* Letterbox bars */
+[data-letterbox-top],
+[data-letterbox-bottom] {
+  will-change: height;
+}
+
+/* Curtain panels */
+[data-curtain] {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Spotlight mask with animated gradient */
+[data-spotlight-mask] {
+  will-change: opacity;
+  transition: opacity 0.3s ease-out;
+}
+
+/* Warm noir color overlay for Mistério panels */
+[data-misterio-panel]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(180, 100, 50, 0.06) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(80, 40, 20, 0.08) 100%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Festival laurel styling */
+[data-laurel] {
+  will-change: transform, opacity;
+}
+
+/* Reduced motion for new effects */
+@media (prefers-reduced-motion: reduce) {
+  [data-iris-blade],
+  [data-micangas-quadrant],
+  [data-diagonal-bar],
+  [data-blind-slat],
+  [data-curtain] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  [data-micangas-frosted] {
+    backdrop-filter: none;
+  }
+
+  [data-letterbox-top],
+  [data-letterbox-bottom] {
+    height: 12% !important;
+  }
+}
+
+/* Mobile optimizations for new effects */
+@media (max-width: 768px) {
+  [data-micangas-frosted] {
+    backdrop-filter: blur(10px);
+  }
+
+  [data-misterio-panel]::after {
+    opacity: 0.5;
+  }
+}
+
 /* Reveal Line Animation */
 @keyframes reveal-line {
   from {

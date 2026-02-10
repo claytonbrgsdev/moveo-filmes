@@ -2469,7 +2469,6 @@ export default function Home() {
 
       transitionPanels.forEach((panel) => {
         const transitionType = panel.getAttribute('data-movie-transition');
-        const bars = Array.from(panel.querySelectorAll('[data-transition-bar]')) as HTMLElement[];
         const titleEl = panel.querySelector('[data-transition-title] h2') as HTMLElement;
 
         if (transitionType === 'finale') {
@@ -2488,7 +2487,7 @@ export default function Home() {
             });
 
             // Scale down the last Mistério panel as we enter finale
-            const lastMisterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
+            const lastMisterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="2"]') as HTMLElement;
             if (lastMisterioPanel) {
               finaleTl.fromTo(lastMisterioPanel,
                 { scale: 1, borderRadius: '0px', filter: 'brightness(1)' },
@@ -2513,7 +2512,185 @@ export default function Home() {
           return;
         }
 
-        // Standard film-strip wipe transitions (natureza-micangas, micangas-misterio)
+        // Get transition type - diagonal, spotlight, or standard
+        const transitionVariant = panel.getAttribute('data-transition-type');
+        const transitionVideo = panel.querySelector('[data-transition-video]') as HTMLVideoElement;
+
+        // ===== DIAGONAL WIPE TRANSITION (Natureza → Miçangas) =====
+        if (transitionVariant === 'diagonal') {
+          const diagonalBars = Array.from(panel.querySelectorAll('[data-diagonal-bar]')) as HTMLElement[];
+          if (!diagonalBars.length) return;
+
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 80%',
+              end: 'right 20%',
+              scrub: 0.5,
+              containerAnimation: secondTrackTweenRef.current || undefined,
+            },
+          });
+
+          // Phase 1: Diagonal bars sweep in from off-screen
+          tl.fromTo(diagonalBars,
+            { xPercent: -150, opacity: 1 },
+            {
+              xPercent: 0,
+              duration: 0.4,
+              stagger: { amount: 0.2, from: 'start' },
+              ease: 'power2.inOut',
+            },
+            0
+          );
+
+          // Phase 1.5: Video preview reveals
+          if (transitionVideo) {
+            tl.to(transitionVideo, {
+              opacity: 0.9,
+              filter: 'blur(0px) saturate(1)',
+              duration: 0.35,
+              ease: 'power2.out',
+            }, 0.15);
+          }
+
+          // Phase 2: Title reveals
+          if (titleEl) {
+            tl.fromTo(titleEl,
+              { opacity: 0, scale: 0.8, filter: 'blur(20px)' },
+              { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.25, ease: 'power3.out' },
+              0.35
+            );
+          }
+
+          // Phase 3: Diagonal bars sweep out opposite direction
+          tl.to(diagonalBars,
+            {
+              xPercent: 150,
+              opacity: 0,
+              duration: 0.35,
+              stagger: { amount: 0.15, from: 'end' },
+              ease: 'power2.in',
+            },
+            0.6
+          );
+
+          if (titleEl) {
+            tl.to(titleEl,
+              { opacity: 0, scale: 1.1, filter: 'blur(10px)', duration: 0.15, ease: 'power2.in' },
+              0.65
+            );
+          }
+
+          if (transitionVideo) {
+            tl.to(transitionVideo, {
+              scale: 1.05,
+              opacity: 0,
+              filter: 'blur(4px)',
+              duration: 0.25,
+              ease: 'power2.in',
+            }, 0.7);
+          }
+          return;
+        }
+
+        // ===== SPOTLIGHT + CURTAIN TRANSITION (Miçangas → Mistério) =====
+        if (transitionVariant === 'spotlight') {
+          const leftCurtain = panel.querySelector('[data-curtain="left"]') as HTMLElement;
+          const rightCurtain = panel.querySelector('[data-curtain="right"]') as HTMLElement;
+          const spotlightMask = panel.querySelector('[data-spotlight-mask]') as HTMLElement;
+          const spotlight = panel.querySelector('[data-spotlight]') as HTMLElement;
+
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 80%',
+              end: 'right 20%',
+              scrub: 0.5,
+              containerAnimation: secondTrackTweenRef.current || undefined,
+            },
+          });
+
+          // Phase 1: Spotlight mask expands (radial gradient animation)
+          if (spotlightMask) {
+            tl.to(spotlightMask, {
+              background: 'radial-gradient(circle at 50% 50%, transparent 80%, #0a0a0a 100%)',
+              duration: 0.5,
+              ease: 'power2.out',
+            }, 0);
+          }
+
+          // Phase 1.5: Curtains part with skew
+          if (leftCurtain) {
+            tl.to(leftCurtain, {
+              xPercent: -100,
+              skewX: -8,
+              duration: 0.45,
+              ease: 'power3.inOut',
+            }, 0.1);
+          }
+          if (rightCurtain) {
+            tl.to(rightCurtain, {
+              xPercent: 100,
+              skewX: 8,
+              duration: 0.45,
+              ease: 'power3.inOut',
+            }, 0.1);
+          }
+
+          // Phase 2: Video reveals with warm tint
+          if (transitionVideo) {
+            tl.to(transitionVideo, {
+              opacity: 0.95,
+              filter: 'sepia(0.2) saturate(1.3) brightness(1)',
+              duration: 0.4,
+              ease: 'power2.out',
+            }, 0.2);
+          }
+
+          // Phase 2.5: Spotlight intensifies
+          if (spotlight) {
+            tl.to(spotlight, {
+              opacity: 1,
+              duration: 0.3,
+              ease: 'power2.out',
+            }, 0.25);
+          }
+
+          // Phase 3: Title theatrical entrance
+          if (titleEl) {
+            tl.fromTo(titleEl,
+              { opacity: 0, y: 50, scale: 0.9 },
+              { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'back.out(1.2)' },
+              0.35
+            );
+          }
+
+          // Phase 4: Everything fades to reveal next section
+          if (titleEl) {
+            tl.to(titleEl,
+              { opacity: 0, y: -30, scale: 1.05, duration: 0.2, ease: 'power2.in' },
+              0.7
+            );
+          }
+
+          if (transitionVideo) {
+            tl.to(transitionVideo, {
+              opacity: 0,
+              scale: 1.03,
+              filter: 'sepia(0.1) saturate(0.8) brightness(0.6)',
+              duration: 0.25,
+              ease: 'power2.in',
+            }, 0.75);
+          }
+
+          if (spotlight) {
+            tl.to(spotlight, { opacity: 0, duration: 0.2 }, 0.75);
+          }
+          return;
+        }
+
+        // ===== STANDARD FILM-STRIP WIPE (fallback) =====
+        const bars = Array.from(panel.querySelectorAll('[data-transition-bar]')) as HTMLElement[];
         if (!bars.length) return;
 
         const tl = gsap.timeline({
@@ -2547,7 +2724,6 @@ export default function Home() {
         );
 
         // Phase 1.5: Video preview clears blur and reveals
-        const transitionVideo = panel.querySelector('[data-transition-video]') as HTMLVideoElement;
         if (transitionVideo) {
           tl.to(transitionVideo, {
             opacity: 0.85,
@@ -3095,6 +3271,320 @@ export default function Home() {
           ease: 'sine.inOut',
         });
       });
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // ===== MIÇANGAS: Iris Aperture Reveal Animation =====
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const irisPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-reveal="circular"]') as HTMLElement;
+      if (!irisPanel) return;
+
+      const irisBlades = Array.from(irisPanel.querySelectorAll('[data-iris-blade]')) as HTMLElement[];
+      const primaryVideo = irisPanel.querySelector('[data-micangas-video="primary"]') as HTMLVideoElement;
+      const secondaryVideo = irisPanel.querySelector('[data-micangas-video="secondary"]') as HTMLVideoElement;
+      const irisTitle = irisPanel.querySelector('[data-micangas-iris-title]') as HTMLElement;
+      const irisYear = irisPanel.querySelector('[data-micangas-iris-year]') as HTMLElement;
+
+      if (!irisBlades.length) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: irisPanel,
+          start: 'left 70%',
+          end: 'right 30%',
+          containerAnimation: secondTrackTweenRef.current || undefined,
+          scrub: 0.8,
+        },
+      });
+
+      // Phase 0: Secondary video fades in for depth
+      if (secondaryVideo) {
+        tl.to(secondaryVideo, {
+          opacity: 0.25,
+          duration: 0.2,
+          ease: 'power2.out',
+        }, 0);
+      }
+
+      // Phase 1: Primary video begins revealing
+      if (primaryVideo) {
+        tl.to(primaryVideo, {
+          opacity: 1,
+          duration: 0.4,
+          ease: 'power2.out',
+        }, 0.1);
+      }
+
+      // Phase 2: Iris blades rotate outward with stagger (camera aperture opening)
+      tl.to(irisBlades, {
+        rotation: (i: number) => (i * 45) + 180,
+        scale: 2.5,
+        opacity: 0,
+        duration: 0.5,
+        stagger: {
+          each: 0.04,
+          from: 'random',
+        },
+        ease: 'power3.out',
+      }, 0.15);
+
+      // Phase 3: Title pulses from blurred to sharp
+      if (irisTitle) {
+        tl.to(irisTitle, {
+          opacity: 1,
+          filter: 'blur(0px)',
+          duration: 0.35,
+          ease: 'power3.out',
+        }, 0.4);
+      }
+
+      if (irisYear) {
+        tl.to(irisYear, {
+          opacity: 1,
+          duration: 0.25,
+          ease: 'power2.out',
+        }, 0.55);
+      }
+
+      // Phase 4: Title fades out as we exit
+      if (irisTitle) {
+        tl.to(irisTitle, {
+          opacity: 0,
+          y: -30,
+          filter: 'blur(5px)',
+          duration: 0.2,
+          ease: 'power2.in',
+        }, 0.75);
+      }
+      if (irisYear) {
+        tl.to(irisYear, { opacity: 0, duration: 0.15 }, 0.75);
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // ===== MIÇANGAS: Kaleidoscope Quadrant Animation =====
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const kaleidoPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-panel="1"]') as HTMLElement;
+      if (!kaleidoPanel) return;
+
+      const quadrants = Array.from(kaleidoPanel.querySelectorAll('[data-micangas-quadrant]')) as HTMLElement[];
+      const frostedPanel = kaleidoPanel.querySelector('[data-micangas-frosted]') as HTMLElement;
+
+      if (!quadrants.length) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: kaleidoPanel,
+          start: 'left 70%',
+          end: 'right 30%',
+          containerAnimation: secondTrackTweenRef.current || undefined,
+          scrub: 0.8,
+        },
+      });
+
+      // Phase 1: Quadrants slide in from corners
+      tl.to(quadrants, {
+        x: 0,
+        y: 0,
+        opacity: 1,
+        duration: 0.45,
+        stagger: {
+          each: 0.08,
+          from: 'edges',
+        },
+        ease: 'power3.out',
+      }, 0);
+
+      // Phase 2: Frosted glass panel expands from center
+      if (frostedPanel) {
+        tl.fromTo(frostedPanel,
+          { scale: 0, borderRadius: '50%', opacity: 0 },
+          {
+            scale: 1,
+            borderRadius: '8px',
+            opacity: 1,
+            duration: 0.4,
+            ease: 'back.out(1.5)',
+          },
+          0.35
+        );
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // ===== MISTÉRIO: Venetian Blind Reveal Animation =====
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const venetianPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-reveal="venetian"]') as HTMLElement;
+      if (!venetianPanel) return;
+
+      const blindSlats = Array.from(venetianPanel.querySelectorAll('[data-blind-slat]')) as HTMLElement[];
+      const primaryVideo = venetianPanel.querySelector('[data-misterio-video="primary"]') as HTMLVideoElement;
+      const secondaryVideo = venetianPanel.querySelector('[data-misterio-video="secondary"]') as HTMLVideoElement;
+      const spotlight = venetianPanel.querySelector('[data-misterio-spotlight]') as HTMLElement;
+      const venetianTitle = venetianPanel.querySelector('[data-misterio-venetian-title]') as HTMLElement;
+      const venetianYear = venetianPanel.querySelector('[data-misterio-venetian-year]') as HTMLElement;
+
+      if (!blindSlats.length) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: venetianPanel,
+          start: 'left 70%',
+          end: 'right 30%',
+          containerAnimation: secondTrackTweenRef.current || undefined,
+          scrub: 0.8,
+        },
+      });
+
+      // Phase 0: Secondary video fades in with warm sepia
+      if (secondaryVideo) {
+        tl.to(secondaryVideo, {
+          opacity: 0.3,
+          duration: 0.2,
+          ease: 'power2.out',
+        }, 0);
+      }
+
+      // Phase 1: Venetian slats rotate open from center outward
+      tl.to(blindSlats, {
+        rotateY: 0,
+        duration: 0.5,
+        stagger: {
+          each: 0.05,
+          from: 'center',
+        },
+        ease: 'power3.out',
+      }, 0.1);
+
+      // Phase 2: Primary video reveals
+      if (primaryVideo) {
+        tl.to(primaryVideo, {
+          opacity: 1,
+          duration: 0.4,
+          ease: 'power2.out',
+        }, 0.2);
+      }
+
+      // Phase 3: Spotlight intensifies
+      if (spotlight) {
+        tl.to(spotlight, {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out',
+        }, 0.35);
+      }
+
+      // Phase 4: Title drops in theatrically
+      if (venetianTitle) {
+        tl.to(venetianTitle, {
+          opacity: 1,
+          y: 0,
+          duration: 0.35,
+          ease: 'back.out(1.4)',
+        }, 0.45);
+      }
+
+      if (venetianYear) {
+        tl.to(venetianYear, {
+          opacity: 1,
+          duration: 0.25,
+          ease: 'power2.out',
+        }, 0.6);
+      }
+
+      // Phase 5: Exit - fade out
+      if (venetianTitle) {
+        tl.to(venetianTitle, {
+          opacity: 0,
+          y: -20,
+          duration: 0.2,
+          ease: 'power2.in',
+        }, 0.8);
+      }
+      if (venetianYear) {
+        tl.to(venetianYear, { opacity: 0, duration: 0.15 }, 0.8);
+      }
+      if (spotlight) {
+        tl.to(spotlight, { opacity: 0, duration: 0.15 }, 0.85);
+      }
+    }, horizontalSecondTrackRef);
+
+    return () => ctx.revert();
+  }, [secondTrackReady]);
+
+  // ===== MISTÉRIO: Letterbox + Laurel Animation =====
+  useLayoutEffect(() => {
+    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const letterboxPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
+      if (!letterboxPanel) return;
+
+      const letterboxTop = letterboxPanel.querySelector('[data-letterbox-top]') as HTMLElement;
+      const letterboxBottom = letterboxPanel.querySelector('[data-letterbox-bottom]') as HTMLElement;
+      const laurel = letterboxPanel.querySelector('[data-laurel]') as HTMLElement;
+      const awardsRow = letterboxPanel.querySelector('[data-awards-row]') as HTMLElement;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: letterboxPanel,
+          start: 'left 70%',
+          end: 'right 30%',
+          containerAnimation: secondTrackTweenRef.current || undefined,
+          scrub: 0.8,
+        },
+      });
+
+      // Phase 1: Letterbox bars grow in
+      if (letterboxTop) {
+        tl.to(letterboxTop, {
+          height: '12%',
+          duration: 0.35,
+          ease: 'power2.out',
+        }, 0);
+      }
+      if (letterboxBottom) {
+        tl.to(letterboxBottom, {
+          height: '12%',
+          duration: 0.35,
+          ease: 'power2.out',
+        }, 0);
+      }
+
+      // Phase 2: Sundance laurel reveals with scale
+      if (laurel) {
+        tl.to(laurel, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.4,
+          ease: 'back.out(1.3)',
+        }, 0.25);
+      }
+
+      // Phase 3: Awards row fades up
+      if (awardsRow) {
+        tl.to(awardsRow, {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          ease: 'power2.out',
+        }, 0.45);
+      }
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
@@ -5148,16 +5638,17 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Transition: Natureza → Miçangas */}
+          {/* Transition: Natureza → Miçangas - DIAGONAL WIPE */}
           <section
             className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
             data-movie-transition="natureza-micangas"
+            data-transition-type="diagonal"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
             }}
           >
-            {/* Preview of next video - revealed through bars */}
+            {/* Preview of next video - revealed through diagonal bars */}
             <video
               autoPlay
               muted
@@ -5166,24 +5657,28 @@ export default function Home() {
               data-transition-video="micangas"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
-                zIndex: -1,
-                opacity: 0.3,
-                filter: 'blur(8px) saturate(0.5)',
+                zIndex: 0,
+                opacity: 0.4,
+                filter: 'blur(4px) saturate(0.6)',
                 willChange: 'transform, opacity, filter',
               }}
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
-            {Array.from({ length: 10 }).map((_, i) => (
+            {/* Diagonal bars at -45° angle */}
+            {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                data-transition-bar=""
-                className="absolute w-full bg-[#0a0a0a] transform-gpu"
+                data-diagonal-bar=""
+                className="absolute bg-[#0a0a0a] transform-gpu"
                 style={{
-                  height: 'calc(100% / 10)',
-                  top: `${i * 10}%`,
+                  width: '200%',
+                  height: 'calc(100% / 6)',
+                  top: `${i * 14.3 - 10}%`,
+                  left: '-50%',
                   willChange: 'transform',
-                  transform: `translateX(${i % 2 === 0 ? '-110' : '110'}%)`,
+                  transform: 'rotate(-45deg) translateX(0%)',
+                  transformOrigin: 'center center',
                 }}
               />
             ))}
@@ -5194,202 +5689,405 @@ export default function Home() {
             </div>
           </section>
 
-          {/* AS MIÇANGAS - Info Panel */}
+          {/* ===== AS MIÇANGAS - Panel 0: Circular Iris Reveal ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
-            data-micangas-panel="1"
+            data-micangas-panel="0"
+            data-micangas-reveal="circular"
             data-film-panel=""
-            data-mouse-parallax=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
               overflow: 'hidden',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
+              backgroundColor: '#0a0a0a',
             }}
           >
-            {/* Primary Video - parallax background */}
+            {/* Secondary Video - depth layer, desaturated */}
             <video
               autoPlay
               muted
               loop
               playsInline
-              data-video-parallax="micangas"
-              data-parallax-speed="0.15"
+              data-micangas-video="secondary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
+              style={{
+                zIndex: 0,
+                willChange: 'transform, opacity, filter',
+                transform: 'scale(1.2)',
+                opacity: 0,
+                filter: 'saturate(0.3) brightness(0.5)',
+              }}
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
-            {/* Secondary Video - pinned/slower, desaturated for depth */}
+            {/* Primary Video - revealed through iris */}
             <video
               autoPlay
               muted
               loop
               playsInline
-              data-video-pinned="micangas"
+              data-micangas-video="primary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
-                zIndex: -1,
-                willChange: 'transform, filter',
-                transform: 'scale(1.4)',
-                opacity: 0.25,
-                filter: 'saturate(0) brightness(0.4) blur(2px)',
+                zIndex: 1,
+                willChange: 'transform, opacity, filter',
+                transform: 'scale(1.05)',
+                opacity: 0,
               }}
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
-            {/* Cinematic vignette */}
+            {/* Iris Aperture Blades - 8 triangular segments */}
             <div
-              data-video-vignette=""
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                zIndex: 1,
-                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
-              }}
-            />
-            {/* Horizontal gradient for depth */}
-            <div
-              data-video-gradient=""
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                zIndex: 1,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
-              }}
-            />
-            {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
-
-            {/* Light rays overlay */}
-            <div data-light-rays="" />
-
-            {/* Left - Content */}
-            <div
-              className="flex flex-col justify-center p-[50px] relative"
-              data-parallax-layer=""
-              data-parallax-depth="0.4"
-              style={{
-                backgroundColor: 'transparent',
-                zIndex: 3,
-              }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: 2 }}
             >
               <div
-                className="data-micangas-content"
+                className="relative"
+                style={{
+                  width: 'min(100vw, 100vh)',
+                  height: 'min(100vw, 100vh)',
+                }}
               >
-                <div
-                  className="data-micangas-label"
-                  suppressHydrationWarning
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                    fontSize: 'clamp(10px, 0.9vw, 13px)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 'clamp(20px, 3vh, 40px)',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                  }}
-                >
-                  {t('oFilme')}
-                </div>
-                <h2
-                  className="data-micangas-title split-text"
-                  data-film-title-reveal=""
-                  data-underline-reveal=""
-                  suppressHydrationWarning
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                    fontSize: 'clamp(24px, 3vw, 48px)',
-                    lineHeight: '1.2',
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    marginBottom: 'clamp(20px, 3vh, 40px)',
-                    color: 'white',
-                  }}
-                >
-                  {t('asMicangasTitle')}
-                </h2>
-                <div 
-                  className="data-micangas-text"
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                    fontSize: 'clamp(14px, 1.3vw, 18px)',
-                    lineHeight: '1.6',
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    marginBottom: 'clamp(30px, 4vh, 50px)',
-                  }}
-                >
-                  <p className="split-text">
-                    (2023) Curta-metragem que explora a memória e a identidade através de narrativas fragmentadas e poéticas.
-                  </p>
-                </div>
-
-                {/* Ficha Técnica */}
-                <div
-                  className="data-micangas-ficha"
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                    fontSize: 'clamp(11px, 1vw, 13px)',
-                    lineHeight: '1.6',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    paddingTop: 'clamp(20px, 3vh, 30px)',
-                  }}
-                >
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
-                  </div>
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
-                  </div>
-                  <div>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, Edital Cardume
-                  </div>
-                </div>
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const angle = i * 45;
+                  return (
+                    <div
+                      key={i}
+                      data-iris-blade=""
+                      className="absolute bg-[#0a0a0a]"
+                      style={{
+                        width: '60%',
+                        height: '60%',
+                        left: '50%',
+                        top: '50%',
+                        transformOrigin: '0% 0%',
+                        transform: `rotate(${angle}deg) translateX(0%) translateY(0%)`,
+                        clipPath: 'polygon(0% 0%, 100% 0%, 0% 100%)',
+                      }}
+                    />
+                  );
+                })}
               </div>
             </div>
 
-            {/* Right - Image */}
+            {/* Title - centered */}
             <div
-              className="relative overflow-hidden"
-              style={{
-                position: 'relative',
-                zIndex: 1,
-              }}
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ zIndex: 3 }}
             >
-              <div
-                className="absolute inset-0"
+              <h2
+                data-micangas-iris-title=""
+                className="text-white text-center uppercase"
                 style={{
-                  willChange: 'transform',
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(36px, 6vw, 100px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  textShadow: '0 0 60px rgba(0,0,0,0.8), 0 0 120px rgba(0,0,0,0.5)',
+                  opacity: 0,
+                  filter: 'blur(10px)',
+                  willChange: 'transform, opacity, filter',
                 }}
               >
-                <Image
-                  src="/imagens/capahome.png"
-                  alt="AS MIÇANGAS"
-                  fill
-                  sizes="50vw"
-                  className="object-cover data-micangas-parallax"
-                  style={{
-                    filter: 'saturate(0) brightness(0.8)',
-                    transform: 'scale(1.1)',
-                  }}
-                  data-speed="0.3"
-                  unoptimized
-                />
+                {t('as')}<br/>{t('micangas')}
+              </h2>
+              <div
+                data-micangas-iris-year=""
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1.2vw, 18px)',
+                  letterSpacing: '0.3em',
+                  color: 'rgba(255,255,255,0.5)',
+                  marginTop: 'clamp(15px, 2vh, 30px)',
+                  opacity: 0,
+                }}
+              >
+                2023
               </div>
             </div>
           </section>
 
-          {/* Transition: Miçangas → Mistério */}
+          {/* ===== AS MIÇANGAS - Panel 1: Kaleidoscope Split ===== */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="1"
+            data-film-panel=""
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            {/* 2x2 Kaleidoscope Grid */}
+            <div
+              className="absolute inset-0"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gridTemplateRows: '1fr 1fr',
+                gap: '2px',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+              }}
+            >
+              {/* Quadrant 0 - Top Left (normal) */}
+              <div
+                data-micangas-quadrant="0"
+                className="relative overflow-hidden"
+                style={{ opacity: 0, transform: 'translate(-100%, -100%)' }}
+              >
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ transform: 'scale(1.1)' }}
+                >
+                  <source src="/videos/micangas.mp4" type="video/mp4" />
+                </video>
+              </div>
+              {/* Quadrant 1 - Top Right (mirrored X) */}
+              <div
+                data-micangas-quadrant="1"
+                className="relative overflow-hidden"
+                style={{ opacity: 0, transform: 'translate(100%, -100%)' }}
+              >
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ transform: 'scale(1.1) scaleX(-1)', filter: 'brightness(0.9) saturate(0.9)' }}
+                >
+                  <source src="/videos/micangas.mp4" type="video/mp4" />
+                </video>
+              </div>
+              {/* Quadrant 2 - Bottom Left (mirrored Y) */}
+              <div
+                data-micangas-quadrant="2"
+                className="relative overflow-hidden"
+                style={{ opacity: 0, transform: 'translate(-100%, 100%)' }}
+              >
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ transform: 'scale(1.1) scaleY(-1)', filter: 'brightness(0.85) saturate(0.85)' }}
+                >
+                  <source src="/videos/micangas.mp4" type="video/mp4" />
+                </video>
+              </div>
+              {/* Quadrant 3 - Bottom Right (mirrored XY) */}
+              <div
+                data-micangas-quadrant="3"
+                className="relative overflow-hidden"
+                style={{ opacity: 0, transform: 'translate(100%, 100%)' }}
+              >
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ transform: 'scale(1.1) scaleX(-1) scaleY(-1)', filter: 'brightness(0.8) saturate(0.8)' }}
+                >
+                  <source src="/videos/micangas.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+
+            {/* Cross-hair divider lines */}
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                left: '50%',
+                top: 0,
+                bottom: 0,
+                width: '1px',
+                background: 'rgba(255,255,255,0.1)',
+                zIndex: 2,
+              }}
+            />
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                top: '50%',
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: 'rgba(255,255,255,0.1)',
+                zIndex: 2,
+              }}
+            />
+
+            {/* Centered Frosted Glass Panel */}
+            <div
+              data-micangas-frosted=""
+              className="absolute flex flex-col items-center justify-center text-center"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 'clamp(280px, 35vw, 450px)',
+                padding: 'clamp(30px, 4vh, 50px)',
+                background: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(20px) saturate(1.5)',
+                borderRadius: '50%',
+                border: '1px solid rgba(255,255,255,0.1)',
+                zIndex: 3,
+                opacity: 0,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 12px)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.2em',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  marginBottom: 'clamp(10px, 1.5vh, 20px)',
+                }}
+              >
+                {t('oFilme')}
+              </div>
+              <h3
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(18px, 2vw, 28px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  marginBottom: 'clamp(15px, 2vh, 25px)',
+                  color: 'white',
+                }}
+              >
+                {t('asMicangasTitle')}
+              </h3>
+              <p
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1vw, 14px)',
+                  lineHeight: '1.6',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                }}
+              >
+                Memória e identidade através de narrativas fragmentadas e poéticas.
+              </p>
+            </div>
+          </section>
+
+          {/* ===== AS MIÇANGAS - Panel 2: Full-Bleed Credits ===== */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-micangas-panel="2"
+            data-film-panel=""
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Full-Bleed Video Hero */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-video-parallax="micangas-credits"
+              data-parallax-speed="0.1"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: 0,
+                willChange: 'transform',
+                transform: 'scale(1.1)',
+              }}
+            >
+              <source src="/videos/micangas.mp4" type="video/mp4" />
+            </video>
+
+            {/* Subtle bottom gradient only */}
+            <div
+              className="absolute inset-x-0 bottom-0 pointer-events-none"
+              style={{
+                height: '50%',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)',
+                zIndex: 1,
+              }}
+            />
+
+            {/* Minimal vignette */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)',
+                zIndex: 1,
+              }}
+            />
+
+            {/* Credits - bottom left */}
+            <div
+              className="absolute"
+              style={{
+                left: 'clamp(30px, 5vw, 60px)',
+                bottom: 'clamp(30px, 5vh, 60px)',
+                zIndex: 2,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(11px, 1vw, 14px)',
+                  lineHeight: '1.8',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                }}
+              >
+                <div style={{ marginBottom: 'clamp(5px, 0.8vh, 10px)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('direcao')}</span> Rafaela Camelo
+                </div>
+                <div style={{ marginBottom: 'clamp(5px, 0.8vh, 10px)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('producao')}</span> Moveo Filmes
+                </div>
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('financiamento')}</span> FAC-DF, Edital Cardume
+                </div>
+              </div>
+            </div>
+
+            {/* Giant Year Watermark - bottom right */}
+            <div
+              className="absolute"
+              style={{
+                right: 'clamp(30px, 5vw, 60px)',
+                bottom: 'clamp(20px, 3vh, 40px)',
+                fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                fontSize: 'clamp(80px, 15vw, 200px)',
+                fontWeight: 700,
+                color: 'rgba(255, 255, 255, 0.08)',
+                lineHeight: 1,
+                zIndex: 1,
+              }}
+            >
+              2023
+            </div>
+          </section>
+
+          {/* Transition: Miçangas → Mistério - SPOTLIGHT + CURTAIN */}
           <section
             className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
             data-movie-transition="micangas-misterio"
+            data-transition-type="spotlight"
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
             }}
           >
-            {/* Preview of next video - revealed through bars */}
+            {/* Preview of next video - warm sepia tint for noir feel */}
             <video
               autoPlay
               muted
@@ -5398,252 +6096,514 @@ export default function Home() {
               data-transition-video="misterio"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
-                zIndex: -1,
-                opacity: 0.3,
-                filter: 'blur(8px) saturate(0.5)',
+                zIndex: 0,
+                opacity: 0,
+                filter: 'sepia(0.3) saturate(1.2) brightness(0.9)',
                 willChange: 'transform, opacity, filter',
               }}
             >
               <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                data-transition-bar=""
-                className="absolute w-full bg-[#0a0a0a] transform-gpu"
+
+            {/* Spotlight mask - radial gradient that expands */}
+            <div
+              data-spotlight-mask=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 1,
+                background: 'radial-gradient(circle at 50% 50%, transparent 0%, #0a0a0a 0%)',
+                willChange: 'background',
+              }}
+            />
+
+            {/* Left Curtain */}
+            <div
+              data-curtain="left"
+              className="absolute bg-[#0a0a0a] transform-gpu"
+              style={{
+                top: 0,
+                left: 0,
+                width: '52%',
+                height: '100%',
+                zIndex: 2,
+                willChange: 'transform',
+                transform: 'translateX(0%) skewX(0deg)',
+                transformOrigin: 'left center',
+              }}
+            />
+            {/* Right Curtain */}
+            <div
+              data-curtain="right"
+              className="absolute bg-[#0a0a0a] transform-gpu"
+              style={{
+                top: 0,
+                right: 0,
+                width: '52%',
+                height: '100%',
+                zIndex: 2,
+                willChange: 'transform',
+                transform: 'translateX(0%) skewX(0deg)',
+                transformOrigin: 'right center',
+              }}
+            />
+
+            {/* Spotlight overlay effect */}
+            <div
+              data-spotlight=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 3,
+                background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,200,150,0.08) 0%, transparent 70%)',
+                opacity: 0,
+              }}
+            />
+
+            <div data-transition-title="" className="absolute inset-0 flex flex-col items-center justify-center z-10">
+              <h2
+                className="text-white text-center uppercase opacity-0"
                 style={{
-                  height: 'calc(100% / 10)',
-                  top: `${i * 10}%`,
-                  willChange: 'transform',
-                  transform: `translateX(${i % 2 === 0 ? '-110' : '110'}%)`,
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(32px,5vw,80px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  textShadow: '0 0 80px rgba(180,100,50,0.4)',
+                  willChange: 'transform, opacity, filter',
                 }}
-              />
-            ))}
-            <div data-transition-title="" className="absolute inset-0 flex items-center justify-center z-10">
-              <h2 className="text-white text-[clamp(32px,5vw,80px)] font-semibold tracking-tight text-center uppercase opacity-0" style={{ willChange: 'transform, opacity, filter' }}>
+              >
                 {t('oMisterio')}<br/>{t('daCarne')}
               </h2>
+              <div
+                style={{
+                  marginTop: 'clamp(10px, 1.5vh, 20px)',
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1.2vw, 16px)',
+                  letterSpacing: '0.25em',
+                  color: 'rgba(255,200,150,0.6)',
+                  opacity: 0,
+                }}
+              >
+                2019
+              </div>
             </div>
           </section>
 
-          {/* O Mistério da Carne - Content */}
+          {/* ===== O MISTÉRIO DA CARNE - Panel 0: Venetian Blind Reveal ===== */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="0"
+            data-misterio-reveal="venetian"
+            data-film-panel=""
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            {/* Secondary Video - warm sepia depth layer */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-misterio-video="secondary"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: 0,
+                willChange: 'transform, opacity, filter',
+                transform: 'scale(1.15)',
+                opacity: 0,
+                filter: 'sepia(0.4) saturate(0.8) brightness(0.5)',
+              }}
+            >
+              <source src="/videos/misterio.mp4" type="video/mp4" />
+            </video>
+
+            {/* Primary Video - revealed through venetian blinds */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              data-misterio-video="primary"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu"
+              style={{
+                zIndex: 1,
+                willChange: 'transform, opacity, filter',
+                transform: 'scale(1.05)',
+                opacity: 0,
+              }}
+            >
+              <source src="/videos/misterio.mp4" type="video/mp4" />
+            </video>
+
+            {/* Venetian Blind Slats - 10 vertical slats */}
+            <div
+              className="absolute inset-0 flex"
+              style={{ zIndex: 2 }}
+            >
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  data-blind-slat=""
+                  className="bg-[#0a0a0a] transform-gpu"
+                  style={{
+                    flex: 1,
+                    height: '100%',
+                    transformOrigin: i % 2 === 0 ? 'left center' : 'right center',
+                    transform: `perspective(1000px) rotateY(${i % 2 === 0 ? '-90' : '90'}deg)`,
+                    willChange: 'transform',
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Warm spotlight gradient overlay */}
+            <div
+              data-misterio-spotlight=""
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 3,
+                background: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(255,180,100,0.1) 0%, transparent 60%)',
+                opacity: 0,
+              }}
+            />
+
+            {/* Title with theatrical feel */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ zIndex: 4 }}
+            >
+              <h2
+                data-misterio-venetian-title=""
+                className="text-white text-center uppercase"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(36px, 6vw, 100px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  textShadow: '0 0 80px rgba(180,100,50,0.5), 0 0 160px rgba(100,50,25,0.3)',
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                  willChange: 'transform, opacity',
+                }}
+              >
+                {t('oMisterio')}<br/>{t('daCarne')}
+              </h2>
+              <div
+                data-misterio-venetian-year=""
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1.2vw, 18px)',
+                  letterSpacing: '0.3em',
+                  color: 'rgba(255,200,150,0.6)',
+                  marginTop: 'clamp(15px, 2vh, 30px)',
+                  opacity: 0,
+                }}
+              >
+                SUNDANCE 2019
+              </div>
+            </div>
+          </section>
+
+          {/* ===== O MISTÉRIO DA CARNE - Panel 1: Letterbox Festival Showcase ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-misterio-panel="1"
             data-film-panel=""
-            data-mouse-parallax=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
-              overflow: 'visible',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
             }}
           >
-            {/* Primary Video - parallax background */}
+            {/* Full-Bleed Video */}
             <video
               autoPlay
               muted
               loop
               playsInline
-              data-video-parallax="misterio"
-              data-parallax-speed="0.15"
-              className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)' }}
-            >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
-            </video>
-
-            {/* Secondary Video - pinned/slower, desaturated for depth */}
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              data-video-pinned="misterio"
+              data-video-parallax="misterio-letterbox"
+              data-parallax-speed="0.1"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
-                zIndex: -1,
-                willChange: 'transform, filter',
-                transform: 'scale(1.5)',
-                opacity: 0.2,
-                filter: 'saturate(0) brightness(0.35) blur(3px)',
+                zIndex: 0,
+                willChange: 'transform',
+                transform: 'scale(1.1)',
               }}
             >
               <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
 
-            {/* Cinematic vignette */}
+            {/* Letterbox bars - cinematic widescreen feel */}
             <div
-              data-video-vignette=""
-              className="absolute inset-0 pointer-events-none"
+              data-letterbox-top=""
+              className="absolute inset-x-0 top-0 bg-black"
               style={{
-                zIndex: 1,
-                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)',
+                height: '0%',
+                zIndex: 2,
+                willChange: 'height',
               }}
             />
-            {/* Horizontal gradient for depth */}
             <div
-              data-video-gradient=""
-              className="absolute inset-0 pointer-events-none"
+              data-letterbox-bottom=""
+              className="absolute inset-x-0 bottom-0 bg-black"
               style={{
-                zIndex: 1,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%)',
+                height: '0%',
+                zIndex: 2,
+                willChange: 'height',
               }}
             />
-            {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
-            {/* Light rays overlay */}
-            <div data-light-rays="" />
-
+            {/* Sundance Laurel - centered */}
             <div
-              className="p-[50px] box-border h-full relative"
-              data-parallax-layer=""
-              data-parallax-depth="0.35"
-              style={{ overflow: 'visible', width: '100%', minWidth: 'max-content', zIndex: 3 }}
+              data-laurel="sundance"
+              className="absolute flex flex-col items-center justify-center"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%) scale(0.8)',
+                zIndex: 3,
+                opacity: 0,
+              }}
             >
-              <div className="w-full h-full" style={{ overflow: 'visible', width: '100%' }}>
-                <div className="grid md:grid-cols-12 gap-4 md:gap-6 h-full" style={{ overflow: 'visible' }}>
-                  {/* Coluna Esquerda - Título e Informações Técnicas */}
-                  <div className="md:col-span-7 flex flex-col h-full justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container do Título */}
-                    <div className="flex flex-col justify-start data-misterio-header">
-                      <div
-                        className="mix-blend-difference"
-                        data-film-title-reveal=""
-                        data-underline-reveal=""
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(24px, 3vw, 48px)',
-                          lineHeight: '0.95',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          wordSpacing: '0.1em',
-                          marginBottom: 'clamp(6px, 0.8vh, 12px)',
-                          color: 'white',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {t('oMisterioDaCarne')}
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          lineHeight: '1',
-                          opacity: 0.7,
-                          color: 'white',
-                        }}
-                      >
-                        (2019)
-                      </div>
-                    </div>
+              <div
+                style={{
+                  fontSize: 'clamp(40px, 6vw, 80px)',
+                  marginBottom: 'clamp(10px, 1.5vh, 20px)',
+                }}
+              >
+                🏆
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(14px, 1.8vw, 24px)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  textAlign: 'center',
+                  color: 'white',
+                  textShadow: '0 2px 20px rgba(0,0,0,0.8)',
+                }}
+              >
+                World Premiere
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(18px, 2.5vw, 36px)',
+                  fontWeight: 700,
+                  letterSpacing: '0.2em',
+                  marginTop: 'clamp(5px, 1vh, 15px)',
+                  color: 'rgba(255,200,100,0.9)',
+                  textShadow: '0 2px 20px rgba(0,0,0,0.8)',
+                }}
+              >
+                SUNDANCE
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1.2vw, 16px)',
+                  letterSpacing: '0.3em',
+                  color: 'rgba(255,255,255,0.6)',
+                  marginTop: 'clamp(3px, 0.5vh, 8px)',
+                }}
+              >
+                2019
+              </div>
+            </div>
 
-                    {/* Container de Informações Técnicas */}
-                    <div className="flex-shrink-0 mt-auto data-misterio-tech">
-                      <div
-                        className="mix-blend-difference"
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.4,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          FAC-DF
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          {t('primeiroEditalCardume')}
-                        </div>
-                        <div style={{ marginBottom: 'clamp(4px, 0.6vh, 8px)' }}>
-                          {t('distribuicao')} {t('agenciaFreakMundo')}
-                        </div>
-                        <div>
-                          {t('producao')} Moveo Filmes
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            {/* Awards row - bottom center */}
+            <div
+              data-awards-row=""
+              className="absolute flex gap-8 items-center justify-center"
+              style={{
+                left: '50%',
+                bottom: 'clamp(40px, 6vh, 80px)',
+                transform: 'translateX(-50%)',
+                zIndex: 3,
+                opacity: 0,
+              }}
+            >
+              <div
+                className="text-center"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 13px)',
+                  color: 'rgba(255,255,255,0.7)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('melhorFilme')}</div>
+                Biarritz Amérique Latine
+              </div>
+              <div
+                style={{
+                  width: '1px',
+                  height: '30px',
+                  background: 'rgba(255,255,255,0.2)',
+                }}
+              />
+              <div
+                className="text-center"
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 13px)',
+                  color: 'rgba(255,255,255,0.7)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('melhorFilme')}</div>
+                New Directors / New Films
+              </div>
+            </div>
+          </section>
 
-                  {/* Coluna Direita - Estreias e Prêmios */}
-                  <div className="md:col-span-5 flex flex-col h-full min-h-0 justify-between" style={{ overflow: 'visible' }}>
-                    {/* Container de Prêmios (topo) */}
-                    <div className="flex-shrink-0 data-misterio-premios">
-                      <div
-                        className="mix-blend-difference"
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_MEDIUM,
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        {t('premios')}
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: FONT_SMALL,
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          {t('melhorFilme')} — Biarritz Amérique Latine
-                        </div>
-                        <div>
-                          {t('melhorFilme')} — New Directors / New Films
-                        </div>
-                      </div>
-                    </div>
+          {/* ===== O MISTÉRIO DA CARNE - Panel 2: Split Video + Credits ===== */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-misterio-panel="2"
+            data-film-panel=""
+            style={{
+              width: 'calc(100vw - 100px)',
+              height: 'calc(100vh - 100px)',
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '60% 40%',
+            }}
+          >
+            {/* Left 60% - Video Hero with gradient fade */}
+            <div className="relative overflow-hidden">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                data-video-parallax="misterio-credits"
+                data-parallax-speed="0.12"
+                className="absolute inset-0 w-full h-full object-cover transform-gpu"
+                style={{
+                  willChange: 'transform',
+                  transform: 'scale(1.15)',
+                }}
+              >
+                <source src="/videos/misterio.mp4" type="video/mp4" />
+              </video>
+              {/* Horizontal fade to right */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 50%, rgba(10,10,10,1) 100%)',
+                }}
+              />
+              {/* Subtle vignette */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse 120% 120% at 30% 50%, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                }}
+              />
+            </div>
 
-                    {/* Container de Estreias (base) */}
-                    <div className="flex-shrink-0 mt-auto data-misterio-estreias">
-                      <div
-                        className="mix-blend-difference"
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(11px, 0.95vw, 14px)',
-                          fontWeight: 'bold',
-                          marginBottom: 'clamp(12px, 1.5vh, 18px)',
-                          color: 'white',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        {t('estreias')}
-                      </div>
-                      <div
-                        className="mix-blend-difference"
-                        suppressHydrationWarning
-                        style={{
-                          fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
-                          fontSize: 'clamp(10px, 0.85vw, 13px)',
-                          lineHeight: 1.5,
-                          color: 'white',
-                        }}
-                      >
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>{t('mundial')}</strong> Sundance Film Festival (2019)
-                        </div>
-                        <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
-                          <strong>{t('europa')}</strong> Biarritz Amérique Latine
-                        </div>
-                        <div>
-                          <strong>{t('eua')}</strong> New Directors / New Films
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            {/* Right 40% - Credits Panel */}
+            <div
+              className="relative flex flex-col justify-center"
+              style={{
+                backgroundColor: '#0a0a0a',
+                padding: 'clamp(30px, 5vw, 60px)',
+              }}
+            >
+              {/* Warm accent line */}
+              <div
+                style={{
+                  width: '40px',
+                  height: '2px',
+                  background: 'linear-gradient(90deg, rgba(180,100,50,0.8), transparent)',
+                  marginBottom: 'clamp(20px, 3vh, 40px)',
+                }}
+              />
+
+              <h3
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(20px, 2.5vw, 36px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  marginBottom: 'clamp(8px, 1vh, 15px)',
+                  color: 'white',
+                }}
+              >
+                {t('oMisterioDaCarne')}
+              </h3>
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(12px, 1vw, 14px)',
+                  color: 'rgba(255,200,150,0.7)',
+                  marginBottom: 'clamp(25px, 4vh, 50px)',
+                }}
+              >
+                Curta-metragem • 2019
+              </div>
+
+              {/* Technical Credits */}
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(11px, 1vw, 14px)',
+                  lineHeight: '2',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                }}
+              >
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('direcao')}</span> Grace Passô
+                </div>
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('producao')}</span> Moveo Filmes
+                </div>
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('distribuicao')}</span> {t('agenciaFreakMundo')}
+                </div>
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('financiamento')}</span> FAC-DF, Edital Cardume
+                </div>
+              </div>
+
+              {/* Festival Premieres */}
+              <div
+                style={{
+                  marginTop: 'clamp(30px, 5vh, 60px)',
+                  paddingTop: 'clamp(20px, 3vh, 40px)',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(10px, 0.9vw, 12px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    color: 'rgba(255,200,150,0.6)',
+                    marginBottom: 'clamp(15px, 2vh, 25px)',
+                  }}
+                >
+                  {t('estreias')}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 1vw, 14px)',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>Sundance</strong> — {t('mundial')}</div>
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>Biarritz</strong> — {t('europa')}</div>
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>New Directors</strong> — {t('eua')}</div>
                 </div>
               </div>
             </div>
