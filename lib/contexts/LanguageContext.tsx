@@ -99,6 +99,7 @@ const translations: Record<Language, Record<string, string>> = {
     festival: 'Festival',
     residencia: 'Residência',
     producaoTag: 'Produção',
+    catalogoFinale: 'ESSES E MUITOS OUTROS FAZEM PARTE DO NOSSO CATÁLOGO MOVEO FILMES.',
   },
   en: {
     catalog: 'Catalog',
@@ -183,6 +184,7 @@ const translations: Record<Language, Record<string, string>> = {
     festival: 'Festival',
     residencia: 'Residency',
     producaoTag: 'Production',
+    catalogoFinale: 'THESE AND MANY OTHERS ARE PART OF OUR MOVEO FILMES CATALOG.',
     // Placeholder texts
     // Informações técnicas adicionais
     colombia: 'Colombia:',

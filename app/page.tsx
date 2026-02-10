@@ -3299,27 +3299,8 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // ===== NATUREZA: Title Glow Animation =====
-  useLayoutEffect(() => {
-    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const ctx = gsap.context(() => {
-      const naturezaTitle = horizontalSecondTrackRef.current?.querySelector('[data-natureza-title-glow]') as HTMLElement;
-      if (!naturezaTitle) return;
-
-      // Subtle text-shadow glow pulse
-      gsap.to(naturezaTitle, {
-        textShadow: '0 4px 60px rgba(255,255,255,0.15), 0 8px 80px rgba(0,0,0,0.9)',
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-      });
-    }, horizontalSecondTrackRef);
-
-    return () => ctx.revert();
-  }, [secondTrackReady]);
+  // ===== NATUREZA: Title Glow Animation - DISABLED per user request =====
+  // Glow effect removed to prevent visual distraction when entering the section
 
   // ===== MIÇANGAS: Film Strip Reveal Animation =====
   useLayoutEffect(() => {
@@ -4377,7 +4358,7 @@ export default function Home() {
                 transform: 'translateX(-1.55%)',
               }}
             >
-              MOVEO
+              MOV<span style={{ letterSpacing: '0.02em' }}>E</span>O
             </div>
 
             <div
@@ -4926,8 +4907,8 @@ export default function Home() {
             ref={dragonflyPinRef}
             className="w-full max-w-7xl mx-auto"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              {/* Left - Text Content */}
+            <div className="w-full">
+              {/* Creative Typography Layout - Full Width */}
               <div style={{ width: '100%' }}>
                 <div
                   data-catalog-label
@@ -4936,66 +4917,89 @@ export default function Home() {
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 'clamp(20px, 3vh, 40px)',
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    letterSpacing: '0.3em',
+                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                    color: 'rgba(255, 255, 255, 0.4)',
                   }}
                 >
                   {t('nossosFilmes')}
                 </div>
-                <h2
+
+                {/* Main Title with Creative Typography */}
+                <div
                   data-catalog-title
                   ref={dragonflyHeadingRef}
                   suppressHydrationWarning
                   style={{
-                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                    fontSize: 'clamp(48px, 7vw, 120px)',
-                    lineHeight: '0.95',
-                    fontWeight: 700,
-                    letterSpacing: '-0.03em',
-                    marginBottom: 'clamp(30px, 4vh, 50px)',
-                    color: 'white',
+                    marginBottom: 'clamp(40px, 6vh, 80px)',
                   }}
                 >
-                  {t('catalogoEmDestaque')}
-                </h2>
-                <p
-                  data-catalog-description
-                  suppressHydrationWarning
-                  style={{
-                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                    fontSize: 'clamp(16px, 1.5vw, 22px)',
-                    lineHeight: '1.6',
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    maxWidth: '100%',
-                    width: '100%',
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word',
-                    whiteSpace: 'normal',
-                  }}
-                >
-                  {t('exploreNossaSelecao')}
-                </p>
-              </div>
+                  {/* "CATÁLOGO" - Light weight, large */}
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, sans-serif",
+                      fontSize: 'clamp(60px, 10vw, 180px)',
+                      lineHeight: '0.9',
+                      fontWeight: 300,
+                      letterSpacing: '-0.02em',
+                      color: 'white',
+                    }}
+                  >
+                    {t('catalogoEm')}
+                  </div>
+                  {/* "EM DESTAQUE" - Bold, slightly smaller, offset */}
+                  <div
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                      fontSize: 'clamp(50px, 8vw, 140px)',
+                      lineHeight: '1',
+                      fontWeight: 700,
+                      letterSpacing: '-0.03em',
+                      color: 'white',
+                      marginTop: 'clamp(-10px, -1vw, -20px)',
+                      marginLeft: 'clamp(20px, 4vw, 80px)',
+                    }}
+                  >
+                    {t('destaque')}
+                  </div>
+                </div>
 
-              {/* Right - Featured Image */}
-              <div
-                className="relative w-full aspect-[4/5] overflow-hidden"
-                style={{
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                }}
-              >
-                <Image
-                  data-catalog-image
-                  src="/imagens/secao2home/Rectangle 10.png"
-                  alt="Catálogo em Destaque"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
+                {/* Description with decorative line */}
+                <div
                   style={{
-                    filter: 'brightness(0.9)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 'clamp(20px, 3vw, 40px)',
+                    maxWidth: '800px',
                   }}
-                />
+                >
+                  {/* Decorative vertical line */}
+                  <div
+                    data-catalog-description
+                    style={{
+                      width: '2px',
+                      height: 'clamp(60px, 8vh, 100px)',
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 100%)',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <p
+                    data-catalog-description
+                    suppressHydrationWarning
+                    style={{
+                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                      fontSize: 'clamp(16px, 1.5vw, 22px)',
+                      lineHeight: '1.7',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      maxWidth: '600px',
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
+                      whiteSpace: 'normal',
+                    }}
+                  >
+                    {t('exploreNossaSelecao')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -5043,7 +5047,7 @@ export default function Home() {
               data-parallax-speed="0.15"
               data-title-video="primary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.15)', opacity: 0 }}
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.02)', opacity: 0 }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
@@ -5060,7 +5064,7 @@ export default function Home() {
               style={{
                 zIndex: -1,
                 willChange: 'transform, filter',
-                transform: 'scale(1.3)',
+                transform: 'scale(1.05)',
                 opacity: 0,
                 filter: 'saturate(0) brightness(0.4)',
               }}
@@ -5161,7 +5165,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.2)',
+                transform: 'scale(1.02)',
                 opacity: 0.15,
                 filter: 'brightness(0.6)',
               }}
@@ -5181,7 +5185,7 @@ export default function Home() {
                 zIndex: 0,
                 right: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.1)',
+                transform: 'scale(1.02)',
                 opacity: 0.4,
                 filter: 'saturate(0) brightness(0.5)',
               }}
@@ -5351,7 +5355,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.2)',
+                transform: 'scale(1.02)',
               }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
@@ -5368,7 +5372,7 @@ export default function Home() {
               style={{
                 zIndex: -1,
                 willChange: 'transform, filter',
-                transform: 'scale(1.4)',
+                transform: 'scale(1.05)',
                 opacity: 0.3,
                 filter: 'saturate(0) blur(3px)',
               }}
@@ -5416,20 +5420,61 @@ export default function Home() {
               >
                 {t('estreiaMundial')}
               </div>
-              <h2 
-                className="data-natureza-title split-text"
+              <div
+                className="data-natureza-title"
                 style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(40px, 5vw, 80px)',
-                  lineHeight: '1.2',
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'clamp(16px, 2vw, 28px)',
                   marginBottom: 'clamp(20px, 3vh, 40px)',
-                  color: 'white',
                 }}
               >
-                75ª Berlinale
-              </h2>
+                {/* Berlinale Bear Symbol */}
+                <svg
+                  viewBox="0 0 100 100"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{
+                    width: 'clamp(50px, 6vw, 80px)',
+                    height: 'clamp(50px, 6vw, 80px)',
+                    flexShrink: 0,
+                  }}
+                >
+                  {/* Stylized Berlinale Bear */}
+                  <circle cx="50" cy="50" r="48" stroke="white" strokeWidth="2" fill="none" />
+                  {/* Bear head */}
+                  <ellipse cx="50" cy="40" rx="20" ry="18" fill="white" />
+                  {/* Bear ears */}
+                  <circle cx="35" cy="25" r="8" fill="white" />
+                  <circle cx="65" cy="25" r="8" fill="white" />
+                  {/* Bear snout */}
+                  <ellipse cx="50" cy="45" rx="10" ry="8" fill="#0a0a0a" />
+                  {/* Bear nose */}
+                  <ellipse cx="50" cy="42" rx="4" ry="3" fill="white" />
+                  {/* Bear eyes */}
+                  <circle cx="42" cy="36" r="3" fill="#0a0a0a" />
+                  <circle cx="58" cy="36" r="3" fill="#0a0a0a" />
+                  {/* Bear body */}
+                  <ellipse cx="50" cy="68" rx="18" ry="20" fill="white" />
+                  {/* Bear arms */}
+                  <ellipse cx="30" cy="60" rx="8" ry="15" fill="white" transform="rotate(-20 30 60)" />
+                  <ellipse cx="70" cy="60" rx="8" ry="15" fill="white" transform="rotate(20 70 60)" />
+                </svg>
+                <h2
+                  className="split-text"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(40px, 5vw, 80px)',
+                    lineHeight: '1.2',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    color: 'white',
+                    margin: 0,
+                  }}
+                >
+                  75ª Berlinale
+                </h2>
+              </div>
               <div 
                 className="data-natureza-text"
                 style={{
@@ -5768,7 +5813,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, opacity, filter',
-                transform: 'scale(1.15)',
+                transform: 'scale(1.02)',
                 opacity: 0,
                 filter: 'saturate(0.4) brightness(0.4)',
               }}
@@ -6357,7 +6402,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, opacity, filter',
-                transform: 'scale(1.15)',
+                transform: 'scale(1.02)',
                 opacity: 0,
                 filter: 'sepia(0.4) saturate(0.8) brightness(0.5)',
               }}
@@ -6663,7 +6708,7 @@ export default function Home() {
                 className="absolute inset-0 w-full h-full object-cover transform-gpu"
                 style={{
                   willChange: 'transform',
-                  transform: 'scale(1.15)',
+                  transform: 'scale(1.02)',
                 }}
               >
                 <source src="/videos/misterio.mp4" type="video/mp4" />
@@ -6794,16 +6839,19 @@ export default function Home() {
             }}
           >
             <div data-finale-overlay className="absolute inset-0 bg-black z-10" />
-            <div data-finale-text className="absolute inset-0 flex items-center justify-center z-20">
+            <div data-finale-text className="absolute inset-0 flex items-center justify-center z-20 px-8">
               <h2
-                className="text-white font-light uppercase opacity-0"
+                className="text-white font-light uppercase opacity-0 text-center"
                 style={{
-                  fontSize: 'clamp(24px, 4vw, 60px)',
-                  letterSpacing: '0.3em',
+                  fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
+                  fontSize: 'clamp(18px, 3vw, 42px)',
+                  letterSpacing: '0.15em',
+                  lineHeight: '1.4',
+                  maxWidth: '80%',
                   willChange: 'transform, opacity',
                 }}
               >
-                MOVEO FILMES
+                {t('catalogoFinale')}
               </h2>
             </div>
           </section>
@@ -6911,14 +6959,24 @@ export default function Home() {
                   </h2>
                 </div>
 
-                {/* Quadrado superior direito - imagem */}
+                {/* Quadrado superior direito - video */}
                 <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 10.png"
-                    alt="Catálogo Cinema placeholder 1"
-                    fill
-                    className="object-cover"
-                    unoptimized
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'brightness(0.9) saturate(0.9)' }}
+                  >
+                    <source src="/videos/natureza.mp4" type="video/mp4" />
+                  </video>
+                  {/* Subtle vignette overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)',
+                    }}
                   />
                 </div>
 
@@ -6979,14 +7037,24 @@ export default function Home() {
                   </p>
                 </div>
 
-                {/* Retângulo horizontal inferior - imagem */}
+                {/* Retângulo horizontal inferior - video */}
                 <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 8.png"
-                    alt="Catálogo Cinema placeholder 2"
-                    fill
-                    className="object-cover"
-                    unoptimized
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'brightness(0.85) saturate(0.85)' }}
+                  >
+                    <source src="/videos/micangas.mp4" type="video/mp4" />
+                  </video>
+                  {/* Subtle vignette overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)',
+                    }}
                   />
                 </div>
 
@@ -7037,14 +7105,24 @@ export default function Home() {
           <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
             <div className="w-full h-full relative" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
-                {/* Coluna imagem esquerda */}
+                {/* Coluna video esquerda */}
                 <div className="col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 12.png"
-                    alt="Arquivo móvel imagem 4"
-                    fill
-                    className="object-cover"
-                    unoptimized
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'brightness(0.8) saturate(0.7)' }}
+                  >
+                    <source src="/videos/misterio.mp4" type="video/mp4" />
+                  </video>
+                  {/* Subtle vignette overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.4) 100%)',
+                    }}
                   />
                 </div>
 
