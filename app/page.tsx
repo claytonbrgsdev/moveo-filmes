@@ -439,7 +439,7 @@ export default function Home() {
       if (moveoElement) {
         const text = moveoElement.textContent || '';
         moveoElement.innerHTML = text.split('').map(char => 
-          `<span style="display: inline-block; will-change: transform, opacity;">${char}</span>`
+          `<span style="display: inline-block; will-change: transform, opacity; margin-left: -16px; margin-right: -16px;">${char}</span>`
         ).join('');
         
         const chars = Array.from(moveoElement.querySelectorAll('span'));
@@ -1829,7 +1829,6 @@ export default function Home() {
       // Get individual elements
       const labelElement = q('[data-catalog-label]')[0] as HTMLElement;
       const titleElement = q('[data-catalog-title]')[0] as HTMLElement;
-      const descriptionElement = q('[data-catalog-description]')[0] as HTMLElement;
       const imageElement = q('[data-catalog-image]')[0] as HTMLElement;
 
       // Animation for label "NOSSOS FILMES" — letter-spacing + scaleY reveal
@@ -1879,59 +1878,6 @@ export default function Home() {
             end: 'top 55%',
             toggleActions: 'play none none reverse',
           },
-        });
-      }
-
-      // Typewriter animation for description paragraph (character-by-character with proper wrapping)
-      if (descriptionElement) {
-        const originalText = descriptionElement.textContent || '';
-        
-        // Split text into characters
-        const chars = originalText.split('');
-        const charElements: HTMLElement[] = [];
-        
-        // Clear content and ensure proper wrapping styles
-        descriptionElement.style.display = 'block';
-        descriptionElement.style.width = '100%';
-        descriptionElement.innerHTML = '';
-        
-        // Create spans for each character
-        chars.forEach((char) => {
-          const charSpan = document.createElement('span');
-          charSpan.style.display = 'inline';
-          charSpan.style.opacity = '0';
-          charSpan.style.transform = 'translateY(2px)';
-          
-          // Use regular spaces to allow wrapping
-          if (char === ' ') {
-            charSpan.textContent = ' ';
-          } else {
-            charSpan.textContent = char;
-          }
-          
-          descriptionElement.appendChild(charSpan);
-          charElements.push(charSpan);
-        });
-
-        // Create typewriter timeline with ScrollTrigger
-        const typewriterTl = gsap.timeline({
-          paused: true,
-          scrollTrigger: {
-            trigger: descriptionElement,
-            start: 'top 85%',
-            end: 'top 50%',
-            toggleActions: 'play none none reverse',
-          },
-        });
-
-        // Animate each character appearing one by one - faster timing
-        charElements.forEach((span, i) => {
-          typewriterTl.to(span, {
-            opacity: 1,
-            y: 0,
-            duration: 0.02,
-            ease: 'none',
-          }, i * 0.008); // Fast character reveal
         });
       }
 
@@ -4983,42 +4929,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Description with decorative line */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 'clamp(20px, 3vw, 40px)',
-                    maxWidth: '800px',
-                  }}
-                >
-                  {/* Decorative vertical line */}
-                  <div
-                    data-catalog-description
-                    style={{
-                      width: '2px',
-                      height: 'clamp(60px, 8vh, 100px)',
-                      background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 100%)',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <p
-                    data-catalog-description
-                    suppressHydrationWarning
-                    style={{
-                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                      fontSize: 'clamp(16px, 1.5vw, 22px)',
-                      lineHeight: '1.7',
-                      color: 'rgba(255, 255, 255, 0.85)',
-                      maxWidth: '600px',
-                      wordWrap: 'break-word',
-                      overflowWrap: 'break-word',
-                      whiteSpace: 'normal',
-                    }}
-                  >
-                    {t('exploreNossaSelecao')}
-                  </p>
-                </div>
               </div>
             </div>
           </div>
