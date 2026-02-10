@@ -3298,149 +3298,165 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // ===== MIÇANGAS: Iris Aperture Reveal Animation =====
+  // ===== MIÇANGAS: Film Strip Reveal Animation =====
   useLayoutEffect(() => {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
     const ctx = gsap.context(() => {
-      const irisPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-reveal="circular"]') as HTMLElement;
-      if (!irisPanel) return;
+      const filmstripPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-reveal="filmstrip"]') as HTMLElement;
+      if (!filmstripPanel) return;
 
-      const irisBlades = Array.from(irisPanel.querySelectorAll('[data-iris-blade]')) as HTMLElement[];
-      const primaryVideo = irisPanel.querySelector('[data-micangas-video="primary"]') as HTMLVideoElement;
-      const secondaryVideo = irisPanel.querySelector('[data-micangas-video="secondary"]') as HTMLVideoElement;
-      const irisTitle = irisPanel.querySelector('[data-micangas-iris-title]') as HTMLElement;
-      const irisYear = irisPanel.querySelector('[data-micangas-iris-year]') as HTMLElement;
+      const filmStrips = Array.from(filmstripPanel.querySelectorAll('[data-film-strip]')) as HTMLElement[];
+      const primaryVideo = filmstripPanel.querySelector('[data-micangas-video="primary"]') as HTMLVideoElement;
+      const secondaryVideo = filmstripPanel.querySelector('[data-micangas-video="secondary"]') as HTMLVideoElement;
+      const vignette = filmstripPanel.querySelector('[data-micangas-vignette]') as HTMLElement;
+      const titleContainer = filmstripPanel.querySelector('[data-micangas-title-container]') as HTMLElement;
+      const title = filmstripPanel.querySelector('[data-micangas-title]') as HTMLElement;
+      const year = filmstripPanel.querySelector('[data-micangas-year]') as HTMLElement;
 
-      if (!irisBlades.length) return;
+      if (!filmStrips.length) return;
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: irisPanel,
-          start: 'left 70%',
-          end: 'right 30%',
+          trigger: filmstripPanel,
+          start: 'left 80%',
+          end: 'right 20%',
           containerAnimation: secondTrackTweenRef.current || undefined,
-          scrub: 0.8,
+          scrub: 0.6,
         },
       });
 
       // Phase 0: Secondary video fades in for depth
       if (secondaryVideo) {
         tl.to(secondaryVideo, {
-          opacity: 0.25,
-          duration: 0.2,
+          opacity: 0.35,
+          duration: 0.25,
           ease: 'power2.out',
         }, 0);
       }
 
-      // Phase 1: Primary video begins revealing
+      // Phase 1: Film strips slide apart from center
+      filmStrips.forEach((strip, i) => {
+        const isTop = i < 3;
+        const distanceFromCenter = Math.abs(i - 2.5);
+        const delay = 0.1 + (0.05 * (3 - distanceFromCenter));
+
+        tl.to(strip, {
+          yPercent: isTop ? -(100 + (distanceFromCenter * 30)) : (100 + (distanceFromCenter * 30)),
+          opacity: 0,
+          duration: 0.5,
+          ease: 'power3.inOut',
+        }, delay);
+      });
+
+      // Phase 2: Primary video brightens
       if (primaryVideo) {
         tl.to(primaryVideo, {
           opacity: 1,
           duration: 0.4,
           ease: 'power2.out',
-        }, 0.1);
+        }, 0.2);
       }
 
-      // Phase 2: Iris blades rotate outward with stagger (camera aperture opening)
-      tl.to(irisBlades, {
-        rotation: (i: number) => (i * 45) + 180,
-        scale: 2.5,
-        opacity: 0,
-        duration: 0.5,
-        stagger: {
-          each: 0.04,
-          from: 'random',
-        },
-        ease: 'power3.out',
-      }, 0.15);
-
-      // Phase 3: Title pulses from blurred to sharp
-      if (irisTitle) {
-        tl.to(irisTitle, {
+      // Phase 3: Vignette fades in
+      if (vignette) {
+        tl.to(vignette, {
           opacity: 1,
-          filter: 'blur(0px)',
-          duration: 0.35,
-          ease: 'power3.out',
+          duration: 0.3,
+          ease: 'power2.out',
+        }, 0.35);
+      }
+
+      // Phase 4: Title enhances (already visible, just intensify)
+      if (title) {
+        tl.to(title, {
+          textShadow: '0 4px 80px rgba(255,255,255,0.15), 0 0 150px rgba(0,0,0,0.8)',
+          scale: 1.02,
+          duration: 0.3,
+          ease: 'power2.out',
         }, 0.4);
       }
 
-      if (irisYear) {
-        tl.to(irisYear, {
-          opacity: 1,
-          duration: 0.25,
-          ease: 'power2.out',
-        }, 0.55);
-      }
-
-      // Phase 4: Title fades out as we exit
-      if (irisTitle) {
-        tl.to(irisTitle, {
+      // Phase 5: Title fades out as we exit (keep visible longer)
+      if (title) {
+        tl.to(title, {
           opacity: 0,
-          y: -30,
-          filter: 'blur(5px)',
-          duration: 0.2,
+          y: -50,
+          scale: 0.95,
+          duration: 0.25,
           ease: 'power2.in',
         }, 0.75);
       }
-      if (irisYear) {
-        tl.to(irisYear, { opacity: 0, duration: 0.15 }, 0.75);
+      if (year) {
+        tl.to(year, {
+          opacity: 0,
+          y: -30,
+          duration: 0.2,
+          ease: 'power2.in',
+        }, 0.78);
       }
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // ===== MIÇANGAS: Kaleidoscope Quadrant Animation =====
+  // ===== MIÇANGAS: Fragmented Memory Mosaic Animation =====
   useLayoutEffect(() => {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
     const ctx = gsap.context(() => {
-      const kaleidoPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-panel="1"]') as HTMLElement;
-      if (!kaleidoPanel) return;
+      const mosaicPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-mosaic]') as HTMLElement;
+      if (!mosaicPanel) return;
 
-      const quadrants = Array.from(kaleidoPanel.querySelectorAll('[data-micangas-quadrant]')) as HTMLElement[];
-      const frostedPanel = kaleidoPanel.querySelector('[data-micangas-frosted]') as HTMLElement;
+      const fragments = Array.from(mosaicPanel.querySelectorAll('[data-mosaic-fragment]')) as HTMLElement[];
+      const textContent = mosaicPanel.querySelector('[data-mosaic-text]') as HTMLElement;
 
-      if (!quadrants.length) return;
+      if (!fragments.length) return;
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: kaleidoPanel,
-          start: 'left 70%',
-          end: 'right 30%',
+          trigger: mosaicPanel,
+          start: 'left 75%',
+          end: 'right 25%',
           containerAnimation: secondTrackTweenRef.current || undefined,
-          scrub: 0.8,
+          scrub: 0.7,
         },
       });
 
-      // Phase 1: Quadrants slide in from corners
-      tl.to(quadrants, {
-        x: 0,
-        y: 0,
-        opacity: 1,
-        duration: 0.45,
-        stagger: {
-          each: 0.08,
-          from: 'edges',
-        },
-        ease: 'power3.out',
-      }, 0);
+      // Phase 1: Fragments fade in with stagger from different directions
+      fragments.forEach((fragment, i) => {
+        const delay = 0.05 * i;
+        tl.to(fragment, {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          duration: 0.4,
+          ease: 'power3.out',
+        }, delay);
+      });
 
-      // Phase 2: Frosted glass panel expands from center
-      if (frostedPanel) {
-        tl.fromTo(frostedPanel,
-          { scale: 0, borderRadius: '50%', opacity: 0 },
-          {
-            scale: 1,
-            borderRadius: '8px',
-            opacity: 1,
-            duration: 0.4,
-            ease: 'back.out(1.5)',
-          },
-          0.35
-        );
+      // Phase 2: Text content fades up
+      if (textContent) {
+        tl.to(textContent, {
+          opacity: 1,
+          y: 0,
+          duration: 0.35,
+          ease: 'power2.out',
+        }, 0.25);
       }
+
+      // Phase 3: Subtle parallax drift on fragments as scroll continues
+      fragments.forEach((fragment, i) => {
+        const driftX = (i % 2 === 0 ? -1 : 1) * (5 + (i * 2));
+        const driftY = (i % 3 === 0 ? -1 : 1) * (3 + i);
+        tl.to(fragment, {
+          x: driftX,
+          y: driftY,
+          duration: 0.4,
+          ease: 'none',
+        }, 0.5);
+      });
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
@@ -5705,11 +5721,11 @@ export default function Home() {
             ))}
           </section>
 
-          {/* ===== AS MIÇANGAS - Panel 0: Circular Iris Reveal ===== */}
+          {/* ===== AS MIÇANGAS - Panel 0: Film Strip Reveal ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-micangas-panel="0"
-            data-micangas-reveal="circular"
+            data-micangas-reveal="filmstrip"
             data-film-panel=""
             style={{
               width: 'calc(100vw - 100px)',
@@ -5729,15 +5745,15 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, opacity, filter',
-                transform: 'scale(1.2)',
+                transform: 'scale(1.15)',
                 opacity: 0,
-                filter: 'saturate(0.3) brightness(0.5)',
+                filter: 'saturate(0.4) brightness(0.4)',
               }}
             >
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
-            {/* Primary Video - revealed through iris */}
+            {/* Primary Video - revealed through film strips */}
             <video
               autoPlay
               muted
@@ -5755,210 +5771,298 @@ export default function Home() {
               <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
-            {/* Iris Aperture Blades - 8 triangular segments */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ zIndex: 2 }}
-            >
-              <div
-                className="relative"
-                style={{
-                  width: 'min(100vw, 100vh)',
-                  height: 'min(100vw, 100vh)',
-                }}
-              >
-                {Array.from({ length: 8 }).map((_, i) => {
-                  const angle = i * 45;
-                  return (
-                    <div
-                      key={i}
-                      data-iris-blade=""
-                      className="absolute bg-[#0a0a0a]"
-                      style={{
-                        width: '60%',
-                        height: '60%',
-                        left: '50%',
-                        top: '50%',
-                        transformOrigin: '0% 0%',
-                        transform: `rotate(${angle}deg) translateX(0%) translateY(0%)`,
-                        clipPath: 'polygon(0% 0%, 100% 0%, 0% 100%)',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+            {/* Film Strip Bars - 6 horizontal strips with sprocket holes */}
+            {Array.from({ length: 6 }).map((_, i) => {
+              const isEven = i % 2 === 0;
+              return (
+                <div
+                  key={i}
+                  data-film-strip=""
+                  className="absolute w-full transform-gpu"
+                  style={{
+                    height: 'calc(100% / 6 + 4px)',
+                    top: `calc(${i * (100 / 6)}% - 2px)`,
+                    backgroundColor: '#0a0a0a',
+                    zIndex: 2,
+                    willChange: 'transform',
+                    transform: `translateX(${isEven ? '0' : '0'}%)`,
+                    // Film sprocket pattern on edges
+                    borderTop: i === 0 ? 'none' : '2px solid rgba(30,30,30,1)',
+                    borderBottom: i === 5 ? 'none' : '2px solid rgba(30,30,30,1)',
+                  }}
+                >
+                  {/* Sprocket holes - left side */}
+                  <div
+                    className="absolute left-0 top-0 bottom-0 flex flex-col justify-around items-center"
+                    style={{ width: '25px', padding: '8px 0' }}
+                  >
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div
+                        key={j}
+                        style={{
+                          width: '12px',
+                          height: '8px',
+                          backgroundColor: 'rgba(20,20,20,1)',
+                          borderRadius: '2px',
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* Sprocket holes - right side */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 flex flex-col justify-around items-center"
+                    style={{ width: '25px', padding: '8px 0' }}
+                  >
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div
+                        key={j}
+                        style={{
+                          width: '12px',
+                          height: '8px',
+                          backgroundColor: 'rgba(20,20,20,1)',
+                          borderRadius: '2px',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
 
-            {/* Title - centered */}
+            {/* Cinematic vignette */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 3,
+                background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.8) 100%)',
+                opacity: 0,
+              }}
+              data-micangas-vignette=""
+            />
+
+            {/* Title - centered, will be pinned */}
             <div
               className="absolute inset-0 flex flex-col items-center justify-center"
-              style={{ zIndex: 3 }}
+              style={{ zIndex: 10 }}
+              data-micangas-title-container=""
             >
               <h2
-                data-micangas-iris-title=""
+                data-micangas-title=""
                 className="text-white text-center uppercase"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(36px, 6vw, 100px)',
+                  fontSize: 'clamp(48px, 8vw, 140px)',
                   fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  textShadow: '0 0 60px rgba(0,0,0,0.8), 0 0 120px rgba(0,0,0,0.5)',
-                  opacity: 0,
-                  filter: 'blur(10px)',
-                  willChange: 'transform, opacity, filter',
+                  letterSpacing: '-0.03em',
+                  textShadow: '0 4px 60px rgba(0,0,0,0.9), 0 0 120px rgba(0,0,0,0.6)',
+                  opacity: 1,
+                  willChange: 'transform, opacity',
                 }}
               >
                 {t('as')}<br/>{t('micangas')}
               </h2>
               <div
-                data-micangas-iris-year=""
+                data-micangas-year=""
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(12px, 1.2vw, 18px)',
-                  letterSpacing: '0.3em',
-                  color: 'rgba(255,255,255,0.5)',
-                  marginTop: 'clamp(15px, 2vh, 30px)',
-                  opacity: 0,
+                  letterSpacing: '0.4em',
+                  color: 'rgba(255,255,255,0.6)',
+                  marginTop: 'clamp(20px, 3vh, 40px)',
+                  opacity: 1,
                 }}
               >
-                2023
+                2023 • CURTA-METRAGEM
               </div>
             </div>
           </section>
 
-          {/* ===== AS MIÇANGAS - Panel 1: Kaleidoscope Split ===== */}
+          {/* ===== AS MIÇANGAS - Panel 1: Fragmented Memory Mosaic ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-micangas-panel="1"
+            data-micangas-mosaic=""
             data-film-panel=""
             style={{
               width: 'calc(100vw - 100px)',
               height: 'calc(100vh - 100px)',
               overflow: 'hidden',
-              backgroundColor: '#0a0a0a',
+              backgroundColor: '#050505',
             }}
           >
-            {/* 2x2 Kaleidoscope Grid */}
+            {/* Asymmetric Mosaic Grid - scattered memory fragments */}
+
+            {/* Fragment 1 - Large center-left */}
             <div
-              className="absolute inset-0"
+              data-mosaic-fragment="large"
+              className="absolute overflow-hidden"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gridTemplateRows: '1fr 1fr',
-                gap: '2px',
-                backgroundColor: 'rgba(255,255,255,0.05)',
+                left: '8%',
+                top: '10%',
+                width: '45%',
+                height: '55%',
+                opacity: 0,
+                transform: 'translateY(40px)',
+                zIndex: 1,
               }}
             >
-              {/* Quadrant 0 - Top Left (normal) */}
-              <div
-                data-micangas-quadrant="0"
-                className="relative overflow-hidden"
-                style={{ opacity: 0, transform: 'translate(-100%, -100%)' }}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.1)' }}
               >
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ transform: 'scale(1.1)' }}
-                >
-                  <source src="/videos/micangas.mp4" type="video/mp4" />
-                </video>
-              </div>
-              {/* Quadrant 1 - Top Right (mirrored X) */}
-              <div
-                data-micangas-quadrant="1"
-                className="relative overflow-hidden"
-                style={{ opacity: 0, transform: 'translate(100%, -100%)' }}
-              >
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ transform: 'scale(1.1) scaleX(-1)', filter: 'brightness(0.9) saturate(0.9)' }}
-                >
-                  <source src="/videos/micangas.mp4" type="video/mp4" />
-                </video>
-              </div>
-              {/* Quadrant 2 - Bottom Left (mirrored Y) */}
-              <div
-                data-micangas-quadrant="2"
-                className="relative overflow-hidden"
-                style={{ opacity: 0, transform: 'translate(-100%, 100%)' }}
-              >
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ transform: 'scale(1.1) scaleY(-1)', filter: 'brightness(0.85) saturate(0.85)' }}
-                >
-                  <source src="/videos/micangas.mp4" type="video/mp4" />
-                </video>
-              </div>
-              {/* Quadrant 3 - Bottom Right (mirrored XY) */}
-              <div
-                data-micangas-quadrant="3"
-                className="relative overflow-hidden"
-                style={{ opacity: 0, transform: 'translate(100%, 100%)' }}
-              >
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ transform: 'scale(1.1) scaleX(-1) scaleY(-1)', filter: 'brightness(0.8) saturate(0.8)' }}
-                >
-                  <source src="/videos/micangas.mp4" type="video/mp4" />
-                </video>
-              </div>
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
             </div>
 
-            {/* Cross-hair divider lines */}
+            {/* Fragment 2 - Medium top-right */}
             <div
-              className="absolute pointer-events-none"
+              data-mosaic-fragment="medium"
+              className="absolute overflow-hidden"
               style={{
-                left: '50%',
-                top: 0,
-                bottom: 0,
-                width: '1px',
-                background: 'rgba(255,255,255,0.1)',
-                zIndex: 2,
-              }}
-            />
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                top: '50%',
-                left: 0,
-                right: 0,
-                height: '1px',
-                background: 'rgba(255,255,255,0.1)',
-                zIndex: 2,
-              }}
-            />
-
-            {/* Centered Frosted Glass Panel */}
-            <div
-              data-micangas-frosted=""
-              className="absolute flex flex-col items-center justify-center text-center"
-              style={{
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 'clamp(280px, 35vw, 450px)',
-                padding: 'clamp(30px, 4vh, 50px)',
-                background: 'rgba(0, 0, 0, 0.6)',
-                backdropFilter: 'blur(20px) saturate(1.5)',
-                borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.1)',
-                zIndex: 3,
+                right: '5%',
+                top: '5%',
+                width: '32%',
+                height: '40%',
                 opacity: 0,
+                transform: 'translateX(40px)',
+                zIndex: 2,
+                filter: 'saturate(0.7) brightness(0.9)',
+              }}
+            >
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.15) scaleX(-1)' }}
+              >
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Fragment 3 - Small top-left corner */}
+            <div
+              data-mosaic-fragment="small"
+              className="absolute overflow-hidden"
+              style={{
+                left: '2%',
+                top: '2%',
+                width: '18%',
+                height: '22%',
+                opacity: 0,
+                transform: 'scale(0.8)',
+                zIndex: 3,
+                filter: 'saturate(0) brightness(0.7)',
+              }}
+            >
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.2)' }}
+              >
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Fragment 4 - Medium bottom-right */}
+            <div
+              data-mosaic-fragment="medium"
+              className="absolute overflow-hidden"
+              style={{
+                right: '10%',
+                bottom: '8%',
+                width: '35%',
+                height: '38%',
+                opacity: 0,
+                transform: 'translateY(-30px)',
+                zIndex: 2,
+              }}
+            >
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.1)' }}
+              >
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Fragment 5 - Small bottom-left */}
+            <div
+              data-mosaic-fragment="small"
+              className="absolute overflow-hidden"
+              style={{
+                left: '5%',
+                bottom: '12%',
+                width: '22%',
+                height: '28%',
+                opacity: 0,
+                transform: 'translateX(-30px)',
+                zIndex: 3,
+                filter: 'sepia(0.3) brightness(0.85)',
+              }}
+            >
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.15) scaleY(-1)' }}
+              >
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Fragment 6 - Tiny accent right-center */}
+            <div
+              data-mosaic-fragment="tiny"
+              className="absolute overflow-hidden"
+              style={{
+                right: '2%',
+                top: '50%',
+                width: '12%',
+                height: '15%',
+                opacity: 0,
+                transform: 'scale(0.9)',
+                zIndex: 4,
+                filter: 'saturate(1.3) contrast(1.1)',
+              }}
+            >
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ transform: 'scale(1.3)' }}
+              >
+                <source src="/videos/micangas.mp4" type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Floating Text Content - positioned in the gaps */}
+            <div
+              data-mosaic-text=""
+              className="absolute"
+              style={{
+                left: '55%',
+                top: '55%',
+                width: 'clamp(200px, 30vw, 350px)',
+                zIndex: 10,
+                opacity: 0,
+                transform: 'translateY(20px)',
               }}
             >
               <div
@@ -5966,9 +6070,9 @@ export default function Home() {
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(10px, 0.9vw, 12px)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
+                  letterSpacing: '0.25em',
                   color: 'rgba(255, 255, 255, 0.5)',
-                  marginBottom: 'clamp(10px, 1.5vh, 20px)',
+                  marginBottom: 'clamp(12px, 1.5vh, 20px)',
                 }}
               >
                 {t('oFilme')}
@@ -5976,11 +6080,12 @@ export default function Home() {
               <h3
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(18px, 2vw, 28px)',
+                  fontSize: 'clamp(24px, 3vw, 42px)',
                   fontWeight: 700,
-                  letterSpacing: '-0.01em',
+                  letterSpacing: '-0.02em',
                   marginBottom: 'clamp(15px, 2vh, 25px)',
                   color: 'white',
+                  lineHeight: 1.1,
                 }}
               >
                 {t('asMicangasTitle')}
@@ -5988,14 +6093,42 @@ export default function Home() {
               <p
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(12px, 1vw, 14px)',
-                  lineHeight: '1.6',
+                  fontSize: 'clamp(13px, 1.1vw, 16px)',
+                  lineHeight: '1.7',
                   color: 'rgba(255, 255, 255, 0.7)',
+                  marginBottom: 'clamp(20px, 3vh, 35px)',
                 }}
               >
                 Memória e identidade através de narrativas fragmentadas e poéticas.
               </p>
+
+              {/* Credits */}
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(11px, 0.95vw, 13px)',
+                  lineHeight: '1.9',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                }}
+              >
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('direcao')}</span> Rafaela Camelo</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('producao')}</span> Moveo Filmes</div>
+              </div>
             </div>
+
+            {/* Subtle grid lines for structure */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 5,
+                opacity: 0.03,
+                backgroundImage: `
+                  linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+                `,
+                backgroundSize: '100px 100px',
+              }}
+            />
           </section>
 
           {/* ===== AS MIÇANGAS - Panel 2: Full-Bleed Credits ===== */}
