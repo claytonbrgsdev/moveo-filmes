@@ -2962,25 +2962,7 @@ export default function Home() {
           },
         });
 
-        // Phase 0: Secondary video fades in first (background depth layer)
-        if (secondaryVideo) {
-          tl.to(secondaryVideo, {
-            opacity: 0.2,
-            duration: 0.2,
-            ease: 'power2.out',
-          }, 0);
-        }
-
-        // Phase 1: Primary video starts fading in
-        if (primaryVideo) {
-          tl.to(primaryVideo, {
-            opacity: 1,
-            duration: 0.3,
-            ease: 'power2.out',
-          }, 0.1);
-        }
-
-        // Phase 2: Bars slide away from center with morphing effect
+        // Phase 0: Bars START sliding away first (before videos appear)
         tl.to(bars, {
           xPercent: (i: number) => i % 2 === 0 ? -115 : 115,
           skewX: (i: number) => i % 2 === 0 ? -8 : 8,
@@ -2990,7 +2972,25 @@ export default function Home() {
           duration: 0.55,
           stagger: { amount: 0.22, from: 'center', ease: 'power2.out' },
           ease: 'power3.inOut',
-        }, 0.15);
+        }, 0);
+
+        // Phase 1: Secondary video fades in (after bars have started moving)
+        if (secondaryVideo) {
+          tl.to(secondaryVideo, {
+            opacity: 0.2,
+            duration: 0.2,
+            ease: 'power2.out',
+          }, 0.2);
+        }
+
+        // Phase 2: Primary video fades in (after bars have partially cleared)
+        if (primaryVideo) {
+          tl.to(primaryVideo, {
+            opacity: 1,
+            duration: 0.3,
+            ease: 'power2.out',
+          }, 0.25);
+        }
 
         // Phase 3: Vignette and gradient fade in
         if (vignette) {
@@ -2998,14 +2998,14 @@ export default function Home() {
             opacity: 1,
             duration: 0.3,
             ease: 'power2.out',
-          }, 0.35);
+          }, 0.4);
         }
         if (gradient) {
           tl.to(gradient, {
             opacity: 1,
             duration: 0.3,
             ease: 'power2.out',
-          }, 0.35);
+          }, 0.4);
         }
 
         // Phase 4: Title text subtle enhancement
@@ -3013,7 +3013,7 @@ export default function Home() {
           tl.fromTo(titleText,
             { textShadow: '0 4px 30px rgba(0,0,0,0.8)' },
             { textShadow: '0 8px 60px rgba(0,0,0,0.9)', duration: 0.3, ease: 'power2.out' },
-            0.4
+            0.45
           );
         }
       });
