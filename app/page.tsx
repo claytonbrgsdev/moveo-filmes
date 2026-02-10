@@ -4358,7 +4358,7 @@ export default function Home() {
                 transform: 'translateX(-1.55%)',
               }}
             >
-              MOV<span style={{ letterSpacing: '0.02em' }}>E</span>O
+              MOV<span style={{ letterSpacing: '0.2em' }}>E</span>O
             </div>
 
             <div
@@ -4407,11 +4407,27 @@ export default function Home() {
                 bottom: 0,
               }}
             >
+              {/* Video background */}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{
+                  zIndex: 0,
+                  transform: 'scale(1.0)',
+                }}
+              >
+                <source src="/videos/misterio.mp4" type="video/mp4" />
+              </video>
+              {/* Image overlay with reduced opacity for blend effect */}
               <Image
                 src="/imagens/capahome.png"
                 alt="Capa Home"
                 fill
                 className="object-cover"
+                style={{ zIndex: 1, opacity: 0.3 }}
                 priority
                 unoptimized
               />
@@ -4912,6 +4928,7 @@ export default function Home() {
               <div style={{ width: '100%' }}>
                 <div
                   data-catalog-label
+                  data-destaques-label
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
@@ -4919,7 +4936,7 @@ export default function Home() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.3em',
                     marginBottom: 'clamp(30px, 4vh, 50px)',
-                    color: 'rgba(255, 255, 255, 0.4)',
+                    color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
                   {t('nossosFilmes')}
@@ -4936,6 +4953,7 @@ export default function Home() {
                 >
                   {/* "CATÁLOGO" - Light weight, large */}
                   <div
+                    data-destaques-title-light
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, sans-serif",
                       fontSize: 'clamp(60px, 10vw, 180px)',
@@ -4949,6 +4967,7 @@ export default function Home() {
                   </div>
                   {/* "EM DESTAQUE" - Bold, slightly smaller, offset */}
                   <div
+                    data-destaques-title-bold
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
                       fontSize: 'clamp(50px, 8vw, 140px)',
@@ -4990,7 +5009,7 @@ export default function Home() {
                       fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                       fontSize: 'clamp(16px, 1.5vw, 22px)',
                       lineHeight: '1.7',
-                      color: 'rgba(255, 255, 255, 0.7)',
+                      color: 'rgba(255, 255, 255, 0.85)',
                       maxWidth: '600px',
                       wordWrap: 'break-word',
                       overflowWrap: 'break-word',
@@ -5047,7 +5066,7 @@ export default function Home() {
               data-parallax-speed="0.15"
               data-title-video="primary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.02)', opacity: 0 }}
+              style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.0)', opacity: 0 }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
@@ -5121,7 +5140,6 @@ export default function Home() {
               <h2
                 className="data-natureza-content"
                 data-title-text=""
-                data-natureza-title-glow=""
                 suppressHydrationWarning
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -5133,7 +5151,6 @@ export default function Home() {
                   color: 'rgba(255, 255, 255, 0.95)',
                   textAlign: 'center',
                   maxWidth: '90%',
-                  textShadow: '0 4px 30px rgba(0,0,0,0.8)',
                 }}
               >
                 {t('aNaturezaDasCoisasInvisiveis')}
@@ -5165,7 +5182,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.02)',
+                transform: 'scale(1.0)',
                 opacity: 0.15,
                 filter: 'brightness(0.6)',
               }}
@@ -5185,7 +5202,7 @@ export default function Home() {
                 zIndex: 0,
                 right: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.02)',
+                transform: 'scale(1.0)',
                 opacity: 0.4,
                 filter: 'saturate(0) brightness(0.5)',
               }}
@@ -5355,7 +5372,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, filter',
-                transform: 'scale(1.02)',
+                transform: 'scale(1.0)',
               }}
             >
               <source src="/videos/natureza.mp4" type="video/mp4" />
@@ -5813,7 +5830,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, opacity, filter',
-                transform: 'scale(1.02)',
+                transform: 'scale(1.0)',
                 opacity: 0,
                 filter: 'saturate(0.4) brightness(0.4)',
               }}
@@ -6402,7 +6419,7 @@ export default function Home() {
               style={{
                 zIndex: 0,
                 willChange: 'transform, opacity, filter',
-                transform: 'scale(1.02)',
+                transform: 'scale(1.0)',
                 opacity: 0,
                 filter: 'sepia(0.4) saturate(0.8) brightness(0.5)',
               }}
@@ -6708,7 +6725,7 @@ export default function Home() {
                 className="absolute inset-0 w-full h-full object-cover transform-gpu"
                 style={{
                   willChange: 'transform',
-                  transform: 'scale(1.02)',
+                  transform: 'scale(1.0)',
                 }}
               >
                 <source src="/videos/misterio.mp4" type="video/mp4" />
