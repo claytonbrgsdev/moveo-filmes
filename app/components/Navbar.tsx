@@ -100,7 +100,6 @@ export default function Navbar() {
                 height: '1.125rem',
                 width: 'auto',
               }}
-              unoptimized
             />
           </div>
 

@@ -7,8 +7,7 @@ import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
-import type { PostRow } from '@/lib/supabase/types';
-import { formatPostForLanguage } from '@/lib/supabase/posts';
+import { formatPostForLanguage, type PostListRow } from '@/lib/supabase/posts';
 
 // Content translations (UI only)
 const uiContent = {
@@ -27,7 +26,7 @@ const uiContent = {
 };
 
 interface NoticiasClientProps {
-  posts: PostRow[];
+  posts: PostListRow[];
 }
 
 export default function NoticiasClient({ posts }: NoticiasClientProps) {

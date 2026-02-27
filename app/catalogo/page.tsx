@@ -1,18 +1,13 @@
 'use client'
 
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const content = {
   pt: {
@@ -22,12 +17,12 @@ const content = {
     outrosTitle: 'Outros',
     outrosText: 'Mostras, exposições e projetos especiais.',
     categories: [
-      { title: 'Cinema', href: '/catalogo/cinema', label: 'Filmes de longa-metragem', count: '8' },
-      { title: 'Mostras', href: '/catalogo/mostras-e-exposicoes', label: 'Exposições especiais', count: '4' },
-      { title: 'Desenvolvimento', href: '/catalogo/desenvolvimento', label: 'Projetos em criação', count: '3' },
-      { title: 'Pré-produção', href: '/catalogo/pre-producao', label: 'Em preparação', count: '2' },
-      { title: 'Pós-produção', href: '/catalogo/pos-producao', label: 'Finalizando', count: '1' },
-      { title: 'Distribuição', href: '/catalogo/distribuicao', label: 'Nos cinemas', count: '5' },
+      { title: 'Cinema', href: '/catalogo/cinema', label: 'Filmes de longa-metragem' },
+      { title: 'Mostras', href: '/catalogo/mostras-e-exposicoes', label: 'Exposições especiais' },
+      { title: 'Desenvolvimento', href: '/catalogo/desenvolvimento', label: 'Projetos em criação' },
+      { title: 'Pré-produção', href: '/catalogo/pre-producao', label: 'Em preparação' },
+      { title: 'Pós-produção', href: '/catalogo/pos-producao', label: 'Finalizando' },
+      { title: 'Distribuição', href: '/catalogo/distribuicao', label: 'Nos cinemas' },
     ],
   },
   en: {
@@ -37,22 +32,61 @@ const content = {
     outrosTitle: 'Others',
     outrosText: 'Exhibitions and special projects.',
     categories: [
-      { title: 'Cinema', href: '/catalogo/cinema', label: 'Feature films', count: '8' },
-      { title: 'Showcase', href: '/catalogo/mostras-e-exposicoes', label: 'Special exhibitions', count: '4' },
-      { title: 'Development', href: '/catalogo/desenvolvimento', label: 'Projects in creation', count: '3' },
-      { title: 'Pre-production', href: '/catalogo/pre-producao', label: 'In preparation', count: '2' },
-      { title: 'Post-production', href: '/catalogo/pos-producao', label: 'Finalizing', count: '1' },
-      { title: 'Distribution', href: '/catalogo/distribuicao', label: 'In theaters', count: '5' },
+      { title: 'Cinema', href: '/catalogo/cinema', label: 'Feature films' },
+      { title: 'Showcase', href: '/catalogo/mostras-e-exposicoes', label: 'Special exhibitions' },
+      { title: 'Development', href: '/catalogo/desenvolvimento', label: 'Projects in creation' },
+      { title: 'Pre-production', href: '/catalogo/pre-producao', label: 'In preparation' },
+      { title: 'Post-production', href: '/catalogo/pos-producao', label: 'Finalizing' },
+      { title: 'Distribution', href: '/catalogo/distribuicao', label: 'In theaters' },
     ],
   },
+};
+
+// Maps category href → categoria_site value in the filmes table
+const HREF_TO_CATEGORIA: Record<string, string> = {
+  '/catalogo/cinema': 'cinema',
+  '/catalogo/mostras-e-exposicoes': 'mostra',
+  '/catalogo/desenvolvimento': 'desenvolvimento',
+  '/catalogo/pre-producao': 'pre-producao',
+  '/catalogo/pos-producao': 'pos-producao',
+  '/catalogo/distribuicao': 'distribuicao',
 };
 
 export default function CatalogoPage() {
   const { language, setLanguage } = useLanguage();
   const t = content[language];
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+
+  // Live counts from DB — keyed by href, '…' while loading
+  const [counts, setCounts] = useState<Record<string, string>>(() =>
+    Object.fromEntries(Object.keys(HREF_TO_CATEGORIA).map((href) => [href, '…']))
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCounts = async () => {
+      const { createBrowserClient } = await import('@supabase/ssr');
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const entries = await Promise.all(
+        Object.entries(HREF_TO_CATEGORIA).map(async ([href, cat]) => {
+          const { count } = await supabase
+            .from('filmes')
+            .select('*', { count: 'exact', head: true })
+            .eq('categoria_site', cat)
+            .eq('visibilidade', 'publico');
+          return [href, String(count ?? 0)] as [string, string];
+        })
+      );
+      if (!cancelled) setCounts(Object.fromEntries(entries));
+    };
+    fetchCounts();
+    return () => { cancelled = true; };
+  }, []);
 
   // Hero section entrance animations (on page load)
   useLayoutEffect(() => {
@@ -311,7 +345,7 @@ export default function CatalogoPage() {
                       lineHeight: 1,
                     }}
                   >
-                    {t.categories[0].count}
+                    {counts[t.categories[0].href]}
                   </div>
                 </div>
                 <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
@@ -375,7 +409,7 @@ export default function CatalogoPage() {
                         lineHeight: 1,
                       }}
                     >
-                      {t.categories[2].count} →
+                      {counts[t.categories[2].href]} →
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
@@ -430,7 +464,7 @@ export default function CatalogoPage() {
                         lineHeight: 1,
                       }}
                     >
-                      {t.categories[3].count} →
+                      {counts[t.categories[3].href]} →
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
@@ -485,7 +519,7 @@ export default function CatalogoPage() {
                         lineHeight: 1,
                       }}
                     >
-                      {t.categories[4].count} →
+                      {counts[t.categories[4].href]} →
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
@@ -540,7 +574,7 @@ export default function CatalogoPage() {
                         lineHeight: 1,
                       }}
                     >
-                      {t.categories[5].count}
+                      {counts[t.categories[5].href]}
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
@@ -592,7 +626,7 @@ export default function CatalogoPage() {
                       lineHeight: 1,
                     }}
                   >
-                    {t.categories[1].count}
+                    {counts[t.categories[1].href]}
                   </div>
                 </div>
                 <div className="absolute bottom-0 left-0 h-px bg-white transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />

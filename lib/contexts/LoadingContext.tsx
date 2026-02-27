@@ -32,7 +32,13 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
   // Auto-detect font loading
   useEffect(() => {
     if (typeof document !== 'undefined' && document.fonts) {
-      document.fonts.ready.then(() => setFontsLoadedState(true));
+      // If the document is already fully loaded (e.g. client-side navigation),
+      // resolve immediately instead of waiting for fonts.ready to fire again
+      if (document.readyState === 'complete') {
+        setFontsLoadedState(true);
+      } else {
+        document.fonts.ready.then(() => setFontsLoadedState(true));
+      }
     } else {
       // Fallback if fonts API not available
       setFontsLoadedState(true);
@@ -47,7 +53,7 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
         setVideosReadyState(true);
         setGsapReadyState(true);
       }
-    }, 5000); // Max 5 seconds loading
+    }, 3000); // Max 3 seconds loading (reduced from 5s)
 
     return () => clearTimeout(fallbackTimer);
   }, [isLoading]);

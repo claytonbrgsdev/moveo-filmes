@@ -235,13 +235,13 @@ nextjs-portal {
 /* Cinematic Sections */
 [data-cinematic-section] {
   visibility: hidden;
-  will-change: clip-path;
+  /* will-change set by GSAP just-in-time during animation */
 }
 
 /* Stagger Grid Items */
 [data-stagger-item] {
   will-change: transform, opacity;
-  transform-style: preserve-3d;
+  /* transform-style: preserve-3d removed — expensive to composite; only apply where 3D is required */
 }
 
 /* Mask Reveal Images */
@@ -437,7 +437,7 @@ video[data-video-parallax] {
     transparent 360deg
   );
   will-change: transform;
-  animation: light-ray-rotate 45s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: light-ray-rotate 90s linear infinite;
 }
 
 @keyframes light-ray-rotate {
@@ -534,7 +534,7 @@ video[data-video-parallax] {
 
 /* Frosted glass panel */
 [data-micangas-frosted] {
-  will-change: transform, opacity, border-radius;
+  will-change: transform;
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
 }
@@ -747,6 +747,19 @@ video[data-video-parallax] {
   animation: gradient-shift 3s ease infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient-text {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .animated-gradient-text {
+    animation-duration: 6s;
+  }
+}
+
 /* Cursor Glow Effect */
 .cursor-glow {
   position: fixed;
@@ -787,6 +800,12 @@ video[data-video-parallax] {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   animation: border-dance 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-border::before {
+    animation: none;
+  }
 }
 
 /* Spotlight Effect */

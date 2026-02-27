@@ -8,15 +8,31 @@
 import { createServiceClient } from './service'
 import type { PostRow } from './types'
 
+// Columns fetched for list views — excludes large conteudo_pt/en body fields
+const POST_LIST_COLUMNS = 'id, slug, titulo_pt, titulo_en, resumo_pt, resumo_en, imagem_capa_url, alt_pt, alt_en, publicado_em, tipo, url_externa, visibilidade'
+
+// Partial PostRow type for listing queries (body content fields are absent)
+export type PostListRow = Pick<PostRow,
+  | 'id' | 'slug'
+  | 'titulo_pt' | 'titulo_en'
+  | 'resumo_pt' | 'resumo_en'
+  | 'imagem_capa_url'
+  | 'alt_pt' | 'alt_en'
+  | 'publicado_em'
+  | 'tipo'
+  | 'url_externa'
+  | 'visibilidade'
+>
+
 /**
  * Get all published posts, ordered by publication date
  */
-export async function getAllPosts(): Promise<PostRow[]> {
+export async function getAllPosts(): Promise<PostListRow[]> {
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select(POST_LIST_COLUMNS)
     .eq('visibilidade', 'publico')
     .order('publicado_em', { ascending: false })
 
@@ -25,7 +41,7 @@ export async function getAllPosts(): Promise<PostRow[]> {
     return []
   }
 
-  return data || []
+  return (data || []) as PostListRow[]
 }
 
 /**
@@ -71,12 +87,12 @@ export async function getAllPostSlugs(): Promise<string[]> {
 /**
  * Get posts by category (tipo)
  */
-export async function getPostsByCategory(category: string): Promise<PostRow[]> {
+export async function getPostsByCategory(category: string): Promise<PostListRow[]> {
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select(POST_LIST_COLUMNS)
     .eq('tipo', category)
     .eq('visibilidade', 'publico')
     .order('publicado_em', { ascending: false })
@@ -86,18 +102,18 @@ export async function getPostsByCategory(category: string): Promise<PostRow[]> {
     return []
   }
 
-  return data || []
+  return (data || []) as PostListRow[]
 }
 
 /**
  * Get Instagram posts only
  */
-export async function getInstagramPosts(): Promise<PostRow[]> {
+export async function getInstagramPosts(): Promise<PostListRow[]> {
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select(POST_LIST_COLUMNS)
     .eq('tipo', 'instagram')
     .eq('visibilidade', 'publico')
     .order('publicado_em', { ascending: false })
@@ -107,19 +123,20 @@ export async function getInstagramPosts(): Promise<PostRow[]> {
     return []
   }
 
-  return data || []
+  return (data || []) as PostListRow[]
 }
 
 /**
  * Format a post for display (helper for language-based content)
  */
-export function formatPostForLanguage(post: PostRow, language: 'pt' | 'en') {
+export function formatPostForLanguage(post: PostRow | PostListRow, language: 'pt' | 'en') {
+  const fullPost = post as PostRow
   return {
     id: post.id,
     slug: post.slug,
     title: language === 'pt' ? post.titulo_pt : (post.titulo_en || post.titulo_pt),
     excerpt: language === 'pt' ? post.resumo_pt : (post.resumo_en || post.resumo_pt),
-    content: language === 'pt' ? post.conteudo_pt : (post.conteudo_en || post.conteudo_pt),
+    content: language === 'pt' ? fullPost.conteudo_pt : (fullPost.conteudo_en || fullPost.conteudo_pt),
     imageUrl: post.imagem_capa_url,
     imageAlt: language === 'pt' ? post.alt_pt : (post.alt_en || post.alt_pt),
     date: post.publicado_em,

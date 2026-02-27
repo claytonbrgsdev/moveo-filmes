@@ -2,16 +2,11 @@
 
 import { useRef, useLayoutEffect } from 'react';
 import Image from 'next/image';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 // Content translations
 const content = {

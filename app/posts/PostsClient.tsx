@@ -3,18 +3,12 @@
 import { useRef, useLayoutEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
-import type { PostRow } from '@/lib/supabase/types';
-import { formatPostForLanguage } from '@/lib/supabase/posts';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { formatPostForLanguage, type PostListRow } from '@/lib/supabase/posts';
 
 // Static content translations (UI only, not posts)
 const uiContent = {
@@ -33,7 +27,7 @@ const uiContent = {
 };
 
 interface PostsClientProps {
-  posts: PostRow[];
+  posts: PostListRow[];
 }
 
 export default function PostsClient({ posts }: PostsClientProps) {

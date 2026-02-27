@@ -1,4 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
+
+// ---------------------------------------------------------------------------
+// TODO: Activate email sending
+//   1. Create a free account at https://resend.com
+//   2. Get your API key from https://resend.com/api-keys
+//   3. Add to .env.local (and Vercel env vars):
+//        RESEND_API_KEY=re_xxxxxxxxxxxx
+//        EMAIL_FROM=contato@moveofilmes.com   (must be a verified domain in Resend)
+//        EMAIL_TO=contato@moveofilmes.com
+//   4. Verify your domain at https://resend.com/domains
+//      (or use the Resend sandbox "onboarding@resend.dev" as from address for testing)
+// ---------------------------------------------------------------------------
 
 // Rate limiting: armazena tentativas por IP
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -92,41 +105,52 @@ export async function POST(request: NextRequest) {
     const sanitizedEmail = sanitizeInput(email);
     const sanitizedMensagem = sanitizeInput(mensagem);
 
-    // Aqui você pode integrar com um serviço de email real
-    // Por exemplo: Resend, SendGrid, Nodemailer, etc.
-    // Por enquanto, vamos apenas logar e retornar sucesso
-    
-    // Exemplo com Resend (descomente e configure quando tiver a API key):
-    /*
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: 'contato@moveofilmes.com',
-      to: 'contato@moveofilmes.com',
-      replyTo: sanitizedEmail,
-      subject: `Nova mensagem de contato de ${sanitizedNome}`,
-      html: `
-        <h2>Nova mensagem de contato</h2>
-        <p><strong>Nome:</strong> ${sanitizedNome}</p>
-        <p><strong>Email:</strong> ${sanitizedEmail}</p>
-        <p><strong>Mensagem:</strong></p>
-        <p>${sanitizedMensagem.replace(/\n/g, '<br>')}</p>
-      `,
-    });
-    */
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM ?? 'contato@moveofilmes.com';
+    const emailTo = process.env.EMAIL_TO ?? 'contato@moveofilmes.com';
 
-    // Log para desenvolvimento (remover em produção)
-    console.log('Nova mensagem de contato:', {
-      nome: sanitizedNome,
-      email: sanitizedEmail,
-      mensagem: sanitizedMensagem,
-    });
+    if (resendApiKey) {
+      // Email sending is active — RESEND_API_KEY is set
+      const resend = new Resend(resendApiKey);
+      const { error: sendError } = await resend.emails.send({
+        from: emailFrom,
+        to: emailTo,
+        replyTo: sanitizedEmail,
+        subject: `Nova mensagem de contato de ${sanitizedNome}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px;">
+            <h2 style="color: #000;">Nova mensagem de contato — Moveo Filmes</h2>
+            <p><strong>Nome:</strong> ${sanitizedNome}</p>
+            <p><strong>Email:</strong> ${sanitizedEmail}</p>
+            <hr style="border: 1px solid #eee;" />
+            <p><strong>Mensagem:</strong></p>
+            <p style="white-space: pre-line;">${sanitizedMensagem}</p>
+          </div>
+        `,
+      });
+
+      if (sendError) {
+        console.error('Resend error:', sendError);
+        return NextResponse.json(
+          { error: 'Erro ao enviar mensagem. Por favor, tente novamente.' },
+          { status: 500 }
+        );
+      }
+    } else {
+      // RESEND_API_KEY not set — log only (safe fallback, form still works)
+      console.log('[contato] RESEND_API_KEY not set — email not sent. Message received:', {
+        nome: sanitizedNome,
+        email: sanitizedEmail,
+        mensagem: sanitizedMensagem,
+      });
+    }
 
     return NextResponse.json(
       { message: 'Mensagem enviada com sucesso!' },
       { status: 200 }
     );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error : new Error('Erro desconhecido');
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     console.error('Erro ao enviar mensagem:', errorMessage);
     return NextResponse.json(
       { error: 'Erro ao enviar mensagem. Por favor, tente novamente.' },
@@ -134,4 +158,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

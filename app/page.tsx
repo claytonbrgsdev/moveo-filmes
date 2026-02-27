@@ -4,10 +4,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
@@ -98,10 +95,16 @@ export default function Home() {
   const cinemaSectionRef = useRef<HTMLElement | null>(null);
   const arquivoSectionRef = useRef<HTMLElement | null>(null);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const mouseMoveRafPending = useRef(false);
 
-  // Cursor glow effect
+  // Cursor glow effect — RAF-throttled to cap state updates at ~60/s
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    setCursorPosition({ x: e.clientX, y: e.clientY });
+    if (mouseMoveRafPending.current) return;
+    mouseMoveRafPending.current = true;
+    requestAnimationFrame(() => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+      mouseMoveRafPending.current = false;
+    });
   }, []);
 
   useEffect(() => {
@@ -193,10 +196,16 @@ export default function Home() {
     };
 
     updateTitlePosition();
-    window.addEventListener('resize', updateTitlePosition);
-    
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const debouncedUpdateTitle = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updateTitlePosition, 200);
+    };
+    window.addEventListener('resize', debouncedUpdateTitle);
+
     return () => {
-      window.removeEventListener('resize', updateTitlePosition);
+      window.removeEventListener('resize', debouncedUpdateTitle);
+      clearTimeout(resizeTimer);
     };
   }, []);
 
@@ -271,13 +280,16 @@ export default function Home() {
       });
     }, horizontalWrapperRef);
 
+    let scrollResizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      ScrollTrigger.refresh();
+      clearTimeout(scrollResizeTimer);
+      scrollResizeTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      clearTimeout(scrollResizeTimer);
       mainTrackTimelineRef.current = null;
       setMainTrackReady(false);
       ctx.revert();
