@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
+import { RichTextEditor } from './RichTextEditor'
+import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -28,7 +30,7 @@ function generateSlug(nome: string): string {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
-interface PessoaFormProps { pessoaId?: string; onSave: () => void; onCancel: () => void }
+interface PessoaFormProps { pessoaId?: string; onSave: () => void; onCancel: () => void; onDirtyChange?: (isDirty: boolean) => void }
 
 interface FormData {
   nome: string; nome_exibicao: string; slug: string
@@ -41,13 +43,21 @@ const EMPTY: FormData = {
   bio_pt: '', bio_en: '', links: '', visibilidade: 'rascunho', foto_url: '',
 }
 
-export function PessoaForm({ pessoaId, onSave, onCancel }: PessoaFormProps) {
+export function PessoaForm({ pessoaId, onSave, onCancel, onDirtyChange }: PessoaFormProps) {
   const isEdit = !!pessoaId
   const [form, setForm] = useState<FormData>(EMPTY)
+  const [initialForm, setInitialForm] = useState<FormData>(EMPTY)
   const [loadingData, setLoadingData] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(false)
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm)
+  useBeforeUnload(isDirty)
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   useEffect(() => {
     if (!pessoaId) return
@@ -55,7 +65,7 @@ export function PessoaForm({ pessoaId, onSave, onCancel }: PessoaFormProps) {
     fetch(`/api/admin/pessoas/${pessoaId}`)
       .then(r => r.json())
       .then(d => {
-        setForm({
+        const loaded: FormData = {
           nome: d.nome ?? '',
           nome_exibicao: d.nome_exibicao ?? '',
           slug: d.slug ?? '',
@@ -65,7 +75,9 @@ export function PessoaForm({ pessoaId, onSave, onCancel }: PessoaFormProps) {
           links: (d.links ?? []).join(', '),
           visibilidade: d.visibilidade ?? 'rascunho',
           foto_url: d.foto_url ?? '',
-        })
+        }
+        setForm(loaded)
+        setInitialForm(loaded)
         setSlugTouched(true)
         setLoadingData(false)
       })
@@ -188,15 +200,21 @@ export function PessoaForm({ pessoaId, onSave, onCancel }: PessoaFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label style={labelStyle}>Bio (PT)</label>
-            <textarea value={form.bio_pt} onChange={e => set('bio_pt', e.target.value)}
-              rows={6} placeholder="Biografia em português…" className="placeholder-white/20 resize-y"
-              style={{ ...inputStyle, borderBottom: 'none', border: '1px solid rgba(255,255,255,0.2)', padding: '10px', minHeight: '144px' }} />
+            <RichTextEditor
+              value={form.bio_pt}
+              onChange={v => set('bio_pt', v)}
+              placeholder="Biografia em português…"
+              minHeight="144px"
+            />
           </div>
           <div>
             <label style={labelStyle}>Bio (EN)</label>
-            <textarea value={form.bio_en} onChange={e => set('bio_en', e.target.value)}
-              rows={6} placeholder="Biography in English…" className="placeholder-white/20 resize-y"
-              style={{ ...inputStyle, borderBottom: 'none', border: '1px solid rgba(255,255,255,0.2)', padding: '10px', minHeight: '144px' }} />
+            <RichTextEditor
+              value={form.bio_en}
+              onChange={v => set('bio_en', v)}
+              placeholder="Biography in English…"
+              minHeight="144px"
+            />
           </div>
         </div>
       </section>

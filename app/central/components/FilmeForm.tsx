@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
+import { RichTextEditor } from './RichTextEditor'
+import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
 import { AssetsPanel } from './sub/AssetsPanel'
 import { CreditosPanel } from './sub/CreditosPanel'
 import { ElencoPanel } from './sub/ElencoPanel'
@@ -256,15 +258,24 @@ interface FilmeFormProps {
   onSave: () => void
   onCancel: () => void
   pessoas?: { id: string; nome: string; nome_exibicao: string | null }[]
+  onDirtyChange?: (isDirty: boolean) => void
 }
 
-export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [] }: FilmeFormProps) {
+export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChange }: FilmeFormProps) {
   const isEdit = !!filmeId
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
+  const [initialForm, setInitialForm] = useState<FormData>(EMPTY_FORM)
   const [loadingData, setLoadingData] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(false)
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm)
+  useBeforeUnload(isDirty)
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   // Load existing film data in edit mode
   useEffect(() => {
@@ -273,7 +284,7 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [] }: FilmeForm
     fetch(`/api/admin/filmes/${filmeId}`)
       .then((r) => r.json())
       .then((data) => {
-        setForm({
+        const loaded: FormData = {
           titulo_pt: data.titulo_pt ?? '',
           titulo_en: data.titulo_en ?? '',
           slug: data.slug ?? '',
@@ -303,7 +314,9 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [] }: FilmeForm
           titulo_seo_en: data.titulo_seo_en ?? '',
           descricao_seo_pt: data.descricao_seo_pt ?? '',
           descricao_seo_en: data.descricao_seo_en ?? '',
-        })
+        }
+        setForm(loaded)
+        setInitialForm(loaded)
         setSlugTouched(true) // In edit mode, don't auto-generate slug
         setLoadingData(false)
       })
@@ -462,10 +475,20 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [] }: FilmeForm
             <TextArea value={form.logline_en} onChange={(v) => setField('logline_en', v)} placeholder="One sentence that summarizes the film" rows={3} />
           </Field>
           <Field label="Sinopse (PT)">
-            <TextArea value={form.sinopse_pt} onChange={(v) => setField('sinopse_pt', v)} placeholder="Sinopse completa em português…" rows={5} />
+            <RichTextEditor
+              value={form.sinopse_pt}
+              onChange={(v) => setField('sinopse_pt', v)}
+              placeholder="Sinopse completa em português…"
+              minHeight="120px"
+            />
           </Field>
           <Field label="Sinopse (EN)">
-            <TextArea value={form.sinopse_en} onChange={(v) => setField('sinopse_en', v)} placeholder="Full synopsis in English…" rows={5} />
+            <RichTextEditor
+              value={form.sinopse_en}
+              onChange={(v) => setField('sinopse_en', v)}
+              placeholder="Full synopsis in English…"
+              minHeight="120px"
+            />
           </Field>
           <Field label="Resumo Curto (PT)">
             <TextArea value={form.resumo_curto_pt} onChange={(v) => setField('resumo_curto_pt', v)} placeholder="Versão curta para cards e listas" rows={2} />

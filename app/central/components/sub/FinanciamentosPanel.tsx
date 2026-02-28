@@ -1,13 +1,50 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useSortablePanel } from './useSortablePanel'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 
-interface Financiamento { id: string; nome: string; tipo: string; resultado: string | null; valor: number | null; moeda: string | null; ano: number | null }
-interface AddForm { nome: string; tipo: string; fase: string; resultado: string; organizador: string; valor: string; moeda: string; ano: string; observacoes: string; ordem: string }
-const EMPTY: AddForm = { nome: '', tipo: 'edital', fase: '', resultado: '', organizador: '', valor: '', moeda: 'BRL', ano: '', observacoes: '', ordem: '' }
+interface Financiamento {
+  id: string; nome: string; tipo: string; resultado: string | null
+  valor: number | null; moeda: string | null; ano: number | null; ordem: number | null
+}
+interface AddForm {
+  nome: string; tipo: string; fase: string; resultado: string
+  organizador: string; valor: string; moeda: string; ano: string; observacoes: string
+}
+const EMPTY: AddForm = {
+  nome: '', tipo: 'edital', fase: '', resultado: '', organizador: '', valor: '', moeda: 'BRL', ano: '', observacoes: '',
+}
+
+function SortableRow({
+  r, deletingId, onDelete,
+}: { r: Financiamento; deletingId: string | null; onDelete: (id: string) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: r.id })
+  return (
+    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition, borderBottom: '1px solid rgba(255,255,255,0.06)', opacity: isDragging ? 0.5 : 1, background: isDragging ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+      className="flex items-center gap-3 py-2">
+      <button type="button" {...attributes} {...listeners} title="Arrastar para reordenar"
+        style={{ color: 'rgba(255,255,255,0.2)', cursor: 'grab', fontSize: '14px', lineHeight: 1, flexShrink: 0, padding: '2px', border: 'none', background: 'transparent' }}
+        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}>⠿</button>
+      <div className="flex-1 min-w-0">
+        <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>{r.nome}</span>
+        <span className="text-white/30 text-xs ml-2" style={{ fontFamily: FONT_BODY }}>
+          {[r.tipo, r.resultado, r.valor != null ? `${r.moeda ?? ''} ${r.valor}`.trim() : null, r.ano].filter(Boolean).join(' · ')}
+        </span>
+      </div>
+      <button type="button" onClick={() => onDelete(r.id)} disabled={deletingId === r.id}
+        className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
+        {deletingId === r.id ? '…' : 'remover'}
+      </button>
+    </div>
+  )
+}
 
 export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
   const [rows, setRows] = useState<Financiamento[]>([])
@@ -17,6 +54,8 @@ export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const { sensors, handleDragEnd, isSaving } = useSortablePanel(rows, setRows, { filmeId, endpoint: 'financiamentos' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -44,7 +83,7 @@ export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
           moeda: form.moeda || null,
           ano: form.ano ? parseInt(form.ano) : null,
           observacoes: form.observacoes || null,
-          ordem: form.ordem ? parseInt(form.ordem) : null,
+          ordem: rows.length + 1,
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error)
@@ -69,7 +108,7 @@ export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h4 style={{ fontFamily: FONT_HEADING, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>
-          Financiamentos ({rows.length})
+          Financiamentos ({rows.length}){isSaving && <span className="ml-2 opacity-40"> salvando…</span>}
         </h4>
         {!adding && (
           <button type="button" onClick={() => setAdding(true)}
@@ -81,22 +120,13 @@ export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
       </div>
 
       {loading ? <p className="text-white/30 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Carregando…</p> : (
-        <div className="space-y-1 mb-4">
+        <div className="mb-4">
           {rows.length === 0 && <p className="text-white/20 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Nenhum financiamento ainda.</p>}
-          {rows.map(r => (
-            <div key={r.id} className="flex items-center gap-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="flex-1 min-w-0">
-                <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>{r.nome}</span>
-                <span className="text-white/30 text-xs ml-2" style={{ fontFamily: FONT_BODY }}>
-                  {[r.tipo, r.resultado, r.valor ? `${r.moeda ?? ''} ${r.valor}`.trim() : null, r.ano].filter(Boolean).join(' · ')}
-                </span>
-              </div>
-              <button type="button" onClick={() => handleDelete(r.id)} disabled={deletingId === r.id}
-                className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
-                {deletingId === r.id ? '…' : 'remover'}
-              </button>
-            </div>
-          ))}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
+              {rows.map(r => <SortableRow key={r.id} r={r} deletingId={deletingId} onDelete={handleDelete} />)}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -121,7 +151,6 @@ export function FinanciamentosPanel({ filmeId }: { filmeId: string }) {
             <div>{inp(form.valor, v => setForm(f => ({ ...f, valor: v })), 'Valor')}</div>
             <div>{inp(form.moeda, v => setForm(f => ({ ...f, moeda: v })), 'Moeda (BRL, EUR…)')}</div>
             <div>{inp(form.ano, v => setForm(f => ({ ...f, ano: v })), 'Ano')}</div>
-            <div>{inp(form.ordem, v => setForm(f => ({ ...f, ordem: v })), 'Ordem')}</div>
             <div className="col-span-2">{inp(form.observacoes, v => setForm(f => ({ ...f, observacoes: v })), 'Observações')}</div>
           </div>
           {error && <p className="text-red-400 text-xs mb-3" style={{ fontFamily: FONT_BODY }}>{error}</p>}

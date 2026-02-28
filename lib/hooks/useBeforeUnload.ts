@@ -1,0 +1,18 @@
+import { useEffect } from 'react'
+
+/**
+ * Registers a beforeunload handler that shows the browser's native
+ * "Leave site?" dialog when `isDirty` is true.
+ */
+export function useBeforeUnload(isDirty: boolean) {
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty])
+}

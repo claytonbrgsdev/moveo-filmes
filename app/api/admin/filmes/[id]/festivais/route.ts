@@ -28,3 +28,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
 }
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin()
+  await params
+  const supabase = createServiceClient()
+  const { items } = await request.json() as { items: { id: string; ordem: number }[] }
+  if (!Array.isArray(items)) return NextResponse.json({ error: 'items array required' }, { status: 400 })
+  await Promise.all(items.map(({ id: rowId, ordem }) =>
+    supabase.from('filmes_festivais').update({ ordem }).eq('id', rowId)
+  ))
+  return NextResponse.json({ updated: items.length })
+}

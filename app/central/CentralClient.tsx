@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { FilmeListItem } from './page'
@@ -12,6 +12,7 @@ import { PessoasList } from './components/PessoasList'
 import { PessoaForm } from './components/PessoaForm'
 import { PostsList } from './components/PostsList'
 import { PostForm } from './components/PostForm'
+import { UnsavedChangesPrompt } from './components/UnsavedChangesPrompt'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -49,6 +50,35 @@ export default function CentralClient({
   const [refreshing, setRefreshing] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
 
+  // ── Unsaved changes guard ────────────────────────────────────────────────────
+  const dirtyRef = useRef(false)
+  const [pendingNav, setPendingNav] = useState<(() => void) | null>(null)
+
+  const handleDirtyChange = useCallback((isDirty: boolean) => {
+    dirtyRef.current = isDirty
+  }, [])
+
+  /** Wraps all navigation actions — shows prompt if form is dirty */
+  const guardedNavigate = useCallback((fn: () => void) => {
+    if (dirtyRef.current) {
+      setPendingNav(() => fn)
+    } else {
+      fn()
+    }
+  }, [])
+
+  const handleDiscard = useCallback(() => {
+    dirtyRef.current = false
+    const fn = pendingNav
+    setPendingNav(null)
+    fn?.()
+  }, [pendingNav])
+
+  const handleContinueEditing = useCallback(() => {
+    setPendingNav(null)
+  }, [])
+
+  // ── Data refresh ─────────────────────────────────────────────────────────────
   const refreshFilmes = useCallback(async () => {
     setRefreshing(true)
     try {
@@ -73,17 +103,39 @@ export default function CentralClient({
     } finally { setRefreshing(false) }
   }, [])
 
+  // ── Form navigation handlers ──────────────────────────────────────────────────
   const handleFilmeEdit = useCallback((id: string) => { setFilmesEditingId(id); setFilmesView('edit') }, [])
-  const handleFilmeSaved = useCallback(async () => { await refreshFilmes(); setFilmesView('list'); setFilmesEditingId(null) }, [refreshFilmes])
-  const handleFilmeCancel = useCallback(() => { setFilmesView('list'); setFilmesEditingId(null) }, [])
+  const handleFilmeSaved = useCallback(async () => {
+    dirtyRef.current = false
+    await refreshFilmes()
+    setFilmesView('list')
+    setFilmesEditingId(null)
+  }, [refreshFilmes])
+  const handleFilmeCancel = useCallback(() => {
+    guardedNavigate(() => { setFilmesView('list'); setFilmesEditingId(null) })
+  }, [guardedNavigate])
 
   const handlePessoaEdit = useCallback((id: string) => { setPessoasEditingId(id); setPessoasView('edit') }, [])
-  const handlePessoaSaved = useCallback(async () => { await refreshPessoas(); setPessoasView('list'); setPessoasEditingId(null) }, [refreshPessoas])
-  const handlePessoaCancel = useCallback(() => { setPessoasView('list'); setPessoasEditingId(null) }, [])
+  const handlePessoaSaved = useCallback(async () => {
+    dirtyRef.current = false
+    await refreshPessoas()
+    setPessoasView('list')
+    setPessoasEditingId(null)
+  }, [refreshPessoas])
+  const handlePessoaCancel = useCallback(() => {
+    guardedNavigate(() => { setPessoasView('list'); setPessoasEditingId(null) })
+  }, [guardedNavigate])
 
   const handlePostEdit = useCallback((id: string) => { setPostsEditingId(id); setPostsView('edit') }, [])
-  const handlePostSaved = useCallback(async () => { await refreshPosts(); setPostsView('list'); setPostsEditingId(null) }, [refreshPosts])
-  const handlePostCancel = useCallback(() => { setPostsView('list'); setPostsEditingId(null) }, [])
+  const handlePostSaved = useCallback(async () => {
+    dirtyRef.current = false
+    await refreshPosts()
+    setPostsView('list')
+    setPostsEditingId(null)
+  }, [refreshPosts])
+  const handlePostCancel = useCallback(() => {
+    guardedNavigate(() => { setPostsView('list'); setPostsEditingId(null) })
+  }, [guardedNavigate])
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -136,7 +188,7 @@ export default function CentralClient({
         {/* Section switcher */}
         <div className="flex items-center gap-0 mb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
           {(['filmes', 'pessoas', 'posts'] as Section[]).map(s => (
-            <button key={s} onClick={() => setSection(s)}
+            <button key={s} onClick={() => guardedNavigate(() => setSection(s))}
               className="transition-colors pb-3 pr-6 text-sm"
               style={{
                 fontFamily: FONT_BODY,
@@ -153,12 +205,12 @@ export default function CentralClient({
         {/* Sub-tab bar */}
         {section === 'filmes' && (
           <div className="flex items-center gap-0 mb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => { setFilmesView('list'); setFilmesEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setFilmesView('list'); setFilmesEditingId(null) })}
               className="transition-colors pb-2 pr-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: filmesView === 'list' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: filmesView === 'list' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               Lista
             </button>
-            <button onClick={() => { setFilmesView('create'); setFilmesEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setFilmesView('create'); setFilmesEditingId(null) })}
               className="transition-colors pb-2 px-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: filmesView === 'create' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: filmesView === 'create' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               + Novo Filme
@@ -173,12 +225,12 @@ export default function CentralClient({
 
         {section === 'pessoas' && (
           <div className="flex items-center gap-0 mb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => { setPessoasView('list'); setPessoasEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setPessoasView('list'); setPessoasEditingId(null) })}
               className="transition-colors pb-2 pr-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: pessoasView === 'list' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: pessoasView === 'list' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               Lista
             </button>
-            <button onClick={() => { setPessoasView('create'); setPessoasEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setPessoasView('create'); setPessoasEditingId(null) })}
               className="transition-colors pb-2 px-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: pessoasView === 'create' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: pessoasView === 'create' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               + Nova Pessoa
@@ -193,12 +245,12 @@ export default function CentralClient({
 
         {section === 'posts' && (
           <div className="flex items-center gap-0 mb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => { setPostsView('list'); setPostsEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setPostsView('list'); setPostsEditingId(null) })}
               className="transition-colors pb-2 pr-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: postsView === 'list' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: postsView === 'list' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               Lista
             </button>
-            <button onClick={() => { setPostsView('create'); setPostsEditingId(null) }}
+            <button onClick={() => guardedNavigate(() => { setPostsView('create'); setPostsEditingId(null) })}
               className="transition-colors pb-2 px-6 text-xs"
               style={{ fontFamily: FONT_BODY, color: postsView === 'create' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: postsView === 'create' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
               + Novo Post
@@ -221,6 +273,7 @@ export default function CentralClient({
             onSave={handleFilmeSaved}
             onCancel={handleFilmeCancel}
             pessoas={pessoasForForm}
+            onDirtyChange={handleDirtyChange}
           />
         )}
 
@@ -233,6 +286,7 @@ export default function CentralClient({
             pessoaId={pessoasView === 'edit' ? pessoasEditingId ?? undefined : undefined}
             onSave={handlePessoaSaved}
             onCancel={handlePessoaCancel}
+            onDirtyChange={handleDirtyChange}
           />
         )}
 
@@ -246,9 +300,18 @@ export default function CentralClient({
             filmes={filmesForForm}
             onSave={handlePostSaved}
             onCancel={handlePostCancel}
+            onDirtyChange={handleDirtyChange}
           />
         )}
       </div>
+
+      {/* Unsaved changes prompt */}
+      {pendingNav !== null && (
+        <UnsavedChangesPrompt
+          onDiscard={handleDiscard}
+          onContinue={handleContinueEditing}
+        />
+      )}
     </div>
   )
 }

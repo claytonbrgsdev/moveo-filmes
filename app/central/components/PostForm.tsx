@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
+import { RichTextEditor } from './RichTextEditor'
+import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -33,6 +35,7 @@ interface PostFormProps {
   filmes: { id: string; titulo_pt: string }[]
   onSave: () => void
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
 }
 
 interface FormData {
@@ -48,13 +51,21 @@ const EMPTY: FormData = {
   conteudo_pt: '', conteudo_en: '', imagem_capa_url: '', url_externa: '', filmes_ids: [],
 }
 
-export function PostForm({ postId, filmes, onSave, onCancel }: PostFormProps) {
+export function PostForm({ postId, filmes, onSave, onCancel, onDirtyChange }: PostFormProps) {
   const isEdit = !!postId
   const [form, setForm] = useState<FormData>(EMPTY)
+  const [initialForm, setInitialForm] = useState<FormData>(EMPTY)
   const [loadingData, setLoadingData] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(false)
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm)
+  useBeforeUnload(isDirty)
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   useEffect(() => {
     if (!postId) return
@@ -62,7 +73,7 @@ export function PostForm({ postId, filmes, onSave, onCancel }: PostFormProps) {
     fetch(`/api/admin/posts/${postId}`)
       .then(r => r.json())
       .then(d => {
-        setForm({
+        const loaded: FormData = {
           titulo_pt: d.titulo_pt ?? '', titulo_en: d.titulo_en ?? '',
           slug: d.slug ?? '', tipo: d.tipo ?? 'noticia',
           visibilidade: d.visibilidade ?? 'rascunho',
@@ -71,7 +82,9 @@ export function PostForm({ postId, filmes, onSave, onCancel }: PostFormProps) {
           conteudo_pt: d.conteudo_pt ?? '', conteudo_en: d.conteudo_en ?? '',
           imagem_capa_url: d.imagem_capa_url ?? '', url_externa: d.url_externa ?? '',
           filmes_ids: d.filmes_ids ?? [],
-        })
+        }
+        setForm(loaded)
+        setInitialForm(loaded)
         setSlugTouched(true)
         setLoadingData(false)
       })
@@ -232,15 +245,21 @@ export function PostForm({ postId, filmes, onSave, onCancel }: PostFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label style={labelStyle}>Conteúdo (PT)</label>
-            <textarea value={form.conteudo_pt} onChange={e => set('conteudo_pt', e.target.value)}
-              rows={12} placeholder="Conteúdo completo do post…" className="placeholder-white/20 resize-y"
-              style={{ ...inputStyle, borderBottom: 'none', border: '1px solid rgba(255,255,255,0.2)', padding: '10px', minHeight: '280px' }} />
+            <RichTextEditor
+              value={form.conteudo_pt}
+              onChange={v => set('conteudo_pt', v)}
+              placeholder="Conteúdo completo do post…"
+              minHeight="280px"
+            />
           </div>
           <div>
             <label style={labelStyle}>Conteúdo (EN)</label>
-            <textarea value={form.conteudo_en} onChange={e => set('conteudo_en', e.target.value)}
-              rows={12} placeholder="Full post content in English…" className="placeholder-white/20 resize-y"
-              style={{ ...inputStyle, borderBottom: 'none', border: '1px solid rgba(255,255,255,0.2)', padding: '10px', minHeight: '280px' }} />
+            <RichTextEditor
+              value={form.conteudo_en}
+              onChange={v => set('conteudo_en', v)}
+              placeholder="Full post content in English…"
+              minHeight="280px"
+            />
           </div>
         </div>
       </section>

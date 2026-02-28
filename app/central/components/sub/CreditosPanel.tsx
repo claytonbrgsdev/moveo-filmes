@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useSortablePanel } from './useSortablePanel'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
@@ -10,8 +14,35 @@ interface Credito {
   id: string; cargo: string; nome_exibicao: string | null; ordem: number | null
   pessoa_id: string | null; pessoas?: Pessoa | null
 }
-interface AddForm { cargo: string; pessoa_id: string; nome_exibicao: string; ordem: string }
-const EMPTY: AddForm = { cargo: '', pessoa_id: '', nome_exibicao: '', ordem: '' }
+interface AddForm { cargo: string; pessoa_id: string; nome_exibicao: string }
+const EMPTY: AddForm = { cargo: '', pessoa_id: '', nome_exibicao: '' }
+
+function SortableRow({
+  r, deletingId, onDelete,
+}: { r: Credito; deletingId: string | null; onDelete: (id: string) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: r.id })
+  return (
+    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition, borderBottom: '1px solid rgba(255,255,255,0.06)', opacity: isDragging ? 0.5 : 1, background: isDragging ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+      className="flex items-center gap-3 py-2">
+      <button type="button" {...attributes} {...listeners} title="Arrastar para reordenar"
+        style={{ color: 'rgba(255,255,255,0.2)', cursor: 'grab', fontSize: '14px', lineHeight: 1, flexShrink: 0, padding: '2px', border: 'none', background: 'transparent' }}
+        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}>⠿</button>
+      <div className="flex-1 min-w-0">
+        <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>
+          {r.cargo}
+          {(r.pessoas?.nome || r.nome_exibicao) && (
+            <span className="text-white/50"> — {r.nome_exibicao || r.pessoas?.nome_exibicao || r.pessoas?.nome}</span>
+          )}
+        </span>
+      </div>
+      <button type="button" onClick={() => onDelete(r.id)} disabled={deletingId === r.id}
+        className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
+        {deletingId === r.id ? '…' : 'remover'}
+      </button>
+    </div>
+  )
+}
 
 export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: Pessoa[] }) {
   const [rows, setRows] = useState<Credito[]>([])
@@ -21,6 +52,8 @@ export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: 
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const { sensors, handleDragEnd, isSaving } = useSortablePanel(rows, setRows, { filmeId, endpoint: 'creditos' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -42,7 +75,7 @@ export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: 
           cargo: form.cargo,
           pessoa_id: form.pessoa_id || null,
           nome_exibicao: form.nome_exibicao || null,
-          ordem: form.ordem ? parseInt(form.ordem) : null,
+          ordem: rows.length + 1,
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error)
@@ -67,7 +100,7 @@ export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: 
     <div>
       <div className="flex items-center justify-between mb-4">
         <h4 style={{ fontFamily: FONT_HEADING, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>
-          Créditos ({rows.length})
+          Créditos ({rows.length}){isSaving && <span className="ml-2 opacity-40"> salvando…</span>}
         </h4>
         {!adding && (
           <button type="button" onClick={() => setAdding(true)}
@@ -79,25 +112,13 @@ export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: 
       </div>
 
       {loading ? <p className="text-white/30 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Carregando…</p> : (
-        <div className="space-y-1 mb-4">
+        <div className="mb-4">
           {rows.length === 0 && <p className="text-white/20 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Nenhum crédito ainda.</p>}
-          {rows.map(r => (
-            <div key={r.id} className="flex items-center gap-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="flex-1 min-w-0">
-                <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>
-                  {r.cargo}
-                  {(r.pessoas?.nome || r.nome_exibicao) && (
-                    <span className="text-white/50"> — {r.nome_exibicao || r.pessoas?.nome_exibicao || r.pessoas?.nome}</span>
-                  )}
-                </span>
-                {r.ordem != null && <span className="text-white/20 text-xs ml-2" style={{ fontFamily: FONT_BODY }}>#{r.ordem}</span>}
-              </div>
-              <button type="button" onClick={() => handleDelete(r.id)} disabled={deletingId === r.id}
-                className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
-                {deletingId === r.id ? '…' : 'remover'}
-              </button>
-            </div>
-          ))}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
+              {rows.map(r => <SortableRow key={r.id} r={r} deletingId={deletingId} onDelete={handleDelete} />)}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -113,8 +134,7 @@ export function CreditosPanel({ filmeId, pessoas }: { filmeId: string; pessoas: 
                 {pessoas.map(p => <option key={p.id} value={p.id}>{p.nome_exibicao || p.nome}</option>)}
               </select>
             </div>
-            <div>{inp(form.nome_exibicao, v => setForm(f => ({ ...f, nome_exibicao: v })), 'Nome de exibição (sobrescreve)')}</div>
-            <div>{inp(form.ordem, v => setForm(f => ({ ...f, ordem: v })), 'Ordem')}</div>
+            <div className="col-span-2">{inp(form.nome_exibicao, v => setForm(f => ({ ...f, nome_exibicao: v })), 'Nome de exibição (sobrescreve)')}</div>
           </div>
           {error && <p className="text-red-400 text-xs mb-3" style={{ fontFamily: FONT_BODY }}>{error}</p>}
           <div className="flex gap-3">

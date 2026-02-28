@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useSortablePanel } from './useSortablePanel'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
@@ -8,9 +12,40 @@ const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, s
 interface Festival {
   id: string; nome: string; ano: number | null; cidade: string | null
   pais: string | null; secao: string | null; tipo_estreia: string | null; tipo_evento: string | null
+  ordem: number | null
 }
-interface AddForm { nome: string; ano: string; cidade: string; pais: string; secao: string; tipo_evento: string; tipo_estreia: string; edicao: string; observacoes: string; ordem: string }
-const EMPTY: AddForm = { nome: '', ano: '', cidade: '', pais: '', secao: '', tipo_evento: '', tipo_estreia: '', edicao: '', observacoes: '', ordem: '' }
+interface AddForm {
+  nome: string; ano: string; cidade: string; pais: string; secao: string
+  tipo_evento: string; tipo_estreia: string; edicao: string; observacoes: string
+}
+const EMPTY: AddForm = {
+  nome: '', ano: '', cidade: '', pais: '', secao: '', tipo_evento: '', tipo_estreia: '', edicao: '', observacoes: '',
+}
+
+function SortableRow({
+  r, deletingId, onDelete,
+}: { r: Festival; deletingId: string | null; onDelete: (id: string) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: r.id })
+  return (
+    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition, borderBottom: '1px solid rgba(255,255,255,0.06)', opacity: isDragging ? 0.5 : 1, background: isDragging ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+      className="flex items-center gap-3 py-2">
+      <button type="button" {...attributes} {...listeners} title="Arrastar para reordenar"
+        style={{ color: 'rgba(255,255,255,0.2)', cursor: 'grab', fontSize: '14px', lineHeight: 1, flexShrink: 0, padding: '2px', border: 'none', background: 'transparent' }}
+        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}>⠿</button>
+      <div className="flex-1 min-w-0">
+        <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>{r.nome}</span>
+        <span className="text-white/30 text-xs ml-2" style={{ fontFamily: FONT_BODY }}>
+          {[r.ano, r.cidade, r.pais, r.secao].filter(Boolean).join(' · ')}
+        </span>
+      </div>
+      <button type="button" onClick={() => onDelete(r.id)} disabled={deletingId === r.id}
+        className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
+        {deletingId === r.id ? '…' : 'remover'}
+      </button>
+    </div>
+  )
+}
 
 export function FestivaisPanel({ filmeId }: { filmeId: string }) {
   const [rows, setRows] = useState<Festival[]>([])
@@ -20,6 +55,8 @@ export function FestivaisPanel({ filmeId }: { filmeId: string }) {
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const { sensors, handleDragEnd, isSaving } = useSortablePanel(rows, setRows, { filmeId, endpoint: 'festivais' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -47,7 +84,7 @@ export function FestivaisPanel({ filmeId }: { filmeId: string }) {
           tipo_estreia: form.tipo_estreia || null,
           edicao: form.edicao || null,
           observacoes: form.observacoes || null,
-          ordem: form.ordem ? parseInt(form.ordem) : null,
+          ordem: rows.length + 1,
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error)
@@ -72,7 +109,7 @@ export function FestivaisPanel({ filmeId }: { filmeId: string }) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h4 style={{ fontFamily: FONT_HEADING, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>
-          Festivais &amp; Mostras ({rows.length})
+          Festivais &amp; Mostras ({rows.length}){isSaving && <span className="ml-2 opacity-40"> salvando…</span>}
         </h4>
         {!adding && (
           <button type="button" onClick={() => setAdding(true)}
@@ -84,22 +121,13 @@ export function FestivaisPanel({ filmeId }: { filmeId: string }) {
       </div>
 
       {loading ? <p className="text-white/30 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Carregando…</p> : (
-        <div className="space-y-1 mb-4">
+        <div className="mb-4">
           {rows.length === 0 && <p className="text-white/20 text-xs py-2" style={{ fontFamily: FONT_BODY }}>Nenhum festival ainda.</p>}
-          {rows.map(r => (
-            <div key={r.id} className="flex items-center gap-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="flex-1 min-w-0">
-                <span className="text-white text-xs" style={{ fontFamily: FONT_BODY }}>{r.nome}</span>
-                <span className="text-white/30 text-xs ml-2" style={{ fontFamily: FONT_BODY }}>
-                  {[r.ano, r.cidade, r.pais, r.secao].filter(Boolean).join(' · ')}
-                </span>
-              </div>
-              <button type="button" onClick={() => handleDelete(r.id)} disabled={deletingId === r.id}
-                className="text-xs text-white/20 hover:text-red-400 transition-colors" style={{ fontFamily: FONT_BODY }}>
-                {deletingId === r.id ? '…' : 'remover'}
-              </button>
-            </div>
-          ))}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
+              {rows.map(r => <SortableRow key={r.id} r={r} deletingId={deletingId} onDelete={handleDelete} />)}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -114,7 +142,6 @@ export function FestivaisPanel({ filmeId }: { filmeId: string }) {
             <div>{inp(form.secao, v => setForm(f => ({ ...f, secao: v })), 'Seção')}</div>
             <div>{inp(form.tipo_evento, v => setForm(f => ({ ...f, tipo_evento: v })), 'Tipo de evento')}</div>
             <div>{inp(form.tipo_estreia, v => setForm(f => ({ ...f, tipo_estreia: v })), 'Tipo de estreia')}</div>
-            <div>{inp(form.ordem, v => setForm(f => ({ ...f, ordem: v })), 'Ordem')}</div>
             <div className="col-span-2">{inp(form.observacoes, v => setForm(f => ({ ...f, observacoes: v })), 'Observações')}</div>
           </div>
           {error && <p className="text-red-400 text-xs mb-3" style={{ fontFamily: FONT_BODY }}>{error}</p>}
