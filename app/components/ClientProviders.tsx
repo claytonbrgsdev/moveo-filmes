@@ -1,5 +1,6 @@
 'use client'
 
+import { usePathname } from 'next/navigation';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { GridGuidesProvider } from '@/lib/contexts/GridGuidesContext';
 import { LoadingProvider } from '@/lib/contexts/LoadingContext';
@@ -14,6 +15,21 @@ const VerticalGuides = process.env.NODE_ENV !== 'production'
   : () => null;
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAuthRoute = pathname?.startsWith('/auth');
+
+  // Auth pages are lightweight forms — skip the loading screen and smooth scroll
+  // so they render immediately without waiting for fonts/videos/GSAP to signal ready.
+  if (isAuthRoute) {
+    return (
+      <LanguageProvider>
+        <GridGuidesProvider>
+          {children}
+        </GridGuidesProvider>
+      </LanguageProvider>
+    );
+  }
+
   return (
     <LoadingProvider>
       <LoadingScreen />
