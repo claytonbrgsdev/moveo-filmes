@@ -3,6 +3,7 @@
 import { useRef, useLayoutEffect, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { gsap } from '@/lib/utils/gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/lib/hooks/useLanguage'
 import Navbar from '../components/Navbar'
 import { LocationInfo } from '../components/LocationInfo'
@@ -12,6 +13,7 @@ import { getMarkerPosition } from '@/lib/utils/gridCoordinates'
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const FONT_HEAD = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_COND = "'Helvetica Neue LT Pro Condensed', Arial, Helvetica, sans-serif"
+const FONT_THIN = "'Helvetica Neue LT Pro Thin Extended', Arial, Helvetica, sans-serif"
 
 // ─────────────────────────────────────────────
 // Copy
@@ -19,91 +21,163 @@ const FONT_COND = "'Helvetica Neue LT Pro Condensed', Arial, Helvetica, sans-ser
 const content = {
   pt: {
     heroLabel: 'Pipeline de produção',
-    heroTitle: 'Catálogo',
+    heroTitle: 'CATÁLOGO',
     heroSub: 'Descubra o acervo de histórias das quais a Moveo faz parte — dos projetos em desenvolvimento aos títulos em distribuição.',
-    totalLabel: 'títulos',
+    totalLabel: 'títulos no acervo',
     cinemaTitle: 'Cinema',
     cinemaLabel: 'Filmes de longa-metragem',
     outrosTitle: 'Mostras',
     outrosLabel: 'Exposições e projetos especiais',
     pipeline: [
-      { n: '01', title: 'Desenvolvimento', label: 'Projetos em criação', href: '/catalogo/desenvolvimento' },
-      { n: '02', title: 'Pré-produção',    label: 'Em preparação',      href: '/catalogo/pre-producao' },
-      { n: '03', title: 'Pós-produção',   label: 'Finalizando',         href: '/catalogo/pos-producao' },
-      { n: '04', title: 'Distribuição',   label: 'Nos cinemas',         href: '/catalogo/distribuicao' },
+      { n: '01', title: 'Desenvolvimento', label: 'Projetos em criação',   href: '/catalogo/desenvolvimento' },
+      { n: '02', title: 'Pré-produção',    label: 'Em preparação',         href: '/catalogo/pre-producao' },
+      { n: '03', title: 'Pós-produção',   label: 'Finalizando',            href: '/catalogo/pos-producao' },
+      { n: '04', title: 'Distribuição',   label: 'Nos cinemas',            href: '/catalogo/distribuicao' },
     ],
-    cinemaHref: '/catalogo/cinema',
-    outrosHref: '/catalogo/mostras-e-exposicoes',
+    cinemaHref:  '/catalogo/cinema',
+    outrosHref:  '/catalogo/mostras-e-exposicoes',
+    scrollHint: 'Role para explorar',
   },
   en: {
     heroLabel: 'Production pipeline',
-    heroTitle: 'Catalog',
+    heroTitle: 'CATALOG',
     heroSub: 'Discover the collection of stories in which Moveo plays a part — from projects in development to titles in distribution.',
-    totalLabel: 'titles',
+    totalLabel: 'titles in the archive',
     cinemaTitle: 'Cinema',
     cinemaLabel: 'Feature films',
     outrosTitle: 'Showcase',
     outrosLabel: 'Exhibitions & special projects',
     pipeline: [
-      { n: '01', title: 'Development',    label: 'Projects in creation', href: '/catalogo/desenvolvimento' },
-      { n: '02', title: 'Pre-production', label: 'In preparation',       href: '/catalogo/pre-producao' },
-      { n: '03', title: 'Post-production',label: 'Finalizing',           href: '/catalogo/pos-producao' },
-      { n: '04', title: 'Distribution',  label: 'In theaters',          href: '/catalogo/distribuicao' },
+      { n: '01', title: 'Development',     label: 'Projects in creation',  href: '/catalogo/desenvolvimento' },
+      { n: '02', title: 'Pre-production',  label: 'In preparation',        href: '/catalogo/pre-producao' },
+      { n: '03', title: 'Post-production', label: 'Finalizing',            href: '/catalogo/pos-producao' },
+      { n: '04', title: 'Distribution',   label: 'In theaters',            href: '/catalogo/distribuicao' },
     ],
-    cinemaHref: '/catalogo/cinema',
-    outrosHref: '/catalogo/mostras-e-exposicoes',
+    cinemaHref:  '/catalogo/cinema',
+    outrosHref:  '/catalogo/mostras-e-exposicoes',
+    scrollHint: 'Scroll to explore',
   },
 }
 
-// ─────────────────────────────────────────────
-// DB href → categoria_site
-// ─────────────────────────────────────────────
 const HREF_TO_CAT: Record<string, string> = {
-  '/catalogo/cinema':                'cinema',
-  '/catalogo/mostras-e-exposicoes':  'mostra',
-  '/catalogo/desenvolvimento':       'desenvolvimento',
-  '/catalogo/pre-producao':          'pre-producao',
-  '/catalogo/pos-producao':          'pos-producao',
-  '/catalogo/distribuicao':          'distribuicao',
+  '/catalogo/cinema':               'cinema',
+  '/catalogo/mostras-e-exposicoes': 'mostra',
+  '/catalogo/desenvolvimento':      'desenvolvimento',
+  '/catalogo/pre-producao':         'pre-producao',
+  '/catalogo/pos-producao':         'pos-producao',
+  '/catalogo/distribuicao':         'distribuicao',
+}
+
+// Videos for ambient reel
+const VIDEOS = [
+  '/videos/micangas.mp4',
+  '/videos/misterio.mp4',
+  '/videos/natureza.mp4',
+]
+
+// ─────────────────────────────────────────────
+// Ambient video strip (muted loop)
+// ─────────────────────────────────────────────
+function VideoStrip({ src, index }: { src: string; index: number }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const vidRef  = useRef<HTMLVideoElement>(null)
+
+  // Parallax on scroll
+  useLayoutEffect(() => {
+    if (!wrapRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.to(wrapRef.current, {
+        yPercent: index % 2 === 0 ? -12 : 10,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: wrapRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.2,
+          invalidateOnRefresh: true,
+        },
+      })
+    })
+    return () => ctx.revert()
+  }, [index])
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        height: '100%',
+        willChange: 'transform',
+      }}
+    >
+      <video
+        ref={vidRef}
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        style={{
+          width: '100%',
+          height: '115%',
+          objectFit: 'cover',
+          display: 'block',
+          filter: 'grayscale(100%) brightness(0.35) contrast(1.1)',
+          transform: 'scale(1.05)',
+        }}
+      />
+      {/* Gradient vignette per strip */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
+  )
 }
 
 // ─────────────────────────────────────────────
-// Reusable hover-underline row link
+// Category row with video peek on hover
 // ─────────────────────────────────────────────
 function CategoryRow({
-  href,
-  title,
-  label,
-  count,
-  large = false,
-  index,
+  href, title, label, count, large = false, index, videoSrc,
 }: {
-  href: string
-  title: string
-  label: string
-  count: string
-  large?: boolean
-  index: number
+  href: string; title: string; label: string; count: string
+  large?: boolean; index: number; videoSrc?: string
 }) {
-  const rowRef = useRef<HTMLAnchorElement>(null)
-  const lineRef = useRef<HTMLDivElement>(null)
+  const rowRef   = useRef<HTMLAnchorElement>(null)
+  const lineRef  = useRef<HTMLDivElement>(null)
   const arrowRef = useRef<HTMLSpanElement>(null)
+  const thumbRef = useRef<HTMLDivElement>(null)
+  const vidRef   = useRef<HTMLVideoElement>(null)
 
   const handleEnter = () => {
-    if (lineRef.current)  gsap.to(lineRef.current,  { scaleX: 1,   duration: 0.55, ease: 'power3.out', transformOrigin: 'left' })
-    if (arrowRef.current) gsap.to(arrowRef.current, { opacity: 1, x: 6, duration: 0.35, ease: 'power2.out' })
-    if (rowRef.current) {
-      gsap.to(rowRef.current.querySelector('[data-title]'), { color: 'rgba(255,255,255,0.65)', duration: 0.3, ease: 'power1.out' })
-      gsap.to(rowRef.current.querySelector('[data-cnt]'),   { color: 'rgba(255,255,255,0.55)', duration: 0.3, ease: 'power1.out' })
+    gsap.to(lineRef.current,  { scaleX: 1,   duration: 0.6, ease: 'power3.out', transformOrigin: 'left' })
+    gsap.to(arrowRef.current, { opacity: 1, x: 8, duration: 0.35, ease: 'power2.out' })
+    gsap.to(rowRef.current!.querySelector('[data-title]'),  { color: 'rgba(255,255,255,0.6)', duration: 0.3 })
+    gsap.to(rowRef.current!.querySelector('[data-cnt]'),    { color: 'rgba(255,255,255,0.5)', duration: 0.3 })
+    if (thumbRef.current) {
+      gsap.to(thumbRef.current, { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' })
+    }
+    if (vidRef.current) {
+      vidRef.current.play().catch(() => {})
     }
   }
 
   const handleLeave = () => {
-    if (lineRef.current)  gsap.to(lineRef.current,  { scaleX: 0,   duration: 0.45, ease: 'power3.in', transformOrigin: 'left' })
-    if (arrowRef.current) gsap.to(arrowRef.current, { opacity: 0, x: 0, duration: 0.3, ease: 'power2.in' })
-    if (rowRef.current) {
-      gsap.to(rowRef.current.querySelector('[data-title]'), { color: 'rgba(255,255,255,1)', duration: 0.3 })
-      gsap.to(rowRef.current.querySelector('[data-cnt]'),   { color: 'rgba(255,255,255,0.15)', duration: 0.3 })
+    gsap.to(lineRef.current,  { scaleX: 0,   duration: 0.5, ease: 'power3.in', transformOrigin: 'left' })
+    gsap.to(arrowRef.current, { opacity: 0, x: 0, duration: 0.3, ease: 'power2.in' })
+    gsap.to(rowRef.current!.querySelector('[data-title]'), { color: 'rgba(255,255,255,1)', duration: 0.35 })
+    gsap.to(rowRef.current!.querySelector('[data-cnt]'),   { color: 'rgba(255,255,255,0.1)', duration: 0.35 })
+    if (thumbRef.current) {
+      gsap.to(thumbRef.current, { opacity: 0, scale: 0.96, duration: 0.4, ease: 'power2.in' })
+    }
+    if (vidRef.current) {
+      vidRef.current.pause()
     }
   }
 
@@ -117,31 +191,64 @@ function CategoryRow({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      <div
-        className="relative py-8"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <div className="flex items-end justify-between gap-6">
-          {/* Left: title + label */}
-          <div className="flex-1 min-w-0">
-            <p
-              className="mb-1 uppercase"
+      <div className="relative" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: large ? '40px 0' : '28px 0' }}>
+
+        {/* Video thumb — appears on hover (large rows only) */}
+        {videoSrc && (
+          <div
+            ref={thumbRef}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              right: '180px',
+              transform: 'translateY(-50%)',
+              width: large ? '280px' : '180px',
+              height: large ? '160px' : '110px',
+              overflow: 'hidden',
+              opacity: 0,
+              scale: 0.96,
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          >
+            <video
+              ref={vidRef}
+              src={videoSrc}
+              muted
+              loop
+              playsInline
+              preload="none"
               style={{
-                fontFamily: FONT_BODY,
-                fontSize: 'clamp(10px, 0.75vw, 12px)',
-                letterSpacing: '0.14em',
-                color: 'rgba(255,255,255,0.3)',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'grayscale(80%) brightness(0.65)',
               }}
-            >
+            />
+            <div style={{ position: 'absolute', inset: 0, border: '1px solid rgba(255,255,255,0.12)', pointerEvents: 'none' }} />
+          </div>
+        )}
+
+        <div className="flex items-end justify-between gap-6">
+          {/* Left */}
+          <div className="flex-1 min-w-0">
+            <p style={{
+              fontFamily: FONT_BODY,
+              fontSize: 'clamp(9px, 0.7vw, 11px)',
+              letterSpacing: '0.18em',
+              color: 'rgba(255,255,255,0.25)',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+            }}>
               {label}
             </p>
             <h2
               data-title
               style={{
                 fontFamily: FONT_HEAD,
-                fontSize: large ? 'clamp(48px, 5.5vw, 96px)' : 'clamp(22px, 2vw, 36px)',
-                lineHeight: 0.95,
-                letterSpacing: large ? '-0.03em' : '-0.02em',
+                fontSize: large ? 'clamp(52px, 6vw, 104px)' : 'clamp(24px, 2.2vw, 40px)',
+                lineHeight: 0.92,
+                letterSpacing: large ? '-0.04em' : '-0.02em',
                 color: 'white',
                 transition: 'none',
               }}
@@ -151,15 +258,15 @@ function CategoryRow({
           </div>
 
           {/* Right: count + arrow */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <span
               data-cnt
               style={{
-                fontFamily: FONT_HEAD,
-                fontSize: large ? 'clamp(48px, 5.5vw, 96px)' : 'clamp(22px, 2vw, 36px)',
-                lineHeight: 0.95,
-                letterSpacing: '-0.02em',
-                color: 'rgba(255,255,255,0.15)',
+                fontFamily: FONT_THIN,
+                fontSize: large ? 'clamp(52px, 6vw, 104px)' : 'clamp(24px, 2.2vw, 40px)',
+                lineHeight: 0.92,
+                letterSpacing: '-0.04em',
+                color: 'rgba(255,255,255,0.1)',
                 transition: 'none',
                 fontVariantNumeric: 'tabular-nums',
               }}
@@ -170,7 +277,7 @@ function CategoryRow({
               ref={arrowRef}
               style={{
                 fontFamily: FONT_BODY,
-                fontSize: large ? 'clamp(24px, 2.5vw, 40px)' : 'clamp(16px, 1.4vw, 22px)',
+                fontSize: large ? 'clamp(22px, 2.2vw, 36px)' : 'clamp(14px, 1.2vw, 20px)',
                 color: 'white',
                 opacity: 0,
                 display: 'inline-block',
@@ -201,42 +308,27 @@ function CategoryRow({
 }
 
 // ─────────────────────────────────────────────
-// Pipeline compact row (numbered)
+// Pipeline compact row
 // ─────────────────────────────────────────────
 function PipelineRow({
-  n,
-  title,
-  label,
-  count,
-  href,
-  index,
+  n, title, label, count, href, index,
 }: {
-  n: string
-  title: string
-  label: string
-  count: string
-  href: string
-  index: number
+  n: string; title: string; label: string; count: string; href: string; index: number
 }) {
-  const rowRef = useRef<HTMLAnchorElement>(null)
+  const rowRef  = useRef<HTMLAnchorElement>(null)
   const lineRef = useRef<HTMLDivElement>(null)
 
   const handleEnter = () => {
-    if (lineRef.current) gsap.to(lineRef.current, { scaleX: 1, duration: 0.5, ease: 'power3.out', transformOrigin: 'left' })
-    if (rowRef.current) {
-      gsap.to(rowRef.current.querySelector('[data-ptitle]'), { color: 'rgba(255,255,255,0.6)', duration: 0.3 })
-      gsap.to(rowRef.current.querySelector('[data-pcnt]'),   { color: 'rgba(255,255,255,0.5)', duration: 0.3 })
-      gsap.to(rowRef.current.querySelector('[data-pn]'),     { color: 'rgba(255,255,255,0.5)', duration: 0.3 })
-    }
+    gsap.to(lineRef.current, { scaleX: 1, duration: 0.5, ease: 'power3.out', transformOrigin: 'left' })
+    gsap.to(rowRef.current!.querySelector('[data-ptitle]'), { color: 'rgba(255,255,255,0.65)', duration: 0.25 })
+    gsap.to(rowRef.current!.querySelector('[data-pcnt]'),   { color: 'rgba(255,255,255,0.5)',  duration: 0.25 })
+    gsap.to(rowRef.current!.querySelector('[data-pn]'),     { color: 'rgba(255,255,255,0.5)',  duration: 0.25 })
   }
-
   const handleLeave = () => {
-    if (lineRef.current) gsap.to(lineRef.current, { scaleX: 0, duration: 0.4, ease: 'power3.in', transformOrigin: 'left' })
-    if (rowRef.current) {
-      gsap.to(rowRef.current.querySelector('[data-ptitle]'), { color: 'rgba(255,255,255,0.85)', duration: 0.3 })
-      gsap.to(rowRef.current.querySelector('[data-pcnt]'),   { color: 'rgba(255,255,255,0.12)', duration: 0.3 })
-      gsap.to(rowRef.current.querySelector('[data-pn]'),     { color: 'rgba(255,255,255,0.18)', duration: 0.3 })
-    }
+    gsap.to(lineRef.current, { scaleX: 0, duration: 0.4, ease: 'power3.in', transformOrigin: 'left' })
+    gsap.to(rowRef.current!.querySelector('[data-ptitle]'), { color: 'rgba(255,255,255,0.8)',  duration: 0.3 })
+    gsap.to(rowRef.current!.querySelector('[data-pcnt]'),   { color: 'rgba(255,255,255,0.12)', duration: 0.3 })
+    gsap.to(rowRef.current!.querySelector('[data-pn]'),     { color: 'rgba(255,255,255,0.18)', duration: 0.3 })
   }
 
   return (
@@ -249,85 +341,24 @@ function PipelineRow({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      <div
-        className="relative py-5"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-      >
+      <div className="relative py-5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="flex items-center gap-5">
-          {/* Number */}
-          <span
-            data-pn
-            style={{
-              fontFamily: FONT_COND,
-              fontSize: 'clamp(10px, 0.75vw, 12px)',
-              letterSpacing: '0.12em',
-              color: 'rgba(255,255,255,0.18)',
-              flexShrink: 0,
-              width: '20px',
-              transition: 'none',
-            }}
-          >
+          <span data-pn style={{ fontFamily: FONT_COND, fontSize: 'clamp(10px, 0.72vw, 11px)', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.18)', flexShrink: 0, width: '20px', transition: 'none' }}>
             {n}
           </span>
-
-          {/* Title + label */}
           <div className="flex-1 min-w-0">
-            <p
-              data-ptitle
-              style={{
-                fontFamily: FONT_HEAD,
-                fontSize: 'clamp(14px, 1.3vw, 20px)',
-                letterSpacing: '-0.01em',
-                color: 'rgba(255,255,255,0.85)',
-                lineHeight: 1,
-                marginBottom: '3px',
-                transition: 'none',
-              }}
-            >
+            <p data-ptitle style={{ fontFamily: FONT_HEAD, fontSize: 'clamp(13px, 1.2vw, 19px)', letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.8)', lineHeight: 1, marginBottom: '3px', transition: 'none' }}>
               {title.toUpperCase()}
             </p>
-            <p
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 'clamp(10px, 0.75vw, 12px)',
-                color: 'rgba(255,255,255,0.25)',
-                letterSpacing: '0.04em',
-              }}
-            >
+            <p style={{ fontFamily: FONT_BODY, fontSize: 'clamp(9px, 0.7vw, 11px)', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.04em' }}>
               {label}
             </p>
           </div>
-
-          {/* Count */}
-          <span
-            data-pcnt
-            style={{
-              fontFamily: FONT_HEAD,
-              fontSize: 'clamp(18px, 1.6vw, 26px)',
-              color: 'rgba(255,255,255,0.12)',
-              letterSpacing: '-0.01em',
-              lineHeight: 1,
-              transition: 'none',
-            }}
-          >
+          <span data-pcnt style={{ fontFamily: FONT_THIN, fontSize: 'clamp(17px, 1.5vw, 24px)', color: 'rgba(255,255,255,0.12)', letterSpacing: '-0.02em', lineHeight: 1, transition: 'none', fontVariantNumeric: 'tabular-nums' }}>
             {count}
           </span>
         </div>
-
-        {/* Hover underline */}
-        <div
-          ref={lineRef}
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: 'rgba(255,255,255,0.4)',
-            transform: 'scaleX(0)',
-            transformOrigin: 'left',
-          }}
-        />
+        <div ref={lineRef} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: 'rgba(255,255,255,0.3)', transform: 'scaleX(0)', transformOrigin: 'left' }} />
       </div>
     </Link>
   )
@@ -340,16 +371,21 @@ export default function CatalogoPage() {
   const { language, setLanguage } = useLanguage()
   const t = content[language]
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const heroLabelRef = useRef<HTMLParagraphElement>(null)
-  const heroTitleRef = useRef<HTMLHeadingElement>(null)
-  const heroSubRef   = useRef<HTMLParagraphElement>(null)
-  const totalRef     = useRef<HTMLDivElement>(null)
-  const dividerRef   = useRef<HTMLDivElement>(null)
+  const containerRef   = useRef<HTMLDivElement>(null)
+  const heroSectionRef = useRef<HTMLElement>(null)
+  const videoBandRef   = useRef<HTMLDivElement>(null)
+  const heroLabelRef   = useRef<HTMLParagraphElement>(null)
+  const heroTitleRef   = useRef<HTMLHeadingElement>(null)
+  const titleCharsRef  = useRef<HTMLSpanElement[]>([])
+  const heroSubRef     = useRef<HTMLParagraphElement>(null)
+  const totalRef       = useRef<HTMLDivElement>(null)
+  const dividerRef     = useRef<HTMLDivElement>(null)
+  const scrollHintRef  = useRef<HTMLDivElement>(null)
+  const videoReelRef   = useRef<HTMLDivElement>(null)
 
-  // Live counts from DB
+  // Live counts
   const [counts, setCounts] = useState<Record<string, string>>(() =>
-    Object.fromEntries(Object.keys(HREF_TO_CAT).map((h) => [h, '–']))
+    Object.fromEntries(Object.keys(HREF_TO_CAT).map(h => [h, '–']))
   )
   const [totalCount, setTotalCount] = useState('–')
 
@@ -380,67 +416,175 @@ export default function CatalogoPage() {
     return () => { cancelled = true }
   }, [])
 
-  // ── Single entrance animation ──
+  // ── Master animation ──
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return
 
     const ctx = gsap.context(() => {
+
+      // ── 1. Hero entrance ──
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-      // Hero label
-      if (heroLabelRef.current) {
-        tl.from(heroLabelRef.current, { opacity: 0, y: 12, duration: 0.6 }, 0.1)
-      }
+      // Label
+      tl.from(heroLabelRef.current, { opacity: 0, y: 14, duration: 0.55 }, 0.1)
 
-      // Hero title — clip-path reveal from bottom
-      if (heroTitleRef.current) {
-        tl.fromTo(
-          heroTitleRef.current,
-          { clipPath: 'inset(0 0 100% 0)', y: 20 },
-          { clipPath: 'inset(0 0 0% 0)', y: 0, duration: 0.85, ease: 'power4.out' },
-          0.15
+      // Title characters — stagger up from below with rotation
+      if (titleCharsRef.current.length) {
+        tl.from(
+          titleCharsRef.current,
+          {
+            y: 90,
+            rotationX: -80,
+            opacity: 0,
+            duration: 0.9,
+            ease: 'back.out(1.2)',
+            stagger: 0.045,
+          },
+          0.2
         )
       }
 
-      // Sub-text
-      if (heroSubRef.current) {
-        tl.from(heroSubRef.current, { opacity: 0, y: 16, duration: 0.7, ease: 'power2.out' }, 0.55)
-      }
+      // Sub
+      tl.from(heroSubRef.current, { opacity: 0, y: 20, duration: 0.7, ease: 'power2.out' }, 0.65)
 
-      // Total count
-      if (totalRef.current) {
-        tl.from(totalRef.current, { opacity: 0, y: 10, duration: 0.5 }, 0.7)
-      }
+      // Total counter
+      tl.from(totalRef.current, { opacity: 0, y: 12, duration: 0.5 }, 0.8)
 
-      // Divider line — width expand
-      if (dividerRef.current) {
-        tl.from(dividerRef.current, { scaleX: 0, transformOrigin: 'left', duration: 0.9, ease: 'power3.out' }, 0.5)
-      }
+      // Scroll hint
+      tl.from(scrollHintRef.current, { opacity: 0, y: 8, duration: 0.5 }, 1.0)
 
-      // Row items stagger via scrollTrigger
-      const rows = Array.from(document.querySelectorAll('[data-row], [data-pipeline]'))
-      rows.forEach((el, i) => {
-        gsap.from(el, {
-          opacity: 0,
-          y: 22,
-          duration: 0.7,
-          ease: 'power2.out',
-          delay: i * 0.06,
+      // Divider
+      tl.from(dividerRef.current, { scaleX: 0, transformOrigin: 'left', duration: 1.1, ease: 'power3.out' }, 0.45)
+
+      // ── 2. Video reel — parallax pin during hero scroll ──
+      if (videoBandRef.current) {
+        gsap.to(videoBandRef.current, {
+          yPercent: -18,
+          ease: 'none',
           scrollTrigger: {
-            trigger: el,
-            start: 'top 92%',
+            trigger: heroSectionRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1.5,
+            invalidateOnRefresh: true,
           },
         })
+      }
+
+      // ── 3. Hero title scale-down on scroll ──
+      if (heroTitleRef.current) {
+        gsap.to(heroTitleRef.current, {
+          scale: 0.92,
+          opacity: 0.6,
+          y: -30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroSectionRef.current,
+            start: 'top top',
+            end: 'center top',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        })
+      }
+
+      // ── 4. Category rows — stagger reveal from scroll ──
+      const rows = Array.from(document.querySelectorAll('[data-row]'))
+      rows.forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 28, clipPath: 'inset(0 0 20px 0)' },
+          {
+            opacity: 1,
+            y: 0,
+            clipPath: 'inset(0 0 0px 0)',
+            duration: 0.75,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 91%',
+              toggleActions: 'play none none reverse',
+            },
+            delay: i * 0.04,
+          }
+        )
       })
+
+      // ── 5. Pipeline rows — slide from left ──
+      const pipelineRows = Array.from(document.querySelectorAll('[data-pipeline]'))
+      pipelineRows.forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, x: -20 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 93%',
+              toggleActions: 'play none none reverse',
+            },
+            delay: i * 0.07,
+          }
+        )
+      })
+
+      // ── 6. Video reel strip — staggered fade-in ──
+      if (videoReelRef.current) {
+        const strips = videoReelRef.current.children
+        gsap.fromTo(
+          strips,
+          { opacity: 0, scale: 0.97 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.9,
+            ease: 'power2.out',
+            stagger: 0.12,
+            scrollTrigger: {
+              trigger: videoReelRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
+            },
+          }
+        )
+      }
+
     }, containerRef)
 
     return () => ctx.revert()
   }, [])
 
+  // After counts load, animate the total number counting up
+  const prevTotalRef = useRef('–')
+  useEffect(() => {
+    if (totalCount === '–' || totalCount === prevTotalRef.current) return
+    prevTotalRef.current = totalCount
+    if (!totalRef.current) return
+    const numEl = totalRef.current.querySelector('[data-total-num]')
+    if (!numEl) return
+    const target = parseInt(totalCount)
+    if (isNaN(target)) return
+    const obj = { val: 0 }
+    gsap.to(obj, {
+      val: target,
+      duration: 1.4,
+      ease: 'power2.out',
+      onUpdate() {
+        numEl.textContent = String(Math.round(obj.val))
+      },
+    })
+  }, [totalCount])
+
+  // Build title chars array
+  const titleChars = t.heroTitle.split('')
+
   return (
     <div ref={containerRef} className="relative min-h-screen bg-black" style={{ overflowX: 'hidden' }}>
 
-      {/* Film grain overlay */}
+      {/* Film grain */}
       <FilmGrain />
 
       {/* Frame lines */}
@@ -450,112 +594,243 @@ export default function CatalogoPage() {
       {/* Navbar */}
       <Navbar />
 
-      {/* ────────────────────────────────────
-          HERO
-      ──────────────────────────────────── */}
+      {/* ══════════════════════════════════════
+          HERO — full-height cinematic opener
+      ══════════════════════════════════════ */}
       <section
+        ref={heroSectionRef}
         className="relative"
         style={{
-          paddingTop: '120px',
-          paddingBottom: '80px',
-          paddingLeft: '50px',
-          paddingRight: '50px',
-          minHeight: '65vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
+          height: '100vh',
+          minHeight: '700px',
+          overflow: 'hidden',
         }}
       >
-        {/* Thin vertical rule — decorative, right column */}
+        {/* ── Ambient video band behind hero ── */}
         <div
-          className="absolute pointer-events-none"
+          ref={videoBandRef}
           style={{
-            top: '80px',
-            bottom: '0',
-            right: '25%',
-            width: '1px',
-            background: 'rgba(255,255,255,0.04)',
-          }}
-        />
-
-        {/* Label */}
-        <p
-          ref={heroLabelRef}
-          className="uppercase mb-6"
-          style={{
-            fontFamily: FONT_BODY,
-            fontSize: 'clamp(10px, 0.75vw, 12px)',
-            letterSpacing: '0.2em',
-            color: 'rgba(255,255,255,0.35)',
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            willChange: 'transform',
           }}
         >
-          {t.heroLabel}
-        </p>
-
-        {/* Title */}
-        <h1
-          ref={heroTitleRef}
-          style={{
-            fontFamily: FONT_HEAD,
-            fontSize: 'clamp(72px, 9.5vw, 160px)',
-            fontWeight: 700,
-            lineHeight: 0.88,
-            letterSpacing: '-0.035em',
-            color: 'white',
-            marginBottom: '40px',
-          }}
-        >
-          {t.heroTitle.toUpperCase()}
-        </h1>
-
-        {/* Sub-text + total counter */}
-        <div
-          className="flex items-end justify-between gap-12"
-          style={{ maxWidth: '1200px' }}
-        >
-          <p
-            ref={heroSubRef}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
             style={{
-              fontFamily: FONT_BODY,
-              fontSize: 'clamp(13px, 1.1vw, 17px)',
-              lineHeight: 1.65,
-              color: 'rgba(255,255,255,0.45)',
-              maxWidth: '560px',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: 'grayscale(100%) brightness(0.18) contrast(1.15)',
+              transform: 'scale(1.08)',
+              transformOrigin: 'center',
             }}
           >
-            {t.heroSub}
+            <source src="/videos/natureza.mp4" type="video/mp4" />
+          </video>
+          {/* Strong vignette */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse at 50% 60%, transparent 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.96) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Bottom fog */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '40%',
+              background: 'linear-gradient(to bottom, transparent 0%, black 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Top fog */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '30%',
+              background: 'linear-gradient(to top, transparent 0%, black 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+
+        {/* ── Hero text — bottom aligned ── */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '0 50px 90px',
+          }}
+        >
+          {/* Label */}
+          <p
+            ref={heroLabelRef}
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 'clamp(9px, 0.7vw, 11px)',
+              letterSpacing: '0.22em',
+              color: 'rgba(255,255,255,0.32)',
+              textTransform: 'uppercase',
+              marginBottom: '20px',
+            }}
+          >
+            {t.heroLabel}
           </p>
 
-          {/* Total count pill */}
-          <div
-            ref={totalRef}
-            className="flex-shrink-0 text-right"
-            style={{ paddingBottom: '4px' }}
+          {/* Title — character-split for stagger animation */}
+          <h1
+            ref={heroTitleRef}
+            aria-label={t.heroTitle}
+            style={{
+              fontFamily: FONT_HEAD,
+              fontSize: 'clamp(80px, 11vw, 190px)',
+              fontWeight: 700,
+              lineHeight: 0.86,
+              letterSpacing: '-0.04em',
+              color: 'white',
+              marginBottom: '44px',
+              display: 'flex',
+              flexWrap: 'nowrap',
+              perspective: '800px',
+              overflow: 'hidden',
+            }}
           >
+            {titleChars.map((char, i) => (
+              <span
+                key={i}
+                ref={el => { if (el) titleCharsRef.current[i] = el }}
+                style={{
+                  display: 'inline-block',
+                  backfaceVisibility: 'hidden',
+                  whiteSpace: char === ' ' ? 'pre' : 'normal',
+                }}
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </span>
+            ))}
+          </h1>
+
+          {/* Bottom row: sub-text + total counter */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '40px', maxWidth: '1400px' }}>
             <p
-              style={{
-                fontFamily: FONT_HEAD,
-                fontSize: 'clamp(40px, 4.5vw, 72px)',
-                lineHeight: 0.95,
-                letterSpacing: '-0.03em',
-                color: 'rgba(255,255,255,0.12)',
-              }}
-            >
-              {totalCount}
-            </p>
-            <p
+              ref={heroSubRef}
               style={{
                 fontFamily: FONT_BODY,
-                fontSize: 'clamp(9px, 0.7vw, 11px)',
-                letterSpacing: '0.18em',
-                color: 'rgba(255,255,255,0.2)',
-                textTransform: 'uppercase',
-                marginTop: '4px',
+                fontSize: 'clamp(12px, 1vw, 16px)',
+                lineHeight: 1.7,
+                color: 'rgba(255,255,255,0.4)',
+                maxWidth: '520px',
               }}
             >
-              {t.totalLabel}
+              {t.heroSub}
             </p>
+
+            {/* Total counter */}
+            <div ref={totalRef} style={{ textAlign: 'right', flexShrink: 0 }}>
+              <p
+                data-total-num
+                style={{
+                  fontFamily: FONT_THIN,
+                  fontSize: 'clamp(44px, 5vw, 80px)',
+                  lineHeight: 0.88,
+                  letterSpacing: '-0.04em',
+                  color: 'rgba(255,255,255,0.1)',
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {totalCount}
+              </p>
+              <p style={{
+                fontFamily: FONT_BODY,
+                fontSize: 'clamp(8px, 0.65vw, 10px)',
+                letterSpacing: '0.2em',
+                color: 'rgba(255,255,255,0.18)',
+                textTransform: 'uppercase',
+                marginTop: '5px',
+              }}>
+                {t.totalLabel}
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* ── Scroll hint — bottom center ── */}
+        <div
+          ref={scrollHintRef}
+          style={{
+            position: 'absolute',
+            bottom: '72px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span style={{
+            fontFamily: FONT_BODY,
+            fontSize: '10px',
+            letterSpacing: '0.18em',
+            color: 'rgba(255,255,255,0.22)',
+            textTransform: 'uppercase',
+          }}>
+            {t.scrollHint}
+          </span>
+          {/* Animated scroll line */}
+          <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.15)', position: 'relative', overflow: 'hidden' }}>
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '40%',
+                background: 'white',
+                animation: 'scrollLineDown 1.8s ease-in-out infinite',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Aspect-ratio marker — top right corner */}
+        <div style={{
+          position: 'absolute',
+          top: '62px',
+          right: '50px',
+          zIndex: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', display: 'inline-block' }} />
+          <span style={{
+            fontFamily: FONT_COND,
+            fontSize: '10px',
+            letterSpacing: '0.16em',
+            color: 'rgba(255,255,255,0.2)',
+            textTransform: 'uppercase',
+          }}>
+            1.85 : 1
+          </span>
         </div>
       </section>
 
@@ -565,13 +840,32 @@ export default function CatalogoPage() {
         style={{
           margin: '0 50px',
           height: '1px',
-          background: 'rgba(255,255,255,0.12)',
+          background: 'rgba(255,255,255,0.1)',
         }}
       />
 
-      {/* ────────────────────────────────────
-          CATEGORIES
-      ──────────────────────────────────── */}
+      {/* ══════════════════════════════════════
+          VIDEO REEL STRIP
+      ══════════════════════════════════════ */}
+      <div
+        ref={videoReelRef}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '2fr 1.2fr 1.8fr',
+          gap: '2px',
+          margin: '2px 50px 0',
+          height: '260px',
+          overflow: 'hidden',
+        }}
+      >
+        {VIDEOS.map((src, i) => (
+          <VideoStrip key={src} src={src} index={i} />
+        ))}
+      </div>
+
+      {/* ══════════════════════════════════════
+          CATEGORIES LIST
+      ══════════════════════════════════════ */}
       <section
         style={{
           paddingLeft: '50px',
@@ -580,7 +874,7 @@ export default function CatalogoPage() {
           paddingTop: '0',
         }}
       >
-        {/* ── CINEMA (large row) ── */}
+        {/* CINEMA */}
         <CategoryRow
           href={t.cinemaHref}
           title={t.cinemaTitle}
@@ -588,16 +882,11 @@ export default function CatalogoPage() {
           count={counts[t.cinemaHref]}
           large
           index={0}
+          videoSrc="/videos/micangas.mp4"
         />
 
-        {/* ── PIPELINE (4 compact rows, indented) ── */}
-        <div
-          style={{
-            paddingLeft: '48px',
-            borderLeft: '1px solid rgba(255,255,255,0.07)',
-            marginBottom: '0',
-          }}
-        >
+        {/* Pipeline sub-rows */}
+        <div style={{ paddingLeft: '52px', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
           {t.pipeline.map((p, i) => (
             <PipelineRow
               key={p.href}
@@ -611,7 +900,7 @@ export default function CatalogoPage() {
           ))}
         </div>
 
-        {/* ── MOSTRAS (large row) ── */}
+        {/* MOSTRAS */}
         <CategoryRow
           href={t.outrosHref}
           title={t.outrosTitle}
@@ -619,6 +908,7 @@ export default function CatalogoPage() {
           count={counts[t.outrosHref]}
           large
           index={5}
+          videoSrc="/videos/misterio.mp4"
         />
       </section>
 
@@ -635,14 +925,21 @@ export default function CatalogoPage() {
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
       >
-        <div
-          className="flex items-center gap-2 text-white text-xs hover:opacity-70 transition-opacity"
-        >
+        <div className="flex items-center gap-2 text-white text-xs hover:opacity-70 transition-opacity">
           <span suppressHydrationWarning style={{ fontWeight: language === 'pt' ? 700 : 400, opacity: language === 'pt' ? 1 : 0.4 }}>PT</span>
           <span style={{ opacity: 0.4 }}>|</span>
           <span suppressHydrationWarning style={{ fontWeight: language === 'en' ? 700 : 400, opacity: language === 'en' ? 1 : 0.4 }}>EN</span>
         </div>
       </div>
+
+      {/* Keyframe for scroll indicator line */}
+      <style>{`
+        @keyframes scrollLineDown {
+          0%   { transform: translateY(-100%); opacity: 1; }
+          50%  { opacity: 1; }
+          100% { transform: translateY(250%); opacity: 0; }
+        }
+      `}</style>
     </div>
   )
 }
