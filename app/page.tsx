@@ -31,6 +31,7 @@ const FONT_HUGE = 'clamp(60px, 4vw, 200px)';
 const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
+const FONT_COND = 'clamp(9px, 0.75vw, 12px)';
 
 
 export default function Home() {
@@ -90,6 +91,7 @@ export default function Home() {
   const [sobreMoveoFontSize, setSobreMoveoFontSize] = useState<number>(40);
   const dragonflySectionRef = useRef<HTMLDivElement>(null);
   const contactSectionRef = useRef<HTMLDivElement>(null);
+  const frameCounterRef = useRef<HTMLDivElement>(null);
   const dragonflyHeadingRef = useRef<HTMLDivElement>(null);
   const dragonflyPinRef = useRef<HTMLDivElement>(null);
   const cinemaSectionRef = useRef<HTMLElement | null>(null);
@@ -493,9 +495,25 @@ export default function Home() {
 
       // 4. Image - set initial state (will animate on first scroll)
       if (imageElement) {
-        gsap.set(imageElement, { 
+        gsap.set(imageElement, {
           opacity: 0,
           scale: 1.1,
+        });
+      }
+
+      // 5. Frame counter count-up
+      if (frameCounterRef.current) {
+        const counterObj = { val: 1 };
+        gsap.to(counterObj, {
+          val: 120,
+          duration: 4,
+          delay: 0.5,
+          ease: 'power1.inOut',
+          onUpdate() {
+            if (frameCounterRef.current) {
+              frameCounterRef.current.textContent = `[F-${String(Math.round(counterObj.val)).padStart(4, '0')}]`;
+            }
+          },
         });
       }
 
@@ -3785,6 +3803,17 @@ export default function Home() {
           },
         });
       });
+      // Underline reveal on "Contato" heading
+      ScrollTrigger.create({
+        trigger: contactSectionRef.current,
+        start: 'top 80%',
+        onEnter: () => {
+          document.querySelector('[data-underline-reveal]')?.classList.add('revealed');
+        },
+        onLeaveBack: () => {
+          document.querySelector('[data-underline-reveal]')?.classList.remove('revealed');
+        },
+      });
     }, contactSectionRef);
 
     return () => {
@@ -4375,6 +4404,7 @@ export default function Home() {
                 style={{
                   zIndex: 0,
                   transform: 'scale(1.0)',
+                  filter: 'brightness(0.35) grayscale(25%) contrast(1.1)',
                 }}
               >
                 <source src="/videos/misterio.mp4" type="video/mp4" />
@@ -4385,10 +4415,36 @@ export default function Home() {
                 alt="Capa Home"
                 fill
                 className="object-cover"
-                style={{ zIndex: 1, opacity: 0.3 }}
+                style={{ zIndex: 1, opacity: 0.18, mixBlendMode: 'screen' as const }}
                 priority
                 unoptimized
               />
+              {/* Vignette */}
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2, background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%)' }} />
+              {/* Scan overlay */}
+              <div data-scan-overlay className="absolute inset-0 pointer-events-none" style={{ zIndex: 3, background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)', opacity: 0.4 }} />
+              {/* Viewfinder — top-left */}
+              <div className="absolute pointer-events-none" style={{ zIndex: 20, top: 20, left: 20 }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: 24, height: 1, background: 'rgba(255,255,255,0.5)' }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 24, background: 'rgba(255,255,255,0.5)' }} />
+              </div>
+              {/* Viewfinder — bottom-right */}
+              <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 20, right: 20 }}>
+                <div style={{ position: 'absolute', bottom: 0, right: 0, width: 24, height: 1, background: 'rgba(255,255,255,0.5)' }} />
+                <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 24, background: 'rgba(255,255,255,0.5)' }} />
+              </div>
+              {/* Metadata strip */}
+              <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 16, left: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
+                {['2018', '—', 'BRASÍLIA', '—', 'BR'].map((seg, i) => (
+                  <span key={i} style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>
+                    {seg}
+                  </span>
+                ))}
+              </div>
+              {/* Frame counter */}
+              <div ref={frameCounterRef} className="absolute pointer-events-none" style={{ zIndex: 20, top: 18, right: 20, fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', fontVariantNumeric: 'tabular-nums' }}>
+                [F-0001]
+              </div>
             </div>
 
             {/* Decorative Lines */}
@@ -7288,26 +7344,40 @@ export default function Home() {
                       />
                     ))}
                   </div>
+                  {/* Progress bar */}
+                  <div className="absolute bottom-0 left-0 right-0 z-20" style={{ height: 2, background: 'rgba(255,255,255,0.1)' }}>
+                    <div key={newsIndex} style={{ height: '100%', background: 'rgba(255,255,255,0.7)', animation: 'newsProgress 6s linear forwards', transformOrigin: 'left center' }} />
+                  </div>
                   <div className="absolute inset-y-0 right-0 flex flex-col justify-center gap-4 p-4 z-20">
                     <button
                       onClick={() => setNewsIndex((prev) => (prev - 1 + newsSlides.length) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
                       aria-label={t('noticiaAnterior')}
+                      style={{ color: 'white', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      <span className="sr-only">{t('anterior')}</span>
+                      ←<span className="sr-only">{t('anterior')}</span>
                     </button>
                     <button
                       onClick={() => setNewsIndex((prev) => (prev + 1) % newsSlides.length)}
                       className="h-10 w-10 border border-white/30 hover:border-white transition-colors"
                       aria-label={t('proximaNoticia')}
+                      style={{ color: 'white', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      <span className="sr-only">{t('proxima')}</span>
+                      →<span className="sr-only">{t('proxima')}</span>
                     </button>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', fontVariantNumeric: 'tabular-nums', marginTop: 4, textAlign: 'center' as const }}>
+                      {String(newsIndex + 1).padStart(2, '0')}&nbsp;/&nbsp;{String(newsSlides.length).padStart(2, '0')}
+                    </span>
                   </div>
                 </div>
 
                 {/* Lateral minimalista */}
                 <div className="col-span-4 row-span-6 flex flex-col gap-6">
+                  <div style={{ borderLeft: '2px solid rgba(255,255,255,0.3)', paddingLeft: 12, marginBottom: 8 }}>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>
+                      — ARQUIVO DE IMPRENSA
+                    </span>
+                  </div>
                   <div className="flex items-center justify-between">
                     <h2
                       className="text-white uppercase"
@@ -7341,6 +7411,24 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
+
+                  {/* News headline list */}
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' as const, gap: 0 }}>
+                    {newsSlides.map((item, idx) => (
+                      <li
+                        key={item.title}
+                        onClick={() => setNewsIndex(idx)}
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 8, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.08)', opacity: newsIndex === idx ? 1 : 0.45, transition: 'opacity 0.3s' }}
+                      >
+                        <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', minWidth: 20, fontVariantNumeric: 'tabular-nums' as const }}>
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'white', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+                          {item.title}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -7371,8 +7459,14 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-6 md:gap-8 items-start">
           <div className="md:col-span-7 space-y-6">
+            <div data-contact-animate style={{ borderLeft: '2px solid rgba(255,255,255,0.3)', paddingLeft: 10 }}>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>
+                — ENTRE EM CONTATO
+              </span>
+            </div>
             <h2
               data-contact-animate
+              data-underline-reveal
               className="text-white uppercase"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
@@ -7399,11 +7493,13 @@ export default function Home() {
             <div data-contact-animate className="flex flex-wrap gap-3">
               <Link
                 href="/contato"
-                className="px-5 py-3 border border-white/50 hover:border-white transition-colors uppercase"
+                className="px-5 py-3 uppercase transition-colors"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                   fontSize: FONT_SMALL,
                   letterSpacing: '0.08em',
+                  background: 'white',
+                  color: 'black',
                 }}
               >
                 {t('irParaContato')}
@@ -7431,6 +7527,15 @@ export default function Home() {
                 Mostras
               </Link>
             </div>
+            {/* Contact metadata */}
+            <div data-contact-animate style={{ display: 'flex', gap: 20, alignItems: 'center', opacity: 0.55 }}>
+              {[{ label: 'Email', value: 'contato@moveofilmes.com.br' }, { label: 'GPS', value: "15°47'S  47°52'W" }].map(({ label, value }) => (
+                <span key={label} style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
+                  <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>{label}</span>
+                  <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'white', letterSpacing: '0.04em' }}>{value}</span>
+                </span>
+              ))}
+            </div>
             <p
               className="text-white opacity-80"
               style={{
@@ -7443,14 +7548,26 @@ export default function Home() {
             </p>
           </div>
 
-          <div data-contact-animate className="md:col-span-5 relative h-48 md:h-full overflow-hidden rounded">
+          <div data-contact-animate className="md:col-span-5 relative h-48 md:h-full overflow-hidden" style={{ position: 'relative' }}>
             <Image
               src="/imagens/capahome.png"
               alt="Contato Moveo"
               fill
               className="object-cover"
+              style={{ filter: 'grayscale(30%) brightness(0.75)' }}
               unoptimized
             />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 40%)', zIndex: 1 }} />
+            {/* Viewfinder — top-left */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 12, left: 12 }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+            </div>
+            {/* Viewfinder — bottom-right */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 2, bottom: 12, right: 12 }}>
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+            </div>
           </div>
         </div>
       </div>

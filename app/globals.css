@@ -978,3 +978,21 @@ video[data-video-parallax] {
     transform: translateX(-1.55%) translateY(-45px) !important;
   }
 }
+
+/* News section progress bar animation */
+@keyframes newsProgress {
+  from {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="newsProgress"] {
+    animation: none !important;
+  }
+}
