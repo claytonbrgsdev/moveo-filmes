@@ -1,6 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { StorageUpload } from './StorageUpload'
+import { AssetsPanel } from './sub/AssetsPanel'
+import { CreditosPanel } from './sub/CreditosPanel'
+import { ElencoPanel } from './sub/ElencoPanel'
+import { FestivaisPanel } from './sub/FestivaisPanel'
+import { PremiacoesPanel } from './sub/PremiacoesPanel'
+import { FinanciamentosPanel } from './sub/FinanciamentosPanel'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -248,9 +255,10 @@ interface FilmeFormProps {
   filmeId?: string
   onSave: () => void
   onCancel: () => void
+  pessoas?: { id: string; nome: string; nome_exibicao: string | null }[]
 }
 
-export function FilmeForm({ filmeId, onSave, onCancel }: FilmeFormProps) {
+export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [] }: FilmeFormProps) {
   const isEdit = !!filmeId
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [loadingData, setLoadingData] = useState(isEdit)
@@ -470,17 +478,50 @@ export function FilmeForm({ filmeId, onSave, onCancel }: FilmeFormProps) {
 
       {/* ── Imagens ───────────────────────────────────────────────── */}
       <section className="mb-10">
-        <h3 style={sectionTitleStyle}>Imagens (URLs do Storage)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field label="Poster Principal (URL)">
-            <TextInput value={form.poster_principal_url} onChange={(v) => setField('poster_principal_url', v)} placeholder="https://…/poster.jpg" />
-          </Field>
-          <Field label="Thumbnail para Cards (URL)">
-            <TextInput value={form.thumbnail_card_url} onChange={(v) => setField('thumbnail_card_url', v)} placeholder="https://…/thumb.jpg" />
-          </Field>
-          <Field label="Imagem Open Graph (URL)">
-            <TextInput value={form.imagem_og_url} onChange={(v) => setField('imagem_og_url', v)} placeholder="https://…/og.jpg" />
-          </Field>
+        <h3 style={sectionTitleStyle}>Imagens Principais</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <Field label="Poster Principal">
+              <StorageUpload
+                storagePath={`filmes/${filmeId ?? 'new'}/poster`}
+                onUploaded={(url) => setField('poster_principal_url', url)}
+                existingUrl={form.poster_principal_url}
+                accept="image/*"
+                label="Enviar poster"
+              />
+              <div className="mt-2">
+                <TextInput value={form.poster_principal_url} onChange={(v) => setField('poster_principal_url', v)} placeholder="https://…/poster.jpg" />
+              </div>
+            </Field>
+          </div>
+          <div>
+            <Field label="Thumbnail para Cards">
+              <StorageUpload
+                storagePath={`filmes/${filmeId ?? 'new'}/thumbnail`}
+                onUploaded={(url) => setField('thumbnail_card_url', url)}
+                existingUrl={form.thumbnail_card_url}
+                accept="image/*"
+                label="Enviar thumbnail"
+              />
+              <div className="mt-2">
+                <TextInput value={form.thumbnail_card_url} onChange={(v) => setField('thumbnail_card_url', v)} placeholder="https://…/thumb.jpg" />
+              </div>
+            </Field>
+          </div>
+          <div>
+            <Field label="Imagem Open Graph">
+              <StorageUpload
+                storagePath={`filmes/${filmeId ?? 'new'}/og`}
+                onUploaded={(url) => setField('imagem_og_url', url)}
+                existingUrl={form.imagem_og_url}
+                accept="image/*"
+                label="Enviar imagem OG"
+              />
+              <div className="mt-2">
+                <TextInput value={form.imagem_og_url} onChange={(v) => setField('imagem_og_url', v)} placeholder="https://…/og.jpg" />
+              </div>
+            </Field>
+          </div>
         </div>
       </section>
 
@@ -527,6 +568,53 @@ export function FilmeForm({ filmeId, onSave, onCancel }: FilmeFormProps) {
           </Field>
         </div>
       </section>
+
+      {/* ── Sub-tables (edit mode only) ───────────────────────────── */}
+      {isEdit && filmeId && (
+        <>
+          <div className="mb-6 pt-2" style={{ borderTop: '2px solid rgba(255,255,255,0.06)' }}>
+            <h2
+              className="text-white mb-8 mt-6"
+              style={{ fontFamily: FONT_HEADING, fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '-0.01em' }}
+            >
+              Conteúdo Associado
+            </h2>
+            <p className="text-white/30 text-xs mb-8" style={{ fontFamily: FONT_BODY }}>
+              Gerencie assets, créditos, elenco, festivais, premiações e financiamentos deste filme.
+            </p>
+          </div>
+
+          {/* Assets */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <AssetsPanel filmeId={filmeId} />
+          </section>
+
+          {/* Créditos */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <CreditosPanel filmeId={filmeId} pessoas={pessoas} />
+          </section>
+
+          {/* Elenco */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <ElencoPanel filmeId={filmeId} pessoas={pessoas} />
+          </section>
+
+          {/* Festivais */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <FestivaisPanel filmeId={filmeId} />
+          </section>
+
+          {/* Premiações */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <PremiacoesPanel filmeId={filmeId} />
+          </section>
+
+          {/* Financiamentos */}
+          <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            <FinanciamentosPanel filmeId={filmeId} />
+          </section>
+        </>
+      )}
 
       {/* ── Error + Actions ───────────────────────────────────────── */}
       {error && (
