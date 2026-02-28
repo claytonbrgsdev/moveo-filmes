@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import type { FilmeListItem } from '../page'
 import { DeleteConfirm } from './DeleteConfirm'
+import { nextVisibilidade } from '@/lib/utils/visibilidade'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -12,6 +13,7 @@ interface FilmesListProps {
   filmes: FilmeListItem[]
   onEdit: (id: string) => void
   onDeleted: () => void
+  onVisibilidadeChanged: (id: string, v: string) => void
   loading: boolean
 }
 
@@ -24,26 +26,38 @@ const CATEGORIA_LABELS: Record<string, string> = {
   distribuicao: 'Distribuição',
 }
 
-function VisibilidadeBadge({ value }: { value: string | null }) {
-  const map: Record<string, { label: string; color: string; bg: string }> = {
-    publico: { label: 'Público', color: 'rgba(255,255,255,0.9)', bg: 'rgba(255,255,255,0.12)' },
-    rascunho: { label: 'Rascunho', color: 'rgba(234,179,8,0.9)', bg: 'rgba(234,179,8,0.12)' },
-    privado: { label: 'Privado', color: 'rgba(255,255,255,0.35)', bg: 'rgba(255,255,255,0.06)' },
-  }
+const VISIBILIDADE_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  publico: { label: 'Público', color: 'rgba(255,255,255,0.9)', bg: 'rgba(255,255,255,0.12)' },
+  rascunho: { label: 'Rascunho', color: 'rgba(234,179,8,0.9)', bg: 'rgba(234,179,8,0.12)' },
+  privado: { label: 'Privado', color: 'rgba(255,255,255,0.35)', bg: 'rgba(255,255,255,0.06)' },
+}
+
+function VisibilidadeToggle({ value, onClick, disabled }: {
+  value: string | null
+  onClick: () => void
+  disabled: boolean
+}) {
   const v = value ?? 'privado'
-  const style = map[v] ?? map.privado
+  const style = VISIBILIDADE_MAP[v] ?? VISIBILIDADE_MAP.privado
   return (
-    <span
-      className="text-xs px-2 py-0.5"
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title="Clique para alterar visibilidade"
+      className="text-xs px-2 py-0.5 transition-opacity"
       style={{
         fontFamily: FONT_BODY,
-        color: style.color,
+        color: disabled ? 'rgba(255,255,255,0.3)' : style.color,
         background: style.bg,
         letterSpacing: '0.05em',
+        cursor: disabled ? 'wait' : 'pointer',
+        border: 'none',
+        opacity: disabled ? 0.6 : 1,
       }}
     >
-      {style.label}
-    </span>
+      {disabled ? '…' : style.label}
+    </button>
   )
 }
 
@@ -71,9 +85,30 @@ function formatDate(dateStr: string) {
   return `${Math.floor(diffDays / 365)}a atrás`
 }
 
-export function FilmesList({ filmes, onEdit, onDeleted, loading }: FilmesListProps) {
+export function FilmesList({ filmes, onEdit, onDeleted, onVisibilidadeChanged, loading }: FilmesListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+
+  const handleToggleVisibilidade = async (filme: FilmeListItem) => {
+    if (togglingId) return
+    const next = nextVisibilidade(filme.visibilidade)
+    const original = filme.visibilidade
+    setTogglingId(filme.id)
+    onVisibilidadeChanged(filme.id, next)
+    try {
+      const res = await fetch(`/api/admin/filmes/${filme.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibilidade: next }),
+      })
+      if (!res.ok) onVisibilidadeChanged(filme.id, original ?? 'privado')
+    } catch {
+      onVisibilidadeChanged(filme.id, original ?? 'privado')
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
   const filtered = search.trim()
     ? filmes.filter(f =>
@@ -185,7 +220,13 @@ export function FilmesList({ filmes, onEdit, onDeleted, loading }: FilmesListPro
             <div><CategoriaBadge value={filme.categoria_site} /></div>
 
             {/* Visibilidade */}
-            <div><VisibilidadeBadge value={filme.visibilidade} /></div>
+            <div>
+              <VisibilidadeToggle
+                value={filme.visibilidade}
+                onClick={() => handleToggleVisibilidade(filme)}
+                disabled={togglingId === filme.id}
+              />
+            </div>
 
             {/* Ano */}
             <div>

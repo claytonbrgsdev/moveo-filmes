@@ -13,11 +13,12 @@ import { PessoaForm } from './components/PessoaForm'
 import { PostsList } from './components/PostsList'
 import { PostForm } from './components/PostForm'
 import { UnsavedChangesPrompt } from './components/UnsavedChangesPrompt'
+import { DashboardView } from './components/dashboard/DashboardView'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 
-type Section = 'filmes' | 'pessoas' | 'posts'
+type Section = 'dashboard' | 'filmes' | 'pessoas' | 'posts'
 type View = 'list' | 'create' | 'edit'
 
 interface CentralClientProps {
@@ -35,7 +36,7 @@ export default function CentralClient({
 }: CentralClientProps) {
   const router = useRouter()
 
-  const [section, setSection] = useState<Section>('filmes')
+  const [section, setSection] = useState<Section>('dashboard')
 
   const [filmesView, setFilmesView] = useState<View>('list')
   const [filmesEditingId, setFilmesEditingId] = useState<string | null>(null)
@@ -146,10 +147,24 @@ export default function CentralClient({
   }
 
   const sectionLabel = (s: Section) => {
+    if (s === 'dashboard') return 'Dashboard'
     if (s === 'filmes') return `Filmes${refreshing && section === 'filmes' ? ' …' : ` (${filmes.length})`}`
     if (s === 'pessoas') return `Pessoas${refreshing && section === 'pessoas' ? ' …' : ` (${pessoas.length})`}`
     return `Posts${refreshing && section === 'posts' ? ' …' : ` (${posts.length})`}`
   }
+
+  // ── Visibility toggle callbacks (optimistic) ────────────────────────────────
+  const handleFilmeVisibilidadeChanged = useCallback((id: string, v: string) => {
+    setFilmes(prev => prev.map(f => f.id === id ? { ...f, visibilidade: v } : f))
+  }, [])
+
+  const handlePessoaVisibilidadeChanged = useCallback((id: string, v: string) => {
+    setPessoas(prev => prev.map(p => p.id === id ? { ...p, visibilidade: v } : p))
+  }, [])
+
+  const handlePostVisibilidadeChanged = useCallback((id: string, v: string) => {
+    setPosts(prev => prev.map(p => p.id === id ? { ...p, visibilidade: v } : p))
+  }, [])
 
   const pessoasForForm = pessoas.map(p => ({ id: p.id, nome: p.nome, nome_exibicao: p.nome_exibicao }))
   const filmesForForm = filmes.map(f => ({ id: f.id, titulo_pt: f.titulo_pt }))
@@ -187,7 +202,7 @@ export default function CentralClient({
 
         {/* Section switcher */}
         <div className="flex items-center gap-0 mb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
-          {(['filmes', 'pessoas', 'posts'] as Section[]).map(s => (
+          {(['dashboard', 'filmes', 'pessoas', 'posts'] as Section[]).map(s => (
             <button key={s} onClick={() => guardedNavigate(() => setSection(s))}
               className="transition-colors pb-3 pr-6 text-sm"
               style={{
@@ -263,9 +278,14 @@ export default function CentralClient({
           </div>
         )}
 
+        {/* Dashboard section */}
+        {section === 'dashboard' && (
+          <DashboardView filmes={filmes} pessoas={pessoas} posts={posts} />
+        )}
+
         {/* Filmes section */}
         {section === 'filmes' && filmesView === 'list' && (
-          <FilmesList filmes={filmes} onEdit={handleFilmeEdit} onDeleted={refreshFilmes} loading={refreshing} />
+          <FilmesList filmes={filmes} onEdit={handleFilmeEdit} onDeleted={refreshFilmes} onVisibilidadeChanged={handleFilmeVisibilidadeChanged} loading={refreshing} />
         )}
         {section === 'filmes' && (filmesView === 'create' || filmesView === 'edit') && (
           <FilmeForm
@@ -279,7 +299,7 @@ export default function CentralClient({
 
         {/* Pessoas section */}
         {section === 'pessoas' && pessoasView === 'list' && (
-          <PessoasList pessoas={pessoas} onEdit={handlePessoaEdit} onDeleted={refreshPessoas} loading={refreshing} />
+          <PessoasList pessoas={pessoas} onEdit={handlePessoaEdit} onDeleted={refreshPessoas} onVisibilidadeChanged={handlePessoaVisibilidadeChanged} loading={refreshing} />
         )}
         {section === 'pessoas' && (pessoasView === 'create' || pessoasView === 'edit') && (
           <PessoaForm
@@ -292,7 +312,7 @@ export default function CentralClient({
 
         {/* Posts section */}
         {section === 'posts' && postsView === 'list' && (
-          <PostsList posts={posts} onEdit={handlePostEdit} onDeleted={refreshPosts} loading={refreshing} />
+          <PostsList posts={posts} onEdit={handlePostEdit} onDeleted={refreshPosts} onVisibilidadeChanged={handlePostVisibilidadeChanged} loading={refreshing} />
         )}
         {section === 'posts' && (postsView === 'create' || postsView === 'edit') && (
           <PostForm

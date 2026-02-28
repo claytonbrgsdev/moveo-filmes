@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { nextVisibilidade } from '@/lib/utils/visibilidade'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
@@ -20,6 +21,7 @@ interface PessoasListProps {
   pessoas: PessoaListItem[]
   onEdit: (id: string) => void
   onDeleted: () => void
+  onVisibilidadeChanged: (id: string, v: string) => void
   loading: boolean
 }
 
@@ -33,10 +35,11 @@ function relativeDate(iso: string): string {
   return `${Math.floor(days / 365)}a atrás`
 }
 
-export function PessoasList({ pessoas, onEdit, onDeleted, loading }: PessoasListProps) {
+export function PessoasList({ pessoas, onEdit, onDeleted, onVisibilidadeChanged, loading }: PessoasListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
   const filtered = search.trim()
@@ -45,6 +48,26 @@ export function PessoasList({ pessoas, onEdit, onDeleted, loading }: PessoasList
           .some(v => v?.toLowerCase().includes(search.toLowerCase()))
       )
     : pessoas
+
+  const handleToggleVisibilidade = async (pessoa: PessoaListItem) => {
+    if (togglingId) return
+    const next = nextVisibilidade(pessoa.visibilidade)
+    const original = pessoa.visibilidade
+    setTogglingId(pessoa.id)
+    onVisibilidadeChanged(pessoa.id, next)
+    try {
+      const res = await fetch(`/api/admin/pessoas/${pessoa.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibilidade: next }),
+      })
+      if (!res.ok) onVisibilidadeChanged(pessoa.id, original ?? 'rascunho')
+    } catch {
+      onVisibilidadeChanged(pessoa.id, original ?? 'rascunho')
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     setDeletingId(id)
@@ -124,16 +147,23 @@ export function PessoasList({ pessoas, onEdit, onDeleted, loading }: PessoasList
             </div>
 
             {/* Visibility */}
-            <span
-              className="text-xs px-2 py-0.5 flex-shrink-0 hidden md:block"
+            <button
+              type="button"
+              onClick={() => handleToggleVisibilidade(p)}
+              disabled={togglingId === p.id}
+              title="Clique para alterar visibilidade"
+              className="text-xs px-2 py-0.5 flex-shrink-0 hidden md:block transition-opacity"
               style={{
                 fontFamily: FONT_BODY,
-                color: p.visibilidade === 'publico' ? 'white' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.8)' : 'rgba(255,255,255,0.3)',
+                color: togglingId === p.id ? 'rgba(255,255,255,0.3)' : p.visibilidade === 'publico' ? 'white' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.8)' : 'rgba(255,255,255,0.3)',
                 border: `1px solid ${p.visibilidade === 'publico' ? 'rgba(255,255,255,0.3)' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                cursor: togglingId === p.id ? 'wait' : 'pointer',
+                background: 'transparent',
+                opacity: togglingId === p.id ? 0.6 : 1,
               }}
             >
-              {p.visibilidade ?? '—'}
-            </span>
+              {togglingId === p.id ? '…' : (p.visibilidade ?? '—')}
+            </button>
 
             {/* Updated */}
             <span className="text-white/25 text-xs flex-shrink-0 hidden lg:block" style={{ fontFamily: FONT_BODY, minWidth: 70 }}>

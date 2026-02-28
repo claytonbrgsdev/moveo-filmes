@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { nextVisibilidade } from '@/lib/utils/visibilidade'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 
@@ -19,6 +20,7 @@ interface PostsListProps {
   posts: PostListItem[]
   onEdit: (id: string) => void
   onDeleted: () => void
+  onVisibilidadeChanged: (id: string, v: string) => void
   loading: boolean
 }
 
@@ -32,10 +34,11 @@ function relativeDate(iso: string): string {
   return `${Math.floor(days / 365)}a atrás`
 }
 
-export function PostsList({ posts, onEdit, onDeleted, loading }: PostsListProps) {
+export function PostsList({ posts, onEdit, onDeleted, onVisibilidadeChanged, loading }: PostsListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
   const filtered = search.trim()
@@ -44,6 +47,26 @@ export function PostsList({ posts, onEdit, onDeleted, loading }: PostsListProps)
           .some(v => v?.toLowerCase().includes(search.toLowerCase()))
       )
     : posts
+
+  const handleToggleVisibilidade = async (post: PostListItem) => {
+    if (togglingId) return
+    const next = nextVisibilidade(post.visibilidade)
+    const original = post.visibilidade
+    setTogglingId(post.id)
+    onVisibilidadeChanged(post.id, next)
+    try {
+      const res = await fetch(`/api/admin/posts/${post.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibilidade: next }),
+      })
+      if (!res.ok) onVisibilidadeChanged(post.id, original ?? 'rascunho')
+    } catch {
+      onVisibilidadeChanged(post.id, original ?? 'rascunho')
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     setDeletingId(id); setDeleteError(null)
@@ -94,14 +117,22 @@ export function PostsList({ posts, onEdit, onDeleted, loading }: PostsListProps)
             )}
 
             {/* Visibility */}
-            <span className="text-xs px-2 py-0.5 flex-shrink-0 hidden md:block"
+            <button
+              type="button"
+              onClick={() => handleToggleVisibilidade(p)}
+              disabled={togglingId === p.id}
+              title="Clique para alterar visibilidade"
+              className="text-xs px-2 py-0.5 flex-shrink-0 hidden md:block transition-opacity"
               style={{
                 fontFamily: FONT_BODY,
-                color: p.visibilidade === 'publico' ? 'white' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.8)' : 'rgba(255,255,255,0.3)',
+                color: togglingId === p.id ? 'rgba(255,255,255,0.3)' : p.visibilidade === 'publico' ? 'white' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.8)' : 'rgba(255,255,255,0.3)',
                 border: `1px solid ${p.visibilidade === 'publico' ? 'rgba(255,255,255,0.3)' : p.visibilidade === 'rascunho' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                cursor: togglingId === p.id ? 'wait' : 'pointer',
+                background: 'transparent',
+                opacity: togglingId === p.id ? 0.6 : 1,
               }}>
-              {p.visibilidade ?? '—'}
-            </span>
+              {togglingId === p.id ? '…' : (p.visibilidade ?? '—')}
+            </button>
 
             {/* Updated */}
             <span className="text-white/25 text-xs flex-shrink-0 hidden lg:block" style={{ fontFamily: FONT_BODY, minWidth: 70 }}>
