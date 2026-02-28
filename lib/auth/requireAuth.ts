@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 /**
  * Server-side utility to require authentication
- * Redirects to /login if user is not authenticated
+ * Redirects to /auth/login if user is not authenticated
  */
 export async function requireAuth() {
   const supabase = await createClient()
@@ -12,7 +12,7 @@ export async function requireAuth() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   return user
