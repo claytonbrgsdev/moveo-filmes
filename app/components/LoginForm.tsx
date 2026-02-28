@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 
@@ -10,6 +11,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const { signIn, loading } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +23,8 @@ export default function LoginForm() {
     if (error) {
       setError(error.message)
     } else {
-      setMessage('Login realizado com sucesso!')
+      setMessage('Login realizado com sucesso! Redirecionando...')
+      router.push('/central')
     }
   }
 
