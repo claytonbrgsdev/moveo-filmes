@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
 import { RichTextEditor } from './RichTextEditor'
 import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
+import { useSlugCheck } from '@/lib/hooks/useSlugCheck'
 import { AssetsPanel } from './sub/AssetsPanel'
 import { CreditosPanel } from './sub/CreditosPanel'
 import { ElencoPanel } from './sub/ElencoPanel'
@@ -277,6 +278,8 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChan
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
+  const { slugStatus, checkSlug } = useSlugCheck(form.slug, 'filmes', filmeId)
+
   // Load existing film data in edit mode
   useEffect(() => {
     if (!filmeId) return
@@ -355,6 +358,10 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChan
       setError('Slug é obrigatório')
       return
     }
+    if (slugStatus === 'taken') {
+      setError('Este slug já está em uso. Escolha outro.')
+      return
+    }
 
     setSaving(true)
     try {
@@ -415,11 +422,18 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChan
             <TextInput value={form.titulo_en} onChange={(v) => setField('titulo_en', v)} placeholder="The English title" />
           </Field>
           <Field label="Slug (URL)" required>
-            <TextInput
+            <input
+              type="text"
               value={form.slug}
-              onChange={handleSlugChange}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              onBlur={() => checkSlug()}
               placeholder="meu-filme"
+              className="placeholder-white/20"
+              style={inputStyle}
             />
+            {slugStatus === 'checking' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(255,255,255,0.35)' }}>⟳ verificando…</p>}
+            {slugStatus === 'available' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(134,239,172,0.8)' }}>✓ disponível</p>}
+            {slugStatus === 'taken' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(248,113,113,0.9)' }}>✗ já em uso</p>}
           </Field>
           <Field label="Categoria no Site">
             <SelectInput

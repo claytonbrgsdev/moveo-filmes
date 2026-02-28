@@ -36,6 +36,14 @@ export function PostsList({ posts, onEdit, onDeleted, loading }: PostsListProps)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filtered = search.trim()
+    ? posts.filter(p =>
+        [p.titulo_pt, p.titulo_en, p.slug, p.tipo, p.visibilidade]
+          .some(v => v?.toLowerCase().includes(search.toLowerCase()))
+      )
+    : posts
 
   const handleDelete = async (id: string) => {
     setDeletingId(id); setDeleteError(null)
@@ -53,8 +61,24 @@ export function PostsList({ posts, onEdit, onDeleted, loading }: PostsListProps)
   return (
     <div>
       {deleteError && <p className="text-red-400 text-xs mb-4" style={{ fontFamily: FONT_BODY }}>{deleteError}</p>}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-white/35 text-xs" style={{ fontFamily: FONT_BODY }}>
+          {filtered.length}{search.trim() ? ` de ${posts.length}` : ''} post{posts.length !== 1 ? 's' : ''}
+        </span>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar posts…"
+          className="placeholder-white/20"
+          style={{ fontFamily: FONT_BODY, fontSize: '13px', background: 'transparent', color: 'white', outline: 'none', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '4px', width: '200px' }}
+        />
+      </div>
+      {filtered.length === 0 && search.trim() && (
+        <p className="text-white/20 text-sm py-4" style={{ fontFamily: FONT_BODY }}>Nenhum resultado para "{search}".</p>
+      )}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        {posts.map(p => (
+        {filtered.map(p => (
           <div key={p.id} className="flex items-center gap-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex-1 min-w-0">
               <p className="text-white text-sm truncate" style={{ fontFamily: FONT_BODY }}>{p.titulo_pt}</p>

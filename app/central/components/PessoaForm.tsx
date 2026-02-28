@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
 import { RichTextEditor } from './RichTextEditor'
 import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
+import { useSlugCheck } from '@/lib/hooks/useSlugCheck'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -59,6 +60,8 @@ export function PessoaForm({ pessoaId, onSave, onCancel, onDirtyChange }: Pessoa
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
+  const { slugStatus, checkSlug } = useSlugCheck(form.slug, 'pessoas', pessoaId)
+
   useEffect(() => {
     if (!pessoaId) return
     setLoadingData(true)
@@ -98,6 +101,7 @@ export function PessoaForm({ pessoaId, onSave, onCancel, onDirtyChange }: Pessoa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null)
     if (!form.nome.trim()) { setError('Nome é obrigatório'); return }
+    if (slugStatus === 'taken') { setError('Este slug já está em uso. Escolha outro.'); return }
     setSaving(true)
     try {
       const payload = {
@@ -153,7 +157,11 @@ export function PessoaForm({ pessoaId, onSave, onCancel, onDirtyChange }: Pessoa
           <div>
             <label style={labelStyle}>Slug (URL)</label>
             <input type="text" value={form.slug} onChange={e => { setSlugTouched(true); set('slug', e.target.value) }}
+              onBlur={() => checkSlug()}
               placeholder="nome-da-pessoa" className="placeholder-white/20" style={inputStyle} />
+            {slugStatus === 'checking' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(255,255,255,0.35)' }}>⟳ verificando…</p>}
+            {slugStatus === 'available' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(134,239,172,0.8)' }}>✓ disponível</p>}
+            {slugStatus === 'taken' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(248,113,113,0.9)' }}>✗ já em uso</p>}
           </div>
           <div>
             <label style={labelStyle}>Visibilidade</label>

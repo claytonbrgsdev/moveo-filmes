@@ -37,6 +37,14 @@ export function PessoasList({ pessoas, onEdit, onDeleted, loading }: PessoasList
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filtered = search.trim()
+    ? pessoas.filter(p =>
+        [p.nome, p.nome_exibicao, p.slug, p.visibilidade, (p.areas_atuacao ?? []).join(' ')]
+          .some(v => v?.toLowerCase().includes(search.toLowerCase()))
+      )
+    : pessoas
 
   const handleDelete = async (id: string) => {
     setDeletingId(id)
@@ -66,8 +74,24 @@ export function PessoasList({ pessoas, onEdit, onDeleted, loading }: PessoasList
       {deleteError && (
         <p className="text-red-400 text-xs mb-4" style={{ fontFamily: FONT_BODY }}>{deleteError}</p>
       )}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-white/35 text-xs" style={{ fontFamily: FONT_BODY }}>
+          {filtered.length}{search.trim() ? ` de ${pessoas.length}` : ''} pessoa{pessoas.length !== 1 ? 's' : ''}
+        </span>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar pessoas…"
+          className="placeholder-white/20"
+          style={{ fontFamily: FONT_BODY, fontSize: '13px', background: 'transparent', color: 'white', outline: 'none', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '4px', width: '200px' }}
+        />
+      </div>
+      {filtered.length === 0 && search.trim() && (
+        <p className="text-white/20 text-sm py-4" style={{ fontFamily: FONT_BODY }}>Nenhum resultado para "{search}".</p>
+      )}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        {pessoas.map((p) => (
+        {filtered.map((p) => (
           <div
             key={p.id}
             className="flex items-center gap-4 py-3"

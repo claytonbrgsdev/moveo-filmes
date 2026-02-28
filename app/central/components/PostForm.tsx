@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { StorageUpload } from './StorageUpload'
 import { RichTextEditor } from './RichTextEditor'
 import { useBeforeUnload } from '@/lib/hooks/useBeforeUnload'
+import { useSlugCheck } from '@/lib/hooks/useSlugCheck'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -67,6 +68,8 @@ export function PostForm({ postId, filmes, onSave, onCancel, onDirtyChange }: Po
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
+  const { slugStatus, checkSlug } = useSlugCheck(form.slug, 'posts', postId)
+
   useEffect(() => {
     if (!postId) return
     setLoadingData(true)
@@ -113,6 +116,7 @@ export function PostForm({ postId, filmes, onSave, onCancel, onDirtyChange }: Po
     e.preventDefault(); setError(null)
     if (!form.titulo_pt.trim()) { setError('Título (PT) é obrigatório'); return }
     if (!form.slug.trim()) { setError('Slug é obrigatório'); return }
+    if (slugStatus === 'taken') { setError('Este slug já está em uso. Escolha outro.'); return }
     setSaving(true)
     try {
       const payload = {
@@ -166,7 +170,11 @@ export function PostForm({ postId, filmes, onSave, onCancel, onDirtyChange }: Po
           <div>
             <label style={labelStyle}>Slug <span style={{ color: 'rgba(239,68,68,0.7)' }}>*</span></label>
             <input type="text" value={form.slug} onChange={e => { setSlugTouched(true); set('slug', e.target.value) }}
+              onBlur={() => checkSlug()}
               placeholder="meu-post" className="placeholder-white/20" style={inputStyle} />
+            {slugStatus === 'checking' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(255,255,255,0.35)' }}>⟳ verificando…</p>}
+            {slugStatus === 'available' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(134,239,172,0.8)' }}>✓ disponível</p>}
+            {slugStatus === 'taken' && <p className="text-xs mt-1" style={{ fontFamily: FONT_BODY, color: 'rgba(248,113,113,0.9)' }}>✗ já em uso</p>}
           </div>
           <div>
             <label style={labelStyle}>Tipo</label>

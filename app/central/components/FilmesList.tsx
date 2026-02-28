@@ -73,6 +73,14 @@ function formatDate(dateStr: string) {
 
 export function FilmesList({ filmes, onEdit, onDeleted, loading }: FilmesListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filtered = search.trim()
+    ? filmes.filter(f =>
+        [f.titulo_pt, f.titulo_en, f.slug, f.categoria_site, f.visibilidade]
+          .some(v => v?.toLowerCase().includes(search.toLowerCase()))
+      )
+    : filmes
 
   if (loading) {
     return (
@@ -103,6 +111,23 @@ export function FilmesList({ filmes, onEdit, onDeleted, loading }: FilmesListPro
 
   return (
     <div className="w-full overflow-x-auto">
+      {/* Search + count bar */}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-white/35 text-xs" style={{ fontFamily: FONT_BODY }}>
+          {filtered.length}{search.trim() ? ` de ${filmes.length}` : ''} filme{filmes.length !== 1 ? 's' : ''}
+        </span>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar filmes…"
+          className="placeholder-white/20"
+          style={{ fontFamily: FONT_BODY, fontSize: '13px', background: 'transparent', color: 'white', outline: 'none', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '4px', width: '200px' }}
+        />
+      </div>
+      {filtered.length === 0 && search.trim() && (
+        <p className="text-white/20 text-sm py-4" style={{ fontFamily: FONT_BODY }}>Nenhum resultado para "{search}".</p>
+      )}
       {/* Table header */}
       <div
         className="grid gap-4 pb-3 mb-1"
@@ -123,7 +148,7 @@ export function FilmesList({ filmes, onEdit, onDeleted, loading }: FilmesListPro
       </div>
 
       {/* Rows */}
-      {filmes.map((filme) => (
+      {filtered.map((filme) => (
         <div key={filme.id}>
           <div
             className="grid gap-4 items-center py-4"
