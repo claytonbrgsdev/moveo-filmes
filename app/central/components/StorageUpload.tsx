@@ -4,6 +4,8 @@ import { useState, useRef } from 'react'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 
+const MAX_MB = 10
+
 interface StorageUploadProps {
   /** Storage path — e.g. `filmes/abc123/poster.jpg` */
   storagePath: string
@@ -24,13 +26,19 @@ export function StorageUpload({
   label = 'Arquivo',
 }: StorageUploadProps) {
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<string | null>(existingUrl ?? null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleFile = async (file: File) => {
+  const handleFile = (file: File) => {
     setError(null)
-    setUploading(true)
+
+    // Client-side file size guard
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setError(`Arquivo muito grande. Máximo: ${MAX_MB}MB`)
+      return
+    }
 
     // Generate a unique filename to avoid collisions
     const ext = file.name.split('.').pop() ?? 'bin'
@@ -42,20 +50,46 @@ export function StorageUpload({
     fd.append('file', file)
     fd.append('path', fullPath)
 
-    try {
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}))
-        throw new Error(d.error ?? `Erro ${res.status}`)
+    setUploading(true)
+    setProgress(0)
+
+    const xhr = new XMLHttpRequest()
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress(Math.round((e.loaded / e.total) * 100))
       }
-      const { url } = await res.json()
-      setPreview(url)
-      onUploaded(url)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro no upload')
-    } finally {
-      setUploading(false)
     }
+
+    xhr.onload = () => {
+      setUploading(false)
+      setProgress(null)
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const { url } = JSON.parse(xhr.responseText)
+          setPreview(url)
+          onUploaded(url)
+        } catch {
+          setError('Resposta inválida do servidor')
+        }
+      } else {
+        try {
+          const d = JSON.parse(xhr.responseText)
+          setError(d.error ?? `Erro ${xhr.status}`)
+        } catch {
+          setError(`Erro ${xhr.status}`)
+        }
+      }
+    }
+
+    xhr.onerror = () => {
+      setUploading(false)
+      setProgress(null)
+      setError('Erro de rede no upload')
+    }
+
+    xhr.open('POST', '/api/admin/upload')
+    xhr.send(fd)
   }
 
   return (
@@ -93,10 +127,10 @@ export function StorageUpload({
           onMouseEnter={(e) => { if (!uploading) e.currentTarget.style.borderColor = 'white' }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)' }}
         >
-          {uploading ? 'Enviando…' : `↑ ${label}`}
+          {uploading ? `Enviando… ${progress ?? 0}%` : `↑ ${label}`}
         </button>
 
-        {preview && (
+        {preview && !uploading && (
           <button
             type="button"
             onClick={() => { setPreview(null); onUploaded('') }}
@@ -107,6 +141,20 @@ export function StorageUpload({
           </button>
         )}
       </div>
+
+      {/* Progress bar */}
+      {uploading && progress !== null && (
+        <div className="mt-2" style={{ width: '100%', height: '2px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'white',
+              transition: 'width 0.1s ease',
+            }}
+          />
+        </div>
+      )}
 
       <input
         ref={inputRef}
