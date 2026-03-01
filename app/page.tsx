@@ -1846,99 +1846,94 @@ export default function Home() {
     return () => ctx.revert();
   }, [mainTrackReady]);
 
-  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque) - Individual animations
+  // ScrollTrigger animations for Catalog Section (Catálogo em Destaque) — typewriter + film elements
   useLayoutEffect(() => {
 
     if (!dragonflySectionRef.current) return;
 
-
-
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(dragonflySectionRef.current);
-      
-      // Get individual elements
-      const labelElement = q('[data-catalog-label]')[0] as HTMLElement;
-      const titleElement = q('[data-catalog-title]')[0] as HTMLElement;
-      const imageElement = q('[data-catalog-image]')[0] as HTMLElement;
 
-      // Animation for label "NOSSOS FILMES" — letter-spacing + scaleY reveal
-      if (labelElement) {
-        gsap.set(labelElement, {
-          opacity: 0,
-          letterSpacing: '0.6em',
-          scaleY: 0.5,
-          y: 15,
-        });
+      const labelChars    = q('[data-label-char]') as HTMLElement[];
+      const labelRule     = q('[data-label-rule]')[0] as HTMLElement;
+      const catalogRule   = q('[data-catalog-rule]')[0] as HTMLElement;
+      const topChars      = q('[data-dest-char="top"]') as HTMLElement[];
+      const bottomChars   = q('[data-dest-char="bottom"]') as HTMLElement[];
+      const reelTag       = q('[data-reel-tag]')[0] as HTMLElement;
+      const filmstrip     = q('[data-filmstrip]')[0] as HTMLElement;
+      const titleElement  = q('[data-catalog-title]')[0] as HTMLElement;
 
-        gsap.to(labelElement, {
-          opacity: 1,
-          letterSpacing: '0.15em',
-          scaleY: 1,
-          y: 0,
-          duration: 1.0,
-          ease: 'expo.out',
-          scrollTrigger: {
-            trigger: labelElement,
-            start: 'top 85%',
-            end: 'top 60%',
-            toggleActions: 'play none none reverse',
-          },
+      // --- Label rule flick ---
+      if (labelRule) {
+        gsap.set(labelRule, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.to(labelRule, {
+          scaleX: 1, duration: 0.5, ease: 'power2.out',
+          scrollTrigger: { trigger: titleElement, start: 'top 88%', toggleActions: 'play none none reverse' },
         });
       }
 
-      // Animation for title "Catálogo em Destaque" — 3D flip + scale bounce
-      if (titleElement) {
-        gsap.set(titleElement, {
-          opacity: 0,
-          y: 70,
-          rotationX: -20,
-          scale: 0.88,
-        });
-
-        gsap.to(titleElement, {
-          opacity: 1,
-          y: 0,
-          rotationX: 0,
-          scale: 1,
-          duration: 1.4,
-          ease: 'back.out(1.3)',
-          scrollTrigger: {
-            trigger: titleElement,
-            start: 'top 85%',
-            end: 'top 55%',
-            toggleActions: 'play none none reverse',
-          },
+      // --- Label characters: typewriter left-to-right ---
+      if (labelChars.length) {
+        gsap.set(labelChars, { opacity: 0, y: 8 });
+        gsap.to(labelChars, {
+          opacity: 1, y: 0,
+          duration: 0.25,
+          ease: 'power1.out',
+          stagger: 0.03,
+          scrollTrigger: { trigger: titleElement, start: 'top 88%', toggleActions: 'play none none reverse' },
         });
       }
 
-      // Animation for image - Zoom in from center with blur and brightness
-      if (imageElement) {
-        const imageContainer = imageElement.parentElement;
-        if (imageContainer) {
-          // Set initial state - zoomed in, blurred, darker, with 3D tilt
-          gsap.set(imageElement, {
-            opacity: 0,
-            scale: 1.25,
-            filter: 'blur(15px) brightness(0.4)',
-            rotationY: 5,
-          });
+      // --- Horizontal rule draws left → right ---
+      if (catalogRule) {
+        gsap.to(catalogRule, {
+          scaleX: 1, duration: 0.7, ease: 'power3.out',
+          delay: 0.15,
+          scrollTrigger: { trigger: titleElement, start: 'top 85%', toggleActions: 'play none none reverse' },
+        });
+      }
 
-          // Animate to final state — long reveal with power4 snap
-          gsap.to(imageElement, {
-            opacity: 1,
-            scale: 1,
-            filter: 'blur(0px) brightness(0.9)',
-            rotationY: 0,
-            duration: 1.8,
-            ease: 'power4.out',
-            scrollTrigger: {
-              trigger: imageContainer,
-              start: 'top 80%',
-              end: 'top 45%',
-              toggleActions: 'play none none reverse',
-            },
-          });
-        }
+      // --- "CATÁLOGO EM" — typewriter, each char drops from above ---
+      if (topChars.length) {
+        gsap.set(topChars, { opacity: 0, y: -32, rotationX: -60, transformOrigin: '50% 0%' });
+        gsap.to(topChars, {
+          opacity: 1, y: 0, rotationX: 0,
+          duration: 0.35,
+          ease: 'power2.out',
+          stagger: { each: 0.045, from: 'start' },
+          delay: 0.25,
+          scrollTrigger: { trigger: titleElement, start: 'top 85%', toggleActions: 'play none none reverse' },
+        });
+      }
+
+      // --- "DESTAQUE" — each char slams up from below, bold impact ---
+      if (bottomChars.length) {
+        gsap.set(bottomChars, { opacity: 0, y: 48, rotationX: 45, transformOrigin: '50% 100%' });
+        gsap.to(bottomChars, {
+          opacity: 1, y: 0, rotationX: 0,
+          duration: 0.4,
+          ease: 'back.out(1.6)',
+          stagger: { each: 0.055, from: 'start' },
+          delay: 0.55,
+          scrollTrigger: { trigger: titleElement, start: 'top 85%', toggleActions: 'play none none reverse' },
+        });
+      }
+
+      // --- Film-strip sprockets fade in ---
+      if (filmstrip) {
+        gsap.to(filmstrip, {
+          opacity: 1, duration: 1.0, ease: 'power1.out', delay: 0.4,
+          scrollTrigger: { trigger: titleElement, start: 'top 85%', toggleActions: 'play none none reverse' },
+        });
+      }
+
+      // --- [REEL 01] tag drifts in from right ---
+      if (reelTag) {
+        gsap.set(reelTag, { x: 20 });
+        gsap.to(reelTag, {
+          opacity: 1, x: 0, duration: 1.2, ease: 'power2.out', delay: 0.8,
+          scrollTrigger: { trigger: titleElement, start: 'top 85%', toggleActions: 'play none none reverse' },
+        });
       }
 
       requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -4925,76 +4920,146 @@ export default function Home() {
       >
         <section
           className="relative bg-black text-white"
-          style={{ 
+          style={{
             minHeight: '100vh',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '50px',
+            overflow: 'hidden',
           }}
         >
-          <div 
+          {/* Film-strip sprocket column — left edge decoration */}
+          <div
+            data-filmstrip
+            className="absolute pointer-events-none"
+            style={{ left: 18, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column' as const, gap: 14, opacity: 0 }}
+          >
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 14,
+                  height: 10,
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  borderRadius: 2,
+                  background: i % 3 === 1 ? 'rgba(255,255,255,0.04)' : 'transparent',
+                }}
+              />
+            ))}
+          </div>
+
+          <div
             ref={dragonflyPinRef}
             className="w-full max-w-7xl mx-auto"
+            style={{ position: 'relative' }}
           >
             <div className="w-full">
-              {/* Creative Typography Layout - Full Width */}
-              <div style={{ width: '100%' }}>
+              <div style={{ width: '100%', position: 'relative' }}>
+
+                {/* Label row */}
                 <div
                   data-catalog-label
                   data-destaques-label
                   suppressHydrationWarning
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                    fontSize: 'clamp(10px, 0.9vw, 13px)',
-                    textTransform: 'uppercase',
+                    fontSize: FONT_COND,
+                    textTransform: 'uppercase' as const,
                     letterSpacing: '0.3em',
-                    marginBottom: 'clamp(30px, 4vh, 50px)',
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    marginBottom: 'clamp(24px, 3vh, 40px)',
+                    color: 'rgba(255,255,255,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    overflow: 'hidden',
                   }}
                 >
-                  {t('nossosFilmes')}
+                  <span data-label-rule style={{ display: 'inline-block', width: 24, height: 1, background: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
+                  {'— NOSSOS FILMES'.split('').map((ch, i) => (
+                    <span key={i} data-label-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                  ))}
                 </div>
 
-                {/* Main Title with Creative Typography */}
+                {/* Horizontal rule — draws in before title */}
+                <div
+                  data-catalog-rule
+                  style={{
+                    height: 1,
+                    background: 'rgba(255,255,255,0.15)',
+                    marginBottom: 'clamp(20px, 2.5vh, 36px)',
+                    transformOrigin: 'left center',
+                    transform: 'scaleX(0)',
+                  }}
+                />
+
+                {/* Main Title — brick block */}
                 <div
                   data-catalog-title
                   ref={dragonflyHeadingRef}
                   suppressHydrationWarning
                   style={{
-                    marginBottom: 'clamp(40px, 6vh, 80px)',
+                    marginBottom: 'clamp(32px, 4vh, 56px)',
+                    display: 'inline-block',
                   }}
                 >
-                  {/* "CATÁLOGO" - Light weight, large */}
+                  {/* Line 1: "CATÁLOGO EM" — light, sized to match DESTAQUE width */}
                   <div
                     data-destaques-title-light
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, sans-serif",
-                      fontSize: 'clamp(60px, 10vw, 180px)',
-                      lineHeight: '0.9',
+                      fontSize: 'clamp(28px, 4.6vw, 84px)',
+                      lineHeight: '1',
                       fontWeight: 300,
-                      letterSpacing: '-0.02em',
+                      letterSpacing: '0.08em',
                       color: 'white',
+                      display: 'flex',
+                      overflow: 'hidden',
                     }}
                   >
-                    {t('catalogoEm')}
+                    {t('catalogoEm').split('').map((ch, i) => (
+                      <span key={i} data-dest-char="top" style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                    ))}
                   </div>
-                  {/* "EM DESTAQUE" - Bold, slightly smaller, offset */}
+                  {/* Line 2: "DESTAQUE" — bold, reference width */}
                   <div
                     data-destaques-title-bold
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                      fontSize: 'clamp(50px, 8vw, 140px)',
-                      lineHeight: '1',
+                      fontSize: 'clamp(52px, 8.8vw, 160px)',
+                      lineHeight: '0.9',
                       fontWeight: 700,
                       letterSpacing: '-0.03em',
                       color: 'white',
-                      marginTop: 'clamp(-10px, -1vw, -20px)',
-                      marginLeft: 'clamp(20px, 4vw, 80px)',
+                      display: 'flex',
+                      overflow: 'hidden',
+                      marginTop: 4,
                     }}
                   >
-                    {t('destaque')}
+                    {t('destaque').split('').map((ch, i) => (
+                      <span key={i} data-dest-char="bottom" style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                    ))}
                   </div>
+                </div>
+
+                {/* [REEL 01] editorial aside — rotated right of title */}
+                <div
+                  data-reel-tag
+                  className="absolute pointer-events-none"
+                  style={{
+                    right: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%) rotate(90deg)',
+                    transformOrigin: 'center center',
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: FONT_COND,
+                    color: 'rgba(255,255,255,0.25)',
+                    letterSpacing: '0.2em',
+                    whiteSpace: 'nowrap' as const,
+                    opacity: 0,
+                  }}
+                >
+                  [ REEL 01 — MOVEO FILMES ]
                 </div>
 
               </div>
