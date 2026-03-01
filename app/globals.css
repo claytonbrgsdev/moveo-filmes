@@ -996,3 +996,14 @@ video[data-video-parallax] {
     animation: none !important;
   }
 }
+
+@keyframes arquivoTicker {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-arquivo-ticker] {
+    animation: none !important;
+  }
+}

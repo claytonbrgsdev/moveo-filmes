@@ -1840,6 +1840,32 @@ export default function Home() {
         }
       }
 
+      // Per-character stagger for "FILMES DE ARTE PARA O MERCADO INTERNACIONAL"
+      const thirdCharTargets = q('[data-third-char]') as HTMLElement[];
+      if (thirdCharTargets.length > 0) {
+        gsap.set(thirdCharTargets, { opacity: 0, y: 40, rotationX: -60 });
+        gsap.fromTo(
+          thirdCharTargets,
+          { opacity: 0, y: 40, rotationX: -60 },
+          {
+            opacity: 1,
+            y: 0,
+            rotationX: 0,
+            ease: 'back.out(1.2)',
+            duration: 0.7,
+            stagger: { each: 0.025, from: 'start' },
+            scrollTrigger: {
+              trigger: thirdCharTargets[0].closest('[data-third-animate]') || thirdCharTargets[0],
+              containerAnimation: mainTrackTimelineRef.current || undefined,
+              start: 'left 90%',
+              end: 'left 40%',
+              toggleActions: 'play none none reverse',
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }
+
       requestAnimationFrame(() => ScrollTrigger.refresh());
     }, thirdSectionRef);
 
@@ -2006,6 +2032,42 @@ export default function Home() {
           },
         });
       });
+
+      // Underline reveal on "CINEMA" heading
+      const cinemaUnderlineEl = cinemaSectionRef.current?.querySelector('[data-underline-reveal]') as HTMLElement | null;
+      if (cinemaUnderlineEl) {
+        ScrollTrigger.create({
+          trigger: cinemaUnderlineEl,
+          start: 'top 80%',
+          onEnter: () => {
+            cinemaUnderlineEl.classList.add('revealed');
+          },
+          onLeaveBack: () => {
+            cinemaUnderlineEl.classList.remove('revealed');
+          },
+        });
+      }
+
+      // Film count-up: 01 → 08
+      const countEl = cinemaSectionRef.current?.querySelector('[data-cinema-count]') as HTMLElement | null;
+      if (countEl) {
+        const countObj = { val: 1 };
+        gsap.to(countObj, {
+          val: 8,
+          duration: 1.2,
+          ease: 'power2.out',
+          onUpdate() {
+            countEl.textContent = String(Math.round(countObj.val)).padStart(2, '0');
+          },
+          scrollTrigger: {
+            trigger: countEl,
+            start: 'top 80%',
+            end: 'top 40%',
+            toggleActions: 'play none none reset',
+            refreshPriority: -2,
+          },
+        });
+      }
 
     }, cinemaSectionRef);
 
@@ -3799,16 +3861,19 @@ export default function Home() {
         });
       });
       // Underline reveal on "Contato" heading
-      ScrollTrigger.create({
-        trigger: contactSectionRef.current,
-        start: 'top 80%',
-        onEnter: () => {
-          document.querySelector('[data-underline-reveal]')?.classList.add('revealed');
-        },
-        onLeaveBack: () => {
-          document.querySelector('[data-underline-reveal]')?.classList.remove('revealed');
-        },
-      });
+      const contactUnderlineEl = contactSectionRef.current?.querySelector('[data-underline-reveal]') as HTMLElement | null;
+      if (contactUnderlineEl) {
+        ScrollTrigger.create({
+          trigger: contactSectionRef.current,
+          start: 'top 80%',
+          onEnter: () => {
+            contactUnderlineEl.classList.add('revealed');
+          },
+          onLeaveBack: () => {
+            contactUnderlineEl.classList.remove('revealed');
+          },
+        });
+      }
     }, contactSectionRef);
 
     return () => {
@@ -4488,13 +4553,20 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
           >
+            {/* Vertical editorial label — left edge */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 10, left: 6, top: '50%', transform: 'translateY(-50%) rotate(180deg)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, writingMode: 'vertical-lr' as const }}>
+                SOBRE / ABOUT
+              </span>
+              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)' }} />
+            </div>
             <div className="w-full h-full p-[50px] box-border">
               <div className="w-full h-full">
                 <div className="grid md:grid-cols-2 gap-6 h-full">
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="grid grid-cols-4 grid-rows-3 flex-1 min-h-0 gap-2">
                       {/* Linha A */}
-                      <div className="relative overflow-hidden rounded-lg" data-second-image>
+                      <div className="relative overflow-hidden" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 8.png"
                           alt="Imagem 1"
@@ -4503,7 +4575,7 @@ export default function Home() {
                           unoptimized
                         />
                       </div>
-                      <div className="relative overflow-hidden rounded-lg col-span-2" data-second-image>
+                      <div className="relative overflow-hidden col-span-2" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 11.png"
                           alt="Imagem 2"
@@ -4512,7 +4584,7 @@ export default function Home() {
                           unoptimized
                         />
                       </div>
-                      <div className="relative overflow-hidden rounded-lg" data-second-image>
+                      <div className="relative overflow-hidden" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 9.png"
                           alt="Imagem 3"
@@ -4523,7 +4595,7 @@ export default function Home() {
                       </div>
 
                       {/* Linhas B e C - Retângulo B1+B2+C1+C2 */}
-                      <div className="relative overflow-hidden rounded-lg col-span-2 row-span-2" data-second-image>
+                      <div className="relative overflow-hidden col-span-2 row-span-2" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 10.png"
                           alt="Imagem 4"
@@ -4532,7 +4604,7 @@ export default function Home() {
                           unoptimized
                         />
                       </div>
-                      <div className="relative overflow-hidden rounded-lg" data-second-image>
+                      <div className="relative overflow-hidden" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 12.png"
                           alt="Imagem 5"
@@ -4541,7 +4613,7 @@ export default function Home() {
                           unoptimized
                         />
                       </div>
-                      <div className="relative overflow-hidden rounded-lg" data-second-image>
+                      <div className="relative overflow-hidden" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 8.png"
                           alt="Imagem 6"
@@ -4552,7 +4624,7 @@ export default function Home() {
                       </div>
 
                       {/* Linha C - restantes */}
-                      <div className="relative overflow-hidden rounded-lg" data-second-image>
+                      <div className="relative overflow-hidden" data-second-image>
                         <Image
                           src="/imagens/secao2home/Rectangle 122.png"
                           alt="Imagem 7"
@@ -4579,7 +4651,7 @@ export default function Home() {
                             {t('fundadaEm2018')}
                           </p>
                         </div>
-                        <div className="relative overflow-hidden rounded-lg" data-second-image>
+                        <div className="relative overflow-hidden" data-second-image>
                           <Image
                             src="/imagens/secao2home/Rectangle 10.png"
                             alt="Imagem 8"
@@ -4615,11 +4687,21 @@ export default function Home() {
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div 
                       ref={sobreMoveoContainerRef}
-                      className="bg-black rounded-lg p-4 md:p-6 lg:p-8 flex flex-col items-end justify-end flex-[1] min-h-0 gap-4 relative z-[100]" 
+                      className="bg-black p-4 md:p-6 lg:p-8 flex flex-col items-end justify-end flex-[1] min-h-0 gap-4 relative z-[100]"
                       data-second-animate
                       style={{ pointerEvents: 'auto' }}
                     >
-                      <div 
+                      {/* L-bracket top-left */}
+                      <div className="absolute pointer-events-none" style={{ top: 10, left: 10, zIndex: 5 }}>
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: 20, height: 1, background: 'rgba(255,255,255,0.3)' }} />
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 20, background: 'rgba(255,255,255,0.3)' }} />
+                      </div>
+                      {/* L-bracket bottom-right */}
+                      <div className="absolute pointer-events-none" style={{ bottom: 10, right: 10, zIndex: 5 }}>
+                        <div style={{ position: 'absolute', bottom: 0, right: 0, width: 20, height: 1, background: 'rgba(255,255,255,0.3)' }} />
+                        <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 20, background: 'rgba(255,255,255,0.3)' }} />
+                      </div>
+                      <div
                         ref={sobreMoveoTextRef}
                         className="text-white uppercase text-center mix-blend-difference" 
                         suppressHydrationWarning
@@ -4669,7 +4751,7 @@ export default function Home() {
 
                     <div className="grid grid-cols-3 flex-[2] min-h-0 gap-2">
                       {/* Container esquerdo (esquerda + centro mesclados) */}
-                      <div className="col-span-2 bg-transparent rounded-lg flex items-end justify-start" data-second-animate>
+                      <div className="col-span-2 bg-transparent flex items-end justify-start" data-second-animate>
                         <p
                           className="text-white mix-blend-difference"
                           suppressHydrationWarning
@@ -4692,7 +4774,7 @@ export default function Home() {
 
                       {/* Container direito dividido horizontalmente em 3, mesclando superior+centro */}
                       <div className="grid grid-rows-3 gap-2">
-                        <div className="relative overflow-hidden rounded-lg row-span-2" data-second-image>
+                        <div className="relative overflow-hidden row-span-2" data-second-image>
                           <Image
                             src="/imagens/secao2home/Rectangle 122.png"
                             alt="Imagem 9"
@@ -4701,7 +4783,7 @@ export default function Home() {
                             unoptimized
                           />
                         </div>
-                        <div className="relative overflow-hidden rounded-lg" data-second-image>
+                        <div className="relative overflow-hidden" data-second-image>
                           <Image
                             src="/imagens/secao2home/Rectangle 9.png"
                             alt="Imagem 10"
@@ -4756,7 +4838,7 @@ export default function Home() {
                   {/* Container Inferior - Grid 2 linhas x 4 colunas */}
                   <div className="flex-1 grid grid-cols-4 grid-rows-4 min-h-0 gap-2">
                     {/* A1 superior */}
-                    <div className="relative overflow-hidden rounded-lg" data-third-image>
+                    <div className="relative overflow-hidden" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 8.png"
                         alt="Imagem 11"
@@ -4767,7 +4849,7 @@ export default function Home() {
                     </div>
 
                     {/* A3 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-3" data-third-image>
+                    <div className="relative overflow-hidden row-span-2 col-start-3" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 9.png"
                         alt="Imagem 12"
@@ -4778,7 +4860,7 @@ export default function Home() {
                     </div>
 
                     {/* A4 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4" data-third-image>
+                    <div className="relative overflow-hidden row-span-2 col-start-4" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 10.png"
                         alt="Imagem 13"
@@ -4789,7 +4871,7 @@ export default function Home() {
                     </div>
 
                     {/* Container mesclado: A'1, A'2, B1, B2, B'1 e B'2 */}
-                    <div className="relative overflow-hidden rounded-lg col-span-2 row-span-3 col-start-1 row-start-2" data-third-image>
+                    <div className="relative overflow-hidden col-span-2 row-span-3 col-start-1 row-start-2" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 11.png"
                         alt="Imagem 14"
@@ -4800,7 +4882,7 @@ export default function Home() {
                     </div>
 
                     {/* B4 */}
-                    <div className="relative overflow-hidden rounded-lg row-span-2 col-start-4 row-start-3" data-third-image>
+                    <div className="relative overflow-hidden row-span-2 col-start-4 row-start-3" data-third-image>
                       <Image
                         src="/imagens/secao2home/Rectangle 12.png"
                         alt="Imagem 15"
@@ -4814,7 +4896,7 @@ export default function Home() {
 
                 <div className="grid grid-cols-5 grid-rows-5 h-full min-h-0 gap-2">
                   {/* Rectangle 11 - squared image - first */}
-                  <div className="relative overflow-hidden rounded-lg col-start-1 row-start-1" data-third-image>
+                  <div className="relative overflow-hidden col-start-1 row-start-1" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 11.png"
                       alt="Imagem 19"
@@ -4825,7 +4907,7 @@ export default function Home() {
                   </div>
 
                   {/* Rectangle 12 - rectangled image - second */}
-                  <div className="relative overflow-hidden rounded-lg col-span-2 col-start-1 row-start-2" data-third-image>
+                  <div className="relative overflow-hidden col-span-2 col-start-1 row-start-2" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 12.png"
                       alt="Imagem 20"
@@ -4849,30 +4931,50 @@ export default function Home() {
                     >
                       {language === 'pt' ? (
                         <>
-                          FILMES DE
+                          {'FILMES DE'.split('').map((ch, i) => (
+                            <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                          ))}
                           <br />
-                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>ARTE</span> PARA
+                          {'ARTE'.split('').map((ch, i) => (
+                            <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
+                          ))}{'\u00a0'}{' PARA'.split('').map((ch, i) => (
+                            <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                          ))}
                           <br />
-                          O MERCADO
+                          {'O MERCADO'.split('').map((ch, i) => (
+                            <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                          ))}
                           <br />
-                          INTERNACIONAL
+                          {'INTERNACIONAL'.split('').map((ch, i) => (
+                            <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                          ))}
                         </>
                       ) : (
                         <>
-                          ART FILMS
+                          {'ART FILMS'.split('').map((ch, i) => (
+                            <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                          ))}
                           <br />
-                          <span style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>FOR</span> THE
+                          {'FOR'.split('').map((ch, i) => (
+                            <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
+                          ))}{'\u00a0'}{'THE'.split('').map((ch, i) => (
+                            <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                          ))}
                           <br />
-                          INTERNATIONAL
+                          {'INTERNATIONAL'.split('').map((ch, i) => (
+                            <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                          ))}
                           <br />
-                          MARKET
+                          {'MARKET'.split('').map((ch, i) => (
+                            <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                          ))}
                         </>
                       )}
                     </h2>
                   </div>
 
                   {/* A5 */}
-                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-1" data-third-image>
+                  <div className="relative overflow-hidden col-start-5 row-start-1" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 8.png"
                       alt="Imagem 16"
@@ -4883,7 +4985,7 @@ export default function Home() {
                   </div>
 
                   {/* B5 */}
-                  <div className="relative overflow-hidden rounded-lg col-start-5 row-start-2" data-third-image>
+                  <div className="relative overflow-hidden col-start-5 row-start-2" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 9.png"
                       alt="Imagem 17"
@@ -4894,7 +4996,7 @@ export default function Home() {
                   </div>
 
                   {/* C5 e D5 mesclados */}
-                  <div className="relative overflow-hidden rounded-lg row-span-2 col-start-5 row-start-3" data-third-image>
+                  <div className="relative overflow-hidden row-span-2 col-start-5 row-start-3" data-third-image>
                     <Image
                       src="/imagens/secao2home/Rectangle 10.png"
                       alt="Imagem 18"
@@ -7001,12 +7103,13 @@ export default function Home() {
 
                 {/* Bloco horizontal superior largo */}
                 <div
-                  className="col-span-7 row-span-2 bg-transparent p-4 md:p-8 flex items-end justify-start min-h-0 relative"
+                  className="col-span-7 row-span-2 bg-transparent p-4 md:p-8 flex items-end justify-between min-h-0 relative"
                   data-draw-border="top,right"
                 >
                   <h2
                     className="font-black tracking-tight text-white"
                     data-cinema-animate
+                    data-underline-reveal
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
@@ -7017,6 +7120,39 @@ export default function Home() {
                   >
                     CINEMA
                   </h2>
+                  {/* Film count-up */}
+                  <div
+                    data-cinema-animate
+                    className="flex flex-col items-end justify-end"
+                    style={{ paddingBottom: 4 }}
+                  >
+                    <span
+                      data-cinema-count
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                        fontWeight: 700,
+                        fontSize: 'clamp(32px, 4vw, 64px)',
+                        letterSpacing: '-0.03em',
+                        lineHeight: '0.9',
+                        color: 'white',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      08
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                        fontSize: FONT_COND,
+                        color: 'rgba(255,255,255,0.45)',
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase' as const,
+                        marginTop: 2,
+                      }}
+                    >
+                      FILMES
+                    </span>
+                  </div>
                 </div>
 
                 {/* Quadrado superior direito - video */}
@@ -7132,7 +7268,7 @@ export default function Home() {
                       lineHeight: '1.1',
                     }}
                   >
-                    {t('explorarArquivoNaIntegra')} {'>>>>'}
+                    {t('explorarArquivoNaIntegra')} {'→'}
                   </p>
                 </div>
               </div>
@@ -7184,6 +7320,39 @@ export default function Home() {
                       background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.4) 100%)',
                     }}
                   />
+                  {/* Vertical ticker tape */}
+                  <div
+                    className="absolute pointer-events-none overflow-hidden"
+                    style={{ zIndex: 5, top: 0, bottom: 0, right: 6, width: 14, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', overflow: 'hidden' }}
+                  >
+                    <div
+                      data-arquivo-ticker
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column' as const,
+                        gap: 12,
+                        animation: 'arquivoTicker 12s linear infinite',
+                        willChange: 'transform',
+                      }}
+                    >
+                      {['ALÉM DOS FILMES', '—', 'MOVEO', '—', 'BRASÍLIA', '—', 'ARQUIVO MÓVEL', '—', 'ALÉM DOS FILMES', '—', 'MOVEO', '—', 'BRASÍLIA', '—', 'ARQUIVO MÓVEL', '—'].map((seg, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
+                            fontSize: FONT_COND,
+                            color: 'rgba(255,255,255,0.3)',
+                            letterSpacing: '0.14em',
+                            writingMode: 'vertical-lr' as const,
+                            textTransform: 'uppercase' as const,
+                            whiteSpace: 'nowrap' as const,
+                          }}
+                        >
+                          {seg}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bloco principal - ALÉM DOS FILMES */}
@@ -7280,6 +7449,16 @@ export default function Home() {
                     className="object-cover"
                     unoptimized
                   />
+                  {/* Viewfinder top-left */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
+                  {/* Viewfinder bottom-right */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, bottom: 8, right: 8 }}>
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
                 </div>
                 <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
@@ -7289,6 +7468,16 @@ export default function Home() {
                     className="object-cover"
                     unoptimized
                   />
+                  {/* Viewfinder top-left */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
+                  {/* Viewfinder bottom-right */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, bottom: 8, right: 8 }}>
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
                 </div>
                 <div className="col-start-7 col-span-5 row-start-6 row-span-2 relative overflow-hidden">
                   <Image
@@ -7298,6 +7487,16 @@ export default function Home() {
                     className="object-cover"
                     unoptimized
                   />
+                  {/* Viewfinder top-left */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
+                  {/* Viewfinder bottom-right */}
+                  <div className="absolute pointer-events-none" style={{ zIndex: 2, bottom: 8, right: 8 }}>
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
+                  </div>
                 </div>
               </div>
             </div>
