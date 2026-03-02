@@ -2531,8 +2531,8 @@ export default function Home() {
             const lastMisterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="2"]') as HTMLElement;
             if (lastMisterioPanel) {
               finaleTl.fromTo(lastMisterioPanel,
-                { scale: 1, borderRadius: '0px', filter: 'brightness(1)' },
-                { scale: 0.85, borderRadius: '24px', filter: 'brightness(0.3)', duration: 0.5, ease: 'power2.inOut' },
+                { scale: 1, borderRadius: '0px' },
+                { scale: 0.85, borderRadius: '24px', duration: 0.5, ease: 'power2.inOut' },
                 0
               );
             }
@@ -2588,7 +2588,7 @@ export default function Home() {
           if (transitionVideo) {
             tl.to(transitionVideo, {
               opacity: 0.9,
-              filter: 'blur(0px) saturate(1)',
+              filter: 'blur(0px)',
               duration: 0.35,
               ease: 'power2.out',
             }, 0.15);
@@ -2626,7 +2626,6 @@ export default function Home() {
             tl.to(transitionVideo, {
               scale: 1.05,
               opacity: 0,
-              filter: 'blur(4px)',
               duration: 0.25,
               ease: 'power2.in',
             }, 0.7);
@@ -2678,11 +2677,10 @@ export default function Home() {
             }, 0.1);
           }
 
-          // Phase 2: Video reveals with warm tint
+          // Phase 2: Video reveals
           if (transitionVideo) {
             tl.to(transitionVideo, {
               opacity: 0.95,
-              filter: 'sepia(0.2) saturate(1.3) brightness(1)',
               duration: 0.4,
               ease: 'power2.out',
             }, 0.2);
@@ -2718,7 +2716,6 @@ export default function Home() {
             tl.to(transitionVideo, {
               opacity: 0,
               scale: 1.03,
-              filter: 'sepia(0.1) saturate(0.8) brightness(0.6)',
               duration: 0.25,
               ease: 'power2.in',
             }, 0.75);
@@ -2870,54 +2867,7 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // Scroll-Linked Video Filters - brightness/saturation on entry/exit
-  useLayoutEffect(() => {
-    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
-
-    const ctx = gsap.context(() => {
-      const panels = Array.from(
-        horizontalSecondTrackRef.current?.querySelectorAll(
-          '[data-natureza-panel="0"], [data-micangas-panel="1"], [data-misterio-panel="1"]'
-        ) || []
-      ) as HTMLElement[];
-
-      panels.forEach((panel) => {
-        const video = panel.querySelector('video') as HTMLVideoElement;
-        if (!video) return;
-
-        // Entry: video brightens and saturates
-        gsap.fromTo(video,
-          { filter: 'brightness(0.4) saturate(0.3)' },
-          {
-            filter: 'brightness(1) saturate(1)',
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: panel,
-              start: 'left 100%',
-              end: 'left 30%',
-              containerAnimation: secondTrackTweenRef.current || undefined,
-              scrub: 0.8,
-            },
-          }
-        );
-
-        // Exit: video dims and desaturates
-        gsap.to(video, {
-          filter: 'brightness(0.6) saturate(0.5)',
-          ease: 'power2.in',
-          scrollTrigger: {
-            trigger: panel,
-            start: 'right 70%',
-            end: 'right -30%',
-            containerAnimation: secondTrackTweenRef.current || undefined,
-            scrub: 0.8,
-          },
-        });
-      });
-    }, horizontalSecondTrackRef);
-
-    return () => ctx.revert();
-  }, [secondTrackReady]);
+  // Scroll-Linked Video Filters - disabled (brightness/saturation effects removed)
 
   // Cinematic Vignette Animation - intensifies at panel edges
   useLayoutEffect(() => {
