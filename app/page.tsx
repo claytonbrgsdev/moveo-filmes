@@ -2935,6 +2935,13 @@ export default function Home() {
 
         if (!bars.length) return;
 
+        // Ensure initial state is set synchronously before any scroll fires
+        gsap.set(bars, { xPercent: 0, skewX: 0, scaleY: 1, rotationZ: 0, opacity: 1 });
+        if (primaryVideo) gsap.set(primaryVideo, { opacity: 0 });
+        if (secondaryVideo) gsap.set(secondaryVideo, { opacity: 0 });
+        if (vignette) gsap.set(vignette, { opacity: 0 });
+        if (gradient) gsap.set(gradient, { opacity: 0 });
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: panel,
@@ -3188,71 +3195,7 @@ export default function Home() {
   }, [secondTrackReady]);
 
   // Color Grading Master Timeline - shifts color temperature between movies
-  useLayoutEffect(() => {
-    if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Get movie sections for color grading
-      const naturezaPanels = Array.from(
-        horizontalSecondTrackRef.current?.querySelectorAll('[data-natureza-panel]') || []
-      ) as HTMLElement[];
-      const micangasPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-panel="1"]') as HTMLElement;
-      const misterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
-
-      // Natureza: Neutral/cool (daylight feel)
-      naturezaPanels.forEach((panel) => {
-        gsap.to(panel, {
-          filter: 'hue-rotate(0deg) brightness(1) contrast(1.05) saturate(1.1)',
-          ease: 'none',
-          scrollTrigger: {
-            trigger: panel,
-            start: 'left 80%',
-            end: 'center center',
-            containerAnimation: secondTrackTweenRef.current || undefined,
-            scrub: 1,
-          },
-        });
-      });
-
-      // Miçangas: Slightly warm
-      if (micangasPanel) {
-        gsap.fromTo(micangasPanel,
-          { filter: 'hue-rotate(0deg) brightness(1) contrast(1) saturate(1)' },
-          {
-            filter: 'hue-rotate(5deg) brightness(1.02) contrast(1.08) saturate(0.95)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: micangasPanel,
-              start: 'left 80%',
-              end: 'center center',
-              containerAnimation: secondTrackTweenRef.current || undefined,
-              scrub: 1,
-            },
-          }
-        );
-      }
-
-      // Mistério: Warm/moody
-      if (misterioPanel) {
-        gsap.fromTo(misterioPanel,
-          { filter: 'hue-rotate(0deg) brightness(1) contrast(1) saturate(1)' },
-          {
-            filter: 'hue-rotate(8deg) brightness(0.98) contrast(1.12) saturate(0.85)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: misterioPanel,
-              start: 'left 80%',
-              end: 'center center',
-              containerAnimation: secondTrackTweenRef.current || undefined,
-              scrub: 1,
-            },
-          }
-        );
-      }
-    }, horizontalSecondTrackRef);
-
-    return () => ctx.revert();
-  }, [secondTrackReady]);
+  // Color grading filter animations removed
 
   // Vignette Breathing Animation - subtle organic pulse
   useLayoutEffect(() => {
@@ -3302,6 +3245,12 @@ export default function Home() {
       const year = filmstripPanel.querySelector('[data-micangas-year]') as HTMLElement;
 
       if (!filmStrips.length) return;
+
+      // Ensure initial state is set synchronously before any scroll fires
+      gsap.set(filmStrips, { yPercent: 0, opacity: 1 });
+      if (primaryVideo) gsap.set(primaryVideo, { opacity: 0 });
+      if (secondaryVideo) gsap.set(secondaryVideo, { opacity: 0 });
+      if (vignette) gsap.set(vignette, { opacity: 0 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -3465,6 +3414,12 @@ export default function Home() {
       const venetianYear = venetianPanel.querySelector('[data-misterio-venetian-year]') as HTMLElement;
 
       if (!blindSlats.length) return;
+
+      // Ensure initial state is set synchronously before any scroll fires
+      gsap.set(blindSlats, { rotateY: 90 });
+      if (primaryVideo) gsap.set(primaryVideo, { opacity: 0 });
+      if (secondaryVideo) gsap.set(secondaryVideo, { opacity: 0 });
+      if (spotlight) gsap.set(spotlight, { opacity: 0 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
