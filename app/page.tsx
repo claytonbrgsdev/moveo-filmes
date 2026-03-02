@@ -4510,9 +4510,16 @@ export default function Home() {
               </span>
               <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)' }} />
             </div>
+            {/* Section index — top right */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 10, top: 16, right: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>02</span>
+            </div>
             <div className="w-full h-full p-[50px] box-border">
               <div className="w-full h-full">
-                <div className="grid md:grid-cols-2 gap-6 h-full">
+                <div className="grid md:grid-cols-2 gap-6 h-full" style={{ position: 'relative' }}>
+                  {/* Hairline divider between columns */}
+                  <div className="absolute pointer-events-none hidden md:block" style={{ top: 0, bottom: 0, left: '50%', width: 1, background: 'rgba(255,255,255,0.08)', transform: 'translateX(-50%)' }} />
                   <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="grid grid-cols-4 grid-rows-3 flex-1 min-h-0 gap-2">
                       {/* Linha A */}
@@ -4755,8 +4762,15 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
           >
+            {/* Section index — top right */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 10, top: 16, right: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>03</span>
+            </div>
             <div className="w-full h-full p-[50px] box-border">
-              <div className="w-full h-full grid md:grid-cols-2 gap-6">
+              <div className="w-full h-full grid md:grid-cols-2 gap-6" style={{ position: 'relative' }}>
+                {/* Hairline divider between columns */}
+                <div className="absolute pointer-events-none hidden md:block" style={{ top: 0, bottom: 0, left: '50%', width: 1, background: 'rgba(255,255,255,0.08)', transform: 'translateX(-50%)' }} />
                 {/* Container Esquerdo - Dividido em 3 partes horizontais */}
                 <div className="flex flex-col h-full min-h-0">
                   {/* Container Superior */}
@@ -5250,6 +5264,15 @@ export default function Home() {
               >
                 {t('aNaturezaDasCoisasInvisiveis')}
               </h2>
+            </div>
+            {/* Bottom metadata strip */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 18, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase' as const }}>REEL 01</span>
+                <div style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.25)' }} />
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>A NATUREZA DAS COISAS INVISÍVEIS</span>
+              </div>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2022 · 16mm</span>
             </div>
           </section>
 
@@ -6055,6 +6078,15 @@ export default function Home() {
                 2023 • CURTA-METRAGEM
               </div>
             </div>
+            {/* Bottom metadata strip */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 18, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase' as const }}>REEL 02</span>
+                <div style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.25)' }} />
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>AS MIÇANGAS</span>
+              </div>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2023 · CURTA</span>
+            </div>
           </section>
 
           {/* ===== AS MIÇANGAS - Panel 1: Fragmented Memory Mosaic ===== */}
@@ -6606,6 +6638,15 @@ export default function Home() {
               >
                 SUNDANCE 2019
               </div>
+            </div>
+            {/* Bottom metadata strip */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 18, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase' as const }}>REEL 03</span>
+                <div style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.25)' }} />
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>O MISTÉRIO DA CARNE</span>
+              </div>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2019 · SUNDANCE</span>
             </div>
           </section>
 
@@ -7586,10 +7627,12 @@ export default function Home() {
                 </div>
 
                 {/* Lateral minimalista */}
-                <div className="col-span-4 row-span-6 flex flex-col gap-6">
-                  <div style={{ borderLeft: '2px solid rgba(255,255,255,0.3)', paddingLeft: 12, marginBottom: 8 }}>
-                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>
-                      — ARQUIVO DE IMPRENSA
+                <div className="col-span-4 row-span-6 flex flex-col gap-6" style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 'clamp(16px, 1.5vw, 28px)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.22em', fontVariantNumeric: 'tabular-nums' as const }}>05</span>
+                    <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.25)' }} />
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+                      ARQUIVO DE IMPRENSA
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -7673,9 +7716,11 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-6 md:gap-8 items-start">
           <div className="md:col-span-7 space-y-6">
-            <div data-contact-animate style={{ borderLeft: '2px solid rgba(255,255,255,0.3)', paddingLeft: 10 }}>
-              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>
-                — ENTRE EM CONTATO
+            <div data-contact-animate style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.22em', fontVariantNumeric: 'tabular-nums' as const }}>06</span>
+              <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.25)' }} />
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+                ENTRE EM CONTATO
               </span>
             </div>
             <h2
@@ -7742,12 +7787,15 @@ export default function Home() {
               </Link>
             </div>
             {/* Contact metadata */}
-            <div data-contact-animate style={{ display: 'flex', gap: 20, alignItems: 'center', opacity: 0.55 }}>
-              {[{ label: 'Email', value: 'contato@moveofilmes.com.br' }, { label: 'GPS', value: "15°47'S  47°52'W" }].map(({ label, value }) => (
-                <span key={label} style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
-                  <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>{label}</span>
-                  <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'white', letterSpacing: '0.04em' }}>{value}</span>
-                </span>
+            <div data-contact-animate style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+              {[{ label: 'Email', value: 'contato@moveofilmes.com.br' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: 'Fundação', value: 'Brasília · 2018' }].map(({ label, value }, i) => (
+                <React.Fragment key={label}>
+                  {i > 0 && <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
+                  <span style={{ display: 'flex', flexDirection: 'column' as const, gap: 3 }}>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.16em', textTransform: 'uppercase' as const }}>{label}</span>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.04em' }}>{value}</span>
+                  </span>
+                </React.Fragment>
               ))}
             </div>
             <p
