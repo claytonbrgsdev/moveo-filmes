@@ -4410,6 +4410,12 @@ export default function Home() {
               <div ref={frameCounterRef} className="absolute pointer-events-none" style={{ zIndex: 20, top: 18, right: 20, fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', fontVariantNumeric: 'tabular-nums' }}>
                 [F-0001]
               </div>
+              {/* Right-edge format strip */}
+              <div className="absolute pointer-events-none" style={{ zIndex: 20, right: 8, top: '50%', transform: 'translateY(-50%) rotate(180deg)' }}>
+                <span style={{ writingMode: 'vertical-lr' as const, fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+                  16MM · 2018 · BRASÍLIA
+                </span>
+              </div>
             </div>
 
             {/* Decorative Lines */}
@@ -4435,6 +4441,15 @@ export default function Home() {
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
               }}
             />
+
+            {/* Section index 01 — top right of hero */}
+            <div className="absolute pointer-events-none" style={{ zIndex: 20, top: 16, right: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>01</span>
+            </div>
+
+            {/* Scroll indicator line — left edge */}
+            <div className="animate-scroll-line absolute pointer-events-none" style={{ zIndex: 20, left: 20, top: '30%', width: 1, height: 60, background: 'rgba(255,255,255,0.15)' }} />
 
             {/* Grid Guide Point */}
             <div
@@ -4950,6 +4965,12 @@ export default function Home() {
             overflow: 'hidden',
           }}
         >
+          {/* Section index 04 — top right */}
+          <div className="absolute pointer-events-none" style={{ zIndex: 20, top: 16, right: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+            <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>04</span>
+          </div>
+
           {/* Film-strip sprocket column — left edge decoration */}
           <div
             data-filmstrip
@@ -7202,9 +7223,10 @@ export default function Home() {
 
                 {/* Bloco final inferior direito */}
                 <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0 relative" data-draw-border="top,right,bottom,left">
-                  <p
-                    className="text-white font-bold mix-blend-difference"
+                  <Link
+                    href="/catalogo/cinema"
                     data-cinema-animate
+                    className="text-white font-bold mix-blend-difference hover:opacity-70 transition-opacity"
                     suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
@@ -7212,10 +7234,12 @@ export default function Home() {
                       fontSize: FONT_MEDIUM,
                       letterSpacing: '-0.02em',
                       lineHeight: '1.1',
+                      textDecoration: 'none',
+                      display: 'block',
                     }}
                   >
                     {t('explorarArquivoNaIntegra')} {'→'}
-                  </p>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -7425,7 +7449,7 @@ export default function Home() {
                     <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
                   </div>
                 </div>
-                <div className="col-start-7 col-span-5 row-start-6 row-span-2 relative overflow-hidden">
+                <div className="col-start-7 col-span-5 row-start-6 row-span-2 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 11.png"
                     alt="Arquivo móvel imagem 3"
@@ -7748,7 +7772,11 @@ export default function Home() {
                   {i > 0 && <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
                   <span style={{ display: 'flex', flexDirection: 'column' as const, gap: 3 }}>
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.16em', textTransform: 'uppercase' as const }}>{label}</span>
-                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.04em' }}>{value}</span>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.04em' }}>
+                      {label === 'Email'
+                        ? <a href={`mailto:${value}`} style={{ color: 'inherit', textDecoration: 'none' }} className="hover:underline">{value}</a>
+                        : value}
+                    </span>
                   </span>
                 </React.Fragment>
               ))}
