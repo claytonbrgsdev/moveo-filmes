@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { MainLayout } from '@/app/components/MainLayout';
+import { SecondaryImageOverlay } from '@/app/components/CinematicOverlays';
 import { notFound } from 'next/navigation';
 import type { PostRow } from '@/lib/supabase/types';
 
@@ -75,6 +76,7 @@ export default function PostContent({ slug: _slug, post }: PostContentProps) {
                   sizes="(max-width: 768px) 100vw, 800px"
                   style={{ filter: 'grayscale(100%) brightness(0.45) contrast(1.1)' }}
                 />
+                <SecondaryImageOverlay />
               </div>
             ) : (
               <div className="w-full h-96 bg-gray-800 rounded-lg mb-8 flex items-center justify-center">

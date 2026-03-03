@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { MainLayout } from '@/app/components/MainLayout';
+import { SecondaryImageOverlay } from '@/app/components/CinematicOverlays';
 
 interface Pessoa {
   id: string;
@@ -65,7 +66,9 @@ export function PessoaContent({ pessoa, filmografias }: PessoaContentProps) {
                     fill
                     className="object-cover"
                     sizes="200px"
+                    style={{ filter: 'grayscale(100%) brightness(0.5) contrast(1.1)' }}
                   />
+                  <SecondaryImageOverlay />
                 </div>
               ) : (
                 <div

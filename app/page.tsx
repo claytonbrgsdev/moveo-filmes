@@ -8,7 +8,7 @@ import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 
 import { MainLayout } from './components/MainLayout';
 import { ScrollHint } from './components/ScrollHint';
-import { FilmGrain } from './components/FilmGrain';
+
 import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLoading } from '@/lib/contexts/LoadingContext';
@@ -4218,8 +4218,7 @@ export default function Home() {
         }}
       />
       
-      {/* 16mm Film Grain Overlay */}
-      <FilmGrain />
+
 
       {/* Scroll Hint Indicator */}
       <div 

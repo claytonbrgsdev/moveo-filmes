@@ -219,6 +219,7 @@ export default function BuscarPage() {
                                   fill
                                   className="object-cover"
                                   sizes="60px"
+                                  style={{ filter: 'grayscale(100%) brightness(0.5) contrast(1.05)' }}
                                 />
                               ) : null}
                             </div>
@@ -286,6 +287,7 @@ export default function BuscarPage() {
                                   fill
                                   className="object-cover"
                                   sizes="60px"
+                                  style={{ filter: 'grayscale(100%) brightness(0.5) contrast(1.05)' }}
                                 />
                               ) : null}
                             </div>

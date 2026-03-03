@@ -6,6 +6,7 @@ import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
+import { CinematicOverlays, SecondaryImageOverlay } from '../components/CinematicOverlays';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
 
 // Content translations
@@ -176,8 +177,11 @@ export default function SobrePage() {
 
   return (
     <div className="relative min-h-screen bg-black">
+      {/* Global cinematic grain overlay */}
+      <CinematicOverlays />
+
       {/* Top border line */}
-      <div 
+      <div
         className="fixed left-0 right-0 h-px bg-white z-40"
         style={{ top: '50px' }}
       />
@@ -286,6 +290,7 @@ export default function SobrePage() {
               className="object-cover"
               style={{ filter: 'grayscale(100%) brightness(0.4) contrast(1.1)' }}
             />
+            <SecondaryImageOverlay />
           </div>
           </div>
         </section>
@@ -371,6 +376,7 @@ export default function SobrePage() {
                     className="object-cover"
                     style={{ filter: 'grayscale(80%) brightness(0.5) contrast(1.05)' }}
                   />
+                  <SecondaryImageOverlay />
           </div>
 
                 {/* Empty cell */}
@@ -454,6 +460,7 @@ export default function SobrePage() {
                     className="object-cover"
                     style={{ filter: 'grayscale(100%) brightness(0.45) contrast(1.1)' }}
                   />
+                  <SecondaryImageOverlay />
                 </div>
               </div>
             </div>

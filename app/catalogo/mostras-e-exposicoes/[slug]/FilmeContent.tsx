@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { MainLayout } from '@/app/components/MainLayout';
+import { HeroImageOverlay, SecondaryImageOverlay } from '@/app/components/CinematicOverlays';
 import Image from 'next/image';
 import {
   getMarkerPosition,
@@ -166,6 +167,7 @@ export default function FilmeContent({
                   zIndex: 1,
                 }}
               />
+              <HeroImageOverlay />
               <Image
                 src={filme.poster_principal_url}
                 alt={language === 'pt' ? filme.titulo_pt || '' : filme.titulo_en || filme.titulo_pt || ''}
@@ -173,7 +175,7 @@ export default function FilmeContent({
                 className="object-cover"
                 priority
                 unoptimized
-                style={{ zIndex: 0 }}
+                style={{ zIndex: 0, filter: 'grayscale(100%) brightness(0.55) contrast(1.1)' }}
               />
             </div>
           )}
@@ -608,7 +610,9 @@ export default function FilmeContent({
                       fill
                       className="object-cover"
                       unoptimized
+                      style={{ filter: 'grayscale(80%) brightness(0.6) contrast(1.05)' }}
                     />
+                    <SecondaryImageOverlay />
                   </div>
                 ))}
                 </div>

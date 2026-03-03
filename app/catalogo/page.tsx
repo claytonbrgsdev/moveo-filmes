@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/lib/hooks/useLanguage'
 import Navbar from '../components/Navbar'
 import { LocationInfo } from '../components/LocationInfo'
-import { FilmGrain } from '../components/FilmGrain'
+import { CinematicOverlays } from '../components/CinematicOverlays'
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates'
 
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
@@ -910,7 +910,7 @@ export default function CatalogoPage() {
       />
 
       {/* Film grain */}
-      <FilmGrain />
+      <CinematicOverlays />
 
       {/* Frame lines */}
       <div className="fixed left-0 right-0 h-px bg-white z-40" style={{ top: '50px' }} />

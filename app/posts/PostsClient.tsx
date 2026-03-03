@@ -7,6 +7,7 @@ import { gsap, ScrollTrigger } from '@/lib/utils/gsap';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
+import { CinematicOverlays, SecondaryImageOverlay } from '../components/CinematicOverlays';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
 import { formatPostForLanguage, type PostListRow } from '@/lib/supabase/posts';
 
@@ -179,6 +180,9 @@ export default function PostsClient({ posts }: PostsClientProps) {
 
   return (
     <div className="relative min-h-screen bg-black">
+      {/* Global cinematic grain overlay */}
+      <CinematicOverlays />
+
       {/* Top border line */}
       <div
         className="fixed left-0 right-0 h-px bg-white z-40"
@@ -409,6 +413,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
                       transition: 'filter 0.5s ease, transform 0.5s ease',
                     }}
                   />
+                  <SecondaryImageOverlay />
                 </div>
 
                 {/* Category & Date */}

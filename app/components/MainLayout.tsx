@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import Navbar from './Navbar';
 import { LocationInfo } from './LocationInfo';
+import { CinematicOverlays } from './CinematicOverlays';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
 
@@ -15,6 +16,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="relative min-h-screen bg-black">
+      {/* Global cinematic grain overlay */}
+      <CinematicOverlays />
+
       {/* Linha horizontal superior - Linha A (50px do topo) */}
       <div 
         className="fixed left-0 right-0 h-px bg-white z-40"
