@@ -66,13 +66,14 @@ export default function PostContent({ slug: _slug, post }: PostContentProps) {
 
             {/* Image */}
             {post.imagem_capa_url ? (
-              <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
+              <div className="relative w-full aspect-video mb-8 overflow-hidden">
                 <Image
                   src={post.imagem_capa_url}
                   alt={imageAlt || title}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 800px"
+                  style={{ filter: 'grayscale(100%) brightness(0.45) contrast(1.1)' }}
                 />
               </div>
             ) : (

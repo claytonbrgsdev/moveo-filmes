@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
 
 interface Filme {
   id: string;
@@ -19,12 +20,14 @@ interface FilmeCardProps {
 }
 
 export function FilmeCard({ filme }: FilmeCardProps) {
-  // Função helper para determinar o ano a exibir
+  const imgRef = useRef<HTMLImageElement>(null);
+
   const getAnoDisplay = (ano: number | null | undefined, anoPrevisto: number | null | undefined): string => {
     if (ano) return ano.toString();
     if (anoPrevisto) return anoPrevisto.toString();
     return "em breve";
   };
+
   return (
     <Link
       key={filme.id}
@@ -35,9 +38,15 @@ export function FilmeCard({ filme }: FilmeCardProps) {
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
+        if (imgRef.current) {
+          imgRef.current.style.filter = 'grayscale(60%) brightness(0.55) contrast(1.05)';
+        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
+        if (imgRef.current) {
+          imgRef.current.style.filter = 'grayscale(100%) brightness(0.4) contrast(1.1)';
+        }
       }}
     >
       {/* Imagem do Filme */}
@@ -45,18 +54,23 @@ export function FilmeCard({ filme }: FilmeCardProps) {
         {filme.poster_principal_url || filme.thumbnail_card_url ? (
           <>
             <Image
+              ref={imgRef}
               src={(filme.poster_principal_url || filme.thumbnail_card_url) as string}
               alt={filme.titulo_pt || "Filme"}
               fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="object-cover transition-transform duration-700 ease-out"
               unoptimized
+              style={{
+                filter: 'grayscale(100%) brightness(0.4) contrast(1.1)',
+                transition: 'filter 0.7s ease, transform 0.7s ease',
+              }}
             />
             {/* Overlay escuro para melhor legibilidade do texto */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-black/50">
-            <span 
+            <span
               className="text-white/40"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
@@ -67,10 +81,10 @@ export function FilmeCard({ filme }: FilmeCardProps) {
             </span>
           </div>
         )}
-        
+
         {/* Título do Filme - Centralizado */}
         <div className="absolute inset-0 flex items-center justify-center p-4 z-10">
-          <h3 
+          <h3
             className="text-white text-center"
             style={{
               fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
@@ -83,10 +97,10 @@ export function FilmeCard({ filme }: FilmeCardProps) {
             {filme.titulo_pt || "Sem título"}
           </h3>
         </div>
-        
+
         {/* Ano - Canto inferior esquerdo */}
         <div className="absolute bottom-0 left-0 p-4 z-10">
-          <p 
+          <p
             className="text-white"
             style={{
               fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
@@ -98,11 +112,11 @@ export function FilmeCard({ filme }: FilmeCardProps) {
             {getAnoDisplay(filme.ano, filme.ano_previsto)}
           </p>
         </div>
-        
+
         {/* Status - Canto inferior direito */}
         {filme.status_interno_pt && (
           <div className="absolute bottom-0 right-0 p-4 z-10">
-            <p 
+            <p
               className="text-white/90 text-right"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif",
@@ -120,4 +134,3 @@ export function FilmeCard({ filme }: FilmeCardProps) {
     </Link>
   );
 }
-

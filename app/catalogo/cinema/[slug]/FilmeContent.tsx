@@ -173,7 +173,7 @@ export default function FilmeContent({
                 className="object-cover"
                 priority
                 unoptimized
-                style={{ zIndex: 0 }}
+                style={{ zIndex: 0, filter: 'grayscale(100%) brightness(0.55) contrast(1.1)' }}
               />
             </div>
           )}
@@ -608,6 +608,7 @@ export default function FilmeContent({
                       fill
                       className="object-cover"
                       unoptimized
+                      style={{ filter: 'grayscale(80%) brightness(0.6) contrast(1.05)' }}
                     />
                   </div>
                 ))}

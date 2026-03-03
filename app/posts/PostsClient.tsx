@@ -297,6 +297,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
                 className="object-cover"
                 style={{
                   clipPath: 'polygon(0 0, 100% 0, 100% 100%, 10% 100%)',
+                  filter: 'grayscale(100%) brightness(0.4) contrast(1.1)',
                 }}
               />
             </div>
@@ -403,6 +404,10 @@ export default function PostsClient({ posts }: PostsClientProps) {
                     fill
                     sizes="(max-width: 768px) 100vw, 45vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      filter: 'grayscale(100%) brightness(0.45) contrast(1.05)',
+                      transition: 'filter 0.5s ease, transform 0.5s ease',
+                    }}
                   />
                 </div>
 

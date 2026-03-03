@@ -284,6 +284,7 @@ export default function SobrePage() {
               fill
               sizes="(max-width: 768px) 220px, 350px"
               className="object-cover"
+              style={{ filter: 'grayscale(100%) brightness(0.4) contrast(1.1)' }}
             />
           </div>
           </div>
@@ -368,6 +369,7 @@ export default function SobrePage() {
                     fill
                     sizes="200px"
                     className="object-cover"
+                    style={{ filter: 'grayscale(80%) brightness(0.5) contrast(1.05)' }}
                   />
           </div>
 
@@ -450,6 +452,7 @@ export default function SobrePage() {
                     fill
                     sizes="160px"
                     className="object-cover"
+                    style={{ filter: 'grayscale(100%) brightness(0.45) contrast(1.1)' }}
                   />
                 </div>
               </div>
