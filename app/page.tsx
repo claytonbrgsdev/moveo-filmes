@@ -27,7 +27,7 @@ const newsImages = [
   '/imagens/secao2home/Rectangle 9.png',
 ];
 
-const FONT_HUGE = 'clamp(60px, 4vw, 200px)';
+const FONT_HUGE = 'clamp(32px, 6vw, 200px)';
 const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
@@ -7025,9 +7025,9 @@ export default function Home() {
         <section ref={cinemaSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
-              <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0">
+              <div className="grid grid-cols-6 sm:grid-cols-12 grid-rows-8 gap-2 sm:gap-4 md:gap-6 h-full min-h-0">
                 {/* Bloco vertical esquerdo - torre */}
-                <div className="col-span-2 row-span-8 bg-transparent p-4 md:p-6 min-h-0 relative flex items-center justify-center">
+                <div className="hidden sm:flex col-span-2 row-span-8 bg-transparent p-4 md:p-6 min-h-0 relative items-center justify-center">
                   {/* Cantoneiras */}
                   <div
                     className="absolute"
@@ -7072,7 +7072,7 @@ export default function Home() {
 
                 {/* Bloco horizontal superior largo */}
                 <div
-                  className="col-span-7 row-span-2 bg-transparent p-4 md:p-8 flex items-end justify-between min-h-0 relative"
+                  className="col-span-4 sm:col-span-7 row-span-2 bg-transparent p-2 sm:p-4 md:p-8 flex items-end justify-between min-h-0 relative"
                   data-draw-border="top,right"
                 >
                   <h2
@@ -7082,7 +7082,7 @@ export default function Home() {
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 700,
-                      fontSize: 'clamp(48px, 6vw, 96px)',
+                      fontSize: 'clamp(28px, 6vw, 96px)',
                       letterSpacing: '-0.02em',
                       lineHeight: '0.9',
                     }}
@@ -7125,7 +7125,7 @@ export default function Home() {
                 </div>
 
                 {/* Quadrado superior direito - video */}
-                <div className="col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
+                <div className="col-span-2 sm:col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <video
                     autoPlay
                     muted
@@ -7147,7 +7147,7 @@ export default function Home() {
 
                 {/* Retângulo horizontal médio */}
                 <div
-                  className="col-span-5 row-span-3 bg-transparent p-4 md:p-8 flex items-start justify-start min-h-0 relative"
+                  className="col-span-4 sm:col-span-5 row-span-3 bg-transparent p-2 sm:p-4 md:p-8 flex items-start justify-start min-h-0 relative"
                   data-draw-border="top,left"
                 >
                   <div data-cinema-animate>
@@ -7167,7 +7167,7 @@ export default function Home() {
                 </div>
 
                 {/* Bloco vertical médio - 3D Carousel */}
-                <div className="col-span-2 row-span-4 bg-transparent min-h-0 relative overflow-visible">
+                <div className="hidden sm:block col-span-2 row-span-4 bg-transparent min-h-0 relative overflow-visible">
                   <div 
                     ref={carouselScrollDistRef}
                     className="absolute top-0 w-full pointer-events-none z-0"
@@ -7184,7 +7184,7 @@ export default function Home() {
 
                 {/* Quadrado inferior esquerdo */}
                 <div
-                  className="col-span-3 row-span-3 bg-transparent p-4 md:p-6 flex items-end min-h-0 relative"
+                  className="col-span-4 sm:col-span-3 row-span-3 bg-transparent p-2 sm:p-4 md:p-6 flex items-end min-h-0 relative"
                   data-draw-border="bottom,left"
                 >
                   <p
@@ -7203,7 +7203,7 @@ export default function Home() {
                 </div>
 
                 {/* Retângulo horizontal inferior - video */}
-                <div className="col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
+                <div className="hidden sm:block col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <video
                     autoPlay
                     muted
@@ -7224,7 +7224,7 @@ export default function Home() {
                 </div>
 
                 {/* Bloco final inferior direito */}
-                <div className="col-span-3 row-span-2 bg-transparent p-4 md:p-6 flex items-center justify-center min-h-0 relative" data-draw-border="top,right,bottom,left">
+                <div className="col-span-2 sm:col-span-3 row-span-2 bg-transparent p-2 sm:p-4 md:p-6 flex items-center justify-center min-h-0 relative" data-draw-border="top,right,bottom,left">
                   <Link
                     href="/catalogo/cinema"
                     data-cinema-animate
@@ -7272,9 +7272,9 @@ export default function Home() {
         <section ref={arquivoSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="w-full h-full relative" style={{ overflow: 'visible' }}>
-              <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
+              <div className="grid grid-cols-6 sm:grid-cols-12 grid-rows-8 gap-2 sm:gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
                 {/* Coluna video esquerda */}
-                <div className="col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
+                <div className="hidden sm:block col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
                   <video
                     autoPlay
                     muted
@@ -7329,7 +7329,7 @@ export default function Home() {
 
                 {/* Bloco principal - ALÉM DOS FILMES */}
                 <div
-                  className="col-start-3 col-span-6 row-span-5 bg-black p-8 md:p-12 flex flex-col items-start justify-end min-h-0 relative"
+                  className="col-start-1 sm:col-start-3 col-span-4 sm:col-span-6 row-span-5 bg-black p-4 sm:p-8 md:p-12 flex flex-col items-start justify-end min-h-0 relative"
                   data-draw-border="top,right"
                 >
                   <h1
@@ -7367,7 +7367,7 @@ export default function Home() {
 
                 {/* Bloco secundário - ARQUIVO MOVEO */}
                 <div
-                  className="col-start-9 col-span-3 row-span-3 bg-black p-6 flex items-end justify-start min-h-0 relative"
+                  className="col-start-5 sm:col-start-9 col-span-2 sm:col-span-3 row-span-3 bg-black p-3 sm:p-6 flex items-end justify-start min-h-0 relative"
                   data-draw-border="bottom,left"
                 >
                   <p
@@ -7393,7 +7393,7 @@ export default function Home() {
 
                 {/* Texto descritivo compacto */}
                 <div
-                  className="col-start-3 col-span-4 row-start-6 row-span-3 bg-black p-6 md:p-8 flex items-start justify-start min-h-0 relative"
+                  className="col-start-1 sm:col-start-3 col-span-3 sm:col-span-4 row-start-6 row-span-3 bg-black p-3 sm:p-6 md:p-8 flex items-start justify-start min-h-0 relative"
                   data-draw-border="top,left"
                 >
                   <p
@@ -7413,7 +7413,7 @@ export default function Home() {
                 </div>
 
                 {/* Imagens à direita */}
-                <div className="col-start-8 col-span-4 row-start-1 row-span-3 relative overflow-hidden" data-arquivo-image>
+                <div className="col-start-5 sm:col-start-8 col-span-2 sm:col-span-4 row-start-1 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 10.png"
                     alt="Arquivo móvel imagem 1"
@@ -7432,7 +7432,7 @@ export default function Home() {
                     <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
                   </div>
                 </div>
-                <div className="col-start-8 col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
+                <div className="col-start-4 sm:col-start-8 col-span-3 sm:col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 9.png"
                     alt="Arquivo móvel imagem 2"
@@ -7451,7 +7451,7 @@ export default function Home() {
                     <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 16, background: 'rgba(255,255,255,0.4)' }} />
                   </div>
                 </div>
-                <div className="col-start-7 col-span-5 row-start-6 row-span-2 relative overflow-hidden" data-arquivo-image>
+                <div className="col-start-4 sm:col-start-7 col-span-3 sm:col-span-5 row-start-6 row-span-2 relative overflow-hidden" data-arquivo-image>
                   <Image
                     src="/imagens/secao2home/Rectangle 11.png"
                     alt="Arquivo móvel imagem 3"
@@ -7500,9 +7500,9 @@ export default function Home() {
         <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
           <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
-              <div className="grid grid-cols-12 grid-rows-6 gap-4 md:gap-6 h-full min-h-0">
+              <div className="grid grid-cols-6 sm:grid-cols-12 grid-rows-6 gap-2 sm:gap-4 md:gap-6 h-full min-h-0">
                 {/* Carrossel minimal */}
-                <div className="col-span-8 row-span-6 relative overflow-hidden" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                <div className="col-span-6 sm:col-span-8 row-span-6 relative overflow-hidden" style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}>
                   <div
                     className="flex h-full transition-transform duration-700 ease-out"
                     style={{ transform: `translateX(-${newsIndex * 100}%)` }}
@@ -7608,7 +7608,7 @@ export default function Home() {
                 </div>
 
                 {/* Lateral minimalista */}
-                <div className="col-span-4 row-span-6 flex flex-col gap-6" style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 'clamp(16px, 1.5vw, 28px)' }}>
+                <div className="hidden sm:flex col-span-4 row-span-6 flex-col gap-6" style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 'clamp(16px, 1.5vw, 28px)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.22em', fontVariantNumeric: 'tabular-nums' as const }}>05</span>
                     <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.25)' }} />
@@ -7707,13 +7707,14 @@ export default function Home() {
             <h2
               data-contact-animate
               data-underline-reveal
-              className="text-white uppercase"
+              className="text-white uppercase overflow-hidden"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                 fontWeight: 700,
                 fontSize: FONT_HUGE,
                 lineHeight: '0.9',
                 letterSpacing: '-0.02em',
+                maxWidth: '100%',
               }}
             >
               Contato
@@ -7768,10 +7769,10 @@ export default function Home() {
               </Link>
             </div>
             {/* Contact metadata */}
-            <div data-contact-animate style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+            <div data-contact-animate className="flex flex-wrap gap-4 sm:gap-7 items-start">
               {[{ label: 'Email', value: 'contato@moveofilmes.com.br' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: 'Fundação', value: 'Brasília · 2018' }].map(({ label, value }, i) => (
                 <React.Fragment key={label}>
-                  {i > 0 && <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
+                  {i > 0 && <div className="hidden sm:block" style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
                   <span style={{ display: 'flex', flexDirection: 'column' as const, gap: 3 }}>
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.16em', textTransform: 'uppercase' as const }}>{label}</span>
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.04em' }}>
