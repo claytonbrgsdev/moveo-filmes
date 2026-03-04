@@ -27,7 +27,7 @@ const newsImages = [
   '/imagens/secao2home/Rectangle 9.png',
 ];
 
-const FONT_HUGE = 'clamp(32px, 6vw, 200px)';
+const FONT_HUGE = 'var(--font-huge)';
 const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';

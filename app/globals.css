@@ -71,12 +71,14 @@
   --f-5-max: 120;
   --frame-pad: 50px;
   --circle-offset: 150px;
+  --font-huge: clamp(60px, 4vw, 200px);
 }
 
 @media (max-width: 640px) {
   :root {
     --frame-pad: 16px;
     --circle-offset: var(--frame-pad);
+    --font-huge: 32px;
   }
 }
 
