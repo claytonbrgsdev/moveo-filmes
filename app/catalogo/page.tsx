@@ -913,8 +913,8 @@ export default function CatalogoPage() {
       <CinematicOverlays />
 
       {/* Frame lines */}
-      <div className="fixed left-0 right-0 h-px bg-white z-40" style={{ top: '50px' }} />
-      <div className="fixed left-0 right-0 h-px bg-white z-40" style={{ bottom: '50px' }} />
+      <div className="fixed left-0 right-0 h-px bg-white z-40" style={{ top: 'var(--frame-pad)' }} />
+      <div className="fixed left-0 right-0 h-px bg-white z-40" style={{ bottom: 'var(--frame-pad)' }} />
 
       {/* Navbar */}
       <Navbar />
@@ -1014,7 +1014,7 @@ export default function CatalogoPage() {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            padding: '0 50px 90px',
+            padding: '0 var(--frame-pad) 90px',
           }}
         >
           {/* Label */}
@@ -1038,7 +1038,7 @@ export default function CatalogoPage() {
             aria-label={t.heroTitle}
             style={{
               fontFamily: FONT_HEAD,
-              fontSize: 'clamp(80px, 11vw, 190px)',
+              fontSize: 'clamp(36px, 11vw, 190px)',
               fontWeight: 700,
               lineHeight: 0.86,
               letterSpacing: '-0.04em',
@@ -1172,7 +1172,7 @@ export default function CatalogoPage() {
           style={{
             position: 'absolute',
             top: '62px',
-            right: '50px',
+            right: 'var(--frame-pad)',
             zIndex: 2,
             display: 'flex',
             flexDirection: 'column',
@@ -1242,7 +1242,7 @@ export default function CatalogoPage() {
       <div
         ref={dividerRef}
         style={{
-          margin: '0 50px',
+          margin: '0 var(--frame-pad)',
           height: '1px',
           background: 'rgba(255,255,255,0.1)',
         }}
@@ -1262,7 +1262,7 @@ export default function CatalogoPage() {
           display: 'grid',
           gridTemplateColumns: '2fr 1.2fr 1.8fr',
           gap: '2px',
-          margin: '2px 50px 0',
+          margin: '2px var(--frame-pad) 0',
           height: '260px',
           overflow: 'hidden',
         }}
@@ -1297,8 +1297,8 @@ export default function CatalogoPage() {
       ══════════════════════════════════════ */}
       <section
         style={{
-          paddingLeft: '50px',
-          paddingRight: '50px',
+          paddingLeft: 'var(--frame-pad)',
+          paddingRight: 'var(--frame-pad)',
           paddingBottom: '160px',
           paddingTop: '0',
         }}
@@ -1354,7 +1354,7 @@ export default function CatalogoPage() {
         className="fixed z-40 cursor-pointer"
         style={{
           left: getMarkerPosition(13),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           fontFamily: FONT_BODY,
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}

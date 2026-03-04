@@ -1,7 +1,8 @@
 // Utilitários para trabalhar com coordenadas do grid
 // Grid: 14 colunas verticais (1-14) e 10 linhas horizontais (A-J)
+// Frame padding is responsive via CSS custom property --frame-pad (50px desktop, 16px mobile)
 
-const PADDING_PX = 50;
+const PAD = 'var(--frame-pad)';
 
 /**
  * Converte uma letra (A-J) em índice de linha (0-9)
@@ -52,9 +53,9 @@ export function indexToMarkerNumber(index: number): number {
  */
 export function getMarkerPosition(markerNumber: number): string {
   const markerIndex = markerNumberToIndex(markerNumber);
-  if (markerIndex === 0) return `${PADDING_PX}px`;
-  if (markerIndex === 13) return `calc(100% - ${PADDING_PX}px)`;
-  return `calc(${PADDING_PX}px + (100% - ${PADDING_PX * 2}px) * ${markerIndex / 13})`;
+  if (markerIndex === 0) return PAD;
+  if (markerIndex === 13) return `calc(100% - ${PAD})`;
+  return `calc(${PAD} + (100% - ${PAD} * 2) * ${markerIndex / 13})`;
 }
 
 /**
@@ -63,20 +64,20 @@ export function getMarkerPosition(markerNumber: number): string {
  */
 export function getHorizontalLinePosition(letter: string): string {
   const lineIndex = letterToIndex(letter);
-  if (lineIndex === 0) return `${PADDING_PX}px`;
-  if (lineIndex === 9) return `calc(100vh - ${PADDING_PX}px)`;
-  return `calc(${PADDING_PX}px + (100vh - ${PADDING_PX * 2}px) * ${lineIndex / 9})`;
+  if (lineIndex === 0) return PAD;
+  if (lineIndex === 9) return `calc(100vh - ${PAD})`;
+  return `calc(${PAD} + (100vh - ${PAD} * 2) * ${lineIndex / 9})`;
 }
 
 /**
- * Calcula o bottom relativo a uma linha horizontal
+ * Converte a posição para bottom relativo
  * @param letter Letra da linha (A-J)
  */
 export function getBottomFromHorizontalLine(letter: string): string {
   const lineIndex = letterToIndex(letter);
-  if (lineIndex === 0) return `calc(100vh - ${PADDING_PX}px - 1px)`;
-  if (lineIndex === 9) return `calc(${PADDING_PX}px - 1px)`;
-  return `calc(100vh - ${PADDING_PX}px - (100vh - ${PADDING_PX * 2}px) * ${lineIndex / 9} - 1px)`;
+  if (lineIndex === 0) return `calc(100vh - ${PAD} - 1px)`;
+  if (lineIndex === 9) return `calc(${PAD} - 1px)`;
+  return `calc(100vh - ${PAD} - (100vh - ${PAD} * 2) * ${lineIndex / 9} - 1px)`;
 }
 
 /**
@@ -100,4 +101,3 @@ export function getHeightBetweenLines(startLetter: string, endLetter: string): s
   const endPos = getHorizontalLinePosition(endLetter);
   return `calc(${endPos} - ${startPos})`;
 }
-

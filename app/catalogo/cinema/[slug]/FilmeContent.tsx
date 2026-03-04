@@ -145,7 +145,7 @@ export default function FilmeContent({
           className="relative"
           style={{
             width: getWidthBetweenMarkers(1, 14),
-            minHeight: 'calc(100vh - 100px)',
+            minHeight: 'calc(100vh - var(--frame-pad) * 2)',
             marginBottom: getHeightBetweenLines('A', 'B'),
           }}
         >
@@ -189,7 +189,7 @@ export default function FilmeContent({
               paddingTop: getHorizontalLinePosition('A'),
               paddingBottom: getHorizontalLinePosition('A'),
               height: '100%',
-              minHeight: 'calc(100vh - 100px)',
+              minHeight: 'calc(100vh - var(--frame-pad) * 2)',
             }}
           >
             {/* Título Principal */}
@@ -203,7 +203,7 @@ export default function FilmeContent({
                 className="text-white uppercase mix-blend-difference"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
-                  fontSize: 'clamp(64px, 8vw, 180px)',
+                  fontSize: 'clamp(36px, 8vw, 180px)',
                   lineHeight: '0.85',
                   letterSpacing: '-0.07em',
                   margin: 0,
@@ -269,7 +269,7 @@ export default function FilmeContent({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
               gap: getWidthBetweenMarkers(1, 2),
               paddingLeft: getMarkerPosition(1),
               paddingRight: `calc(100% - ${getMarkerPosition(14)})`,

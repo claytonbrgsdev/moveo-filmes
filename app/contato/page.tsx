@@ -262,13 +262,13 @@ export default function ContatoPage() {
       {/* Top border line */}
       <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ top: '50px' }}
+        style={{ top: 'var(--frame-pad)' }}
       />
       
       {/* Bottom border line */}
       <div 
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ bottom: '50px' }}
+        style={{ bottom: 'var(--frame-pad)' }}
       />
 
       {/* Navbar */}
@@ -282,14 +282,14 @@ export default function ContatoPage() {
         className="relative flex items-center justify-center"
         style={{ 
           minHeight: '100vh',
-          paddingTop: '50px',
-          paddingBottom: '50px',
+          paddingTop: 'var(--frame-pad)',
+          paddingBottom: 'var(--frame-pad)',
         }}
       >
         {/* Decorative Circle - Top Right */}
-        <div 
+        <div
           data-hero-circle
-          className="absolute pointer-events-none"
+          className="absolute pointer-events-none hidden sm:block"
           style={{
             right: '-80px',
             top: '20%',
@@ -301,14 +301,14 @@ export default function ContatoPage() {
         />
 
         {/* Central Content */}
-        <div className="relative z-10 text-center" style={{ padding: '0 50px' }}>
+        <div className="relative z-10 text-center" style={{ padding: '0 var(--frame-pad)' }}>
           {/* Large Title - Centered */}
           <h1 
             data-hero-title
             className="leading-none mb-12"
             style={{
               fontFamily: "'Helvetica Neue LT Pro Bold Extended', 'Helvetica Neue LT Pro', Arial, sans-serif",
-              fontSize: 'clamp(100px, 18vw, 280px)',
+              fontSize: 'clamp(40px, 18vw, 280px)',
               fontWeight: 700,
               color: 'rgba(255, 255, 255, 0.5)',
               letterSpacing: '-0.02em',
@@ -335,7 +335,7 @@ export default function ContatoPage() {
           className="absolute"
           style={{
             bottom: '60px',
-            right: '50px',
+            right: 'var(--frame-pad)',
           }}
         >
           <Image
@@ -362,8 +362,8 @@ export default function ContatoPage() {
         }}
       >
         {/* Decorative Circle - Left Edge */}
-        <div 
-          className="absolute pointer-events-none"
+        <div
+          className="absolute pointer-events-none hidden sm:block"
           style={{
             left: '-100px',
             top: '30%',
@@ -378,7 +378,7 @@ export default function ContatoPage() {
         <div 
           className="relative z-10"
           style={{ 
-            padding: '0 50px 0 150px',
+            padding: '0 var(--frame-pad) 0 var(--circle-offset)',
           }}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-16">
@@ -686,7 +686,7 @@ export default function ContatoPage() {
           className="absolute"
           style={{
             bottom: '80px',
-            left: '50px',
+            left: 'var(--frame-pad)',
           }}
         >
           <Image
@@ -708,7 +708,7 @@ export default function ContatoPage() {
         className="fixed text-white text-xs z-40 cursor-pointer hover:opacity-70 transition-opacity"
         style={{ 
           left: getMarkerPosition(13),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}

@@ -69,6 +69,15 @@
   --foreground: #ffffff;
   --f-5-min: 30;
   --f-5-max: 120;
+  --frame-pad: 50px;
+  --circle-offset: 150px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --frame-pad: 16px;
+    --circle-offset: var(--frame-pad);
+  }
 }
 
 @theme inline {

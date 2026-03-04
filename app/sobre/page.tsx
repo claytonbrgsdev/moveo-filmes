@@ -183,13 +183,13 @@ export default function SobrePage() {
       {/* Top border line */}
       <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ top: '50px' }}
+        style={{ top: 'var(--frame-pad)' }}
       />
       
       {/* Bottom border line */}
       <div 
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ bottom: '50px' }}
+        style={{ bottom: 'var(--frame-pad)' }}
       />
 
       {/* Navbar */}
@@ -203,16 +203,16 @@ export default function SobrePage() {
         className="relative flex flex-col"
         style={{ 
           minHeight: '100vh',
-          paddingTop: '50px',
-          paddingBottom: '50px',
+          paddingTop: 'var(--frame-pad)',
+          paddingBottom: 'var(--frame-pad)',
         }}
       >
         {/* TOP HALF - Title only */}
         <div 
           className="relative flex items-end"
           style={{ 
-            height: 'calc(50vh - 50px)',
-            padding: '0 50px',
+            height: 'calc(50vh - var(--frame-pad))',
+            padding: '0 var(--frame-pad)',
             borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
           }}
         >
@@ -221,7 +221,7 @@ export default function SobrePage() {
             className="leading-none"
             style={{
               fontFamily: "'Helvetica Neue LT Pro Bold Extended', 'Helvetica Neue LT Pro', Arial, sans-serif",
-              fontSize: 'clamp(120px, 22vw, 320px)',
+              fontSize: 'clamp(48px, 22vw, 320px)',
               fontWeight: 700,
               color: 'rgba(255, 255, 255, 0.5)',
               letterSpacing: '-0.02em',
@@ -233,20 +233,20 @@ export default function SobrePage() {
           </div>
 
         {/* BOTTOM HALF - Paragraph + Image */}
-        <div 
-          className="relative flex items-start justify-between"
-          style={{ 
-            height: 'calc(50vh - 50px)',
-            padding: '40px 50px 60px 50px',
+        <div
+          className="relative flex flex-col sm:flex-row items-start justify-between"
+          style={{
+            minHeight: 'calc(50vh - var(--frame-pad))',
+            padding: '24px var(--frame-pad) 60px var(--frame-pad)',
           }}
         >
           {/* Left side - Paragraph + Logo */}
-          <div 
+          <div
             data-hero-subtitle
-            className="flex flex-col h-full"
-            style={{ 
+            className="flex flex-col sm:h-full"
+            style={{
               maxWidth: '550px',
-              paddingRight: '40px',
+              paddingRight: '0px',
             }}
           >
             <p 
@@ -274,9 +274,9 @@ export default function SobrePage() {
           </div>
 
           {/* Right side - Image */}
-          <div 
+          <div
             data-hero-image
-            className="relative overflow-hidden flex-shrink-0"
+            className="relative overflow-hidden flex-shrink-0 hidden sm:block"
             style={{
               width: 'clamp(220px, 22vw, 350px)',
               height: 'clamp(180px, 20vw, 280px)',
@@ -308,8 +308,8 @@ export default function SobrePage() {
         }}
       >
         {/* Decorative Circle - Left Edge */}
-        <div 
-          className="absolute pointer-events-none"
+        <div
+          className="absolute pointer-events-none hidden sm:block"
           style={{
             left: '-100px',
             top: '30%',
@@ -324,7 +324,7 @@ export default function SobrePage() {
         <div 
           className="relative z-10"
           style={{ 
-            padding: '0 50px 0 150px',
+            padding: '0 var(--frame-pad) 0 var(--circle-offset)',
           }}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-16">
@@ -472,7 +472,7 @@ export default function SobrePage() {
           className="absolute"
           style={{
             bottom: '80px',
-            left: '50px',
+            left: 'var(--frame-pad)',
           }}
         >
           <Image
@@ -494,7 +494,7 @@ export default function SobrePage() {
         className="fixed text-white text-xs z-40 cursor-pointer hover:opacity-70 transition-opacity"
         style={{ 
           left: getMarkerPosition(13),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}

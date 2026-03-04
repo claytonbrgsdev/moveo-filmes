@@ -33,6 +33,10 @@ const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
 const FONT_COND = 'clamp(9px, 0.75vw, 12px)';
 
+/** Read the current --frame-pad CSS variable value (e.g. '50px' on desktop, '16px' on mobile) */
+const getFramePad = () =>
+  getComputedStyle(document.documentElement).getPropertyValue('--frame-pad').trim();
+
 
 export default function Home() {
   const { language, t } = useLanguage();
@@ -252,7 +256,7 @@ export default function Home() {
         defaults: { ease: 'none' },
         scrollTrigger: {
           trigger: wrapper,
-          start: 'top 50px',
+          start: () => `top ${getFramePad()}`,
           end: () => `+=${getTravel() + window.innerHeight + HOLD_DISTANCE}`,
           scrub: 0.5,
           pin: true,
@@ -452,8 +456,8 @@ export default function Home() {
       // 1. Split MOVEO into characters and animate each
       if (moveoElement) {
         const text = moveoElement.textContent || '';
-        moveoElement.innerHTML = text.split('').map(char => 
-          `<span style="display: inline-block; will-change: transform, opacity; margin-left: -16px; margin-right: -16px;">${char}</span>`
+        moveoElement.innerHTML = text.split('').map(char =>
+          `<span style="display: inline-block; will-change: transform, opacity;">${char}</span>`
         ).join('');
         
         const chars = Array.from(moveoElement.querySelectorAll('span'));
@@ -974,7 +978,7 @@ export default function Home() {
 
         ScrollTrigger.create({
           trigger: horizontalSecondWrapperRef.current,
-          start: 'top 50px',
+          start: () => `top ${getFramePad()}`,
           end: () => {
             if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
             return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
@@ -2192,7 +2196,7 @@ export default function Home() {
           ease: 'none',
           scrollTrigger: {
             trigger: wrapper,
-            start: 'top 50px',
+            start: () => `top ${getFramePad()}`,
             end: () => {
               if (!track || !wrapper) return '+=0';
               const travel = getTravel();
@@ -2481,7 +2485,7 @@ export default function Home() {
 
         ScrollTrigger.create({
           trigger: horizontalSecondWrapperRef.current,
-          start: 'top 50px',
+          start: () => `top ${getFramePad()}`,
           end: () => {
             if (!horizontalSecondTrackRef.current || !horizontalSecondWrapperRef.current) return '+=0';
             return `+=${horizontalSecondTrackRef.current.scrollWidth + window.innerHeight}`;
@@ -3957,7 +3961,7 @@ export default function Home() {
       measureElement.style.visibility = 'hidden';
       measureElement.style.whiteSpace = 'nowrap';
       measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
-      measureElement.style.letterSpacing = '-0.07em';
+      measureElement.style.letterSpacing = '0.12em';
       measureElement.style.fontSize = '100px';
       measureElement.textContent = 'MOVEO';
       document.body.appendChild(measureElement);
@@ -4069,7 +4073,7 @@ export default function Home() {
           measureElement.style.visibility = 'hidden';
           measureElement.style.whiteSpace = 'nowrap';
           measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
-          measureElement.style.letterSpacing = '-0.07em';
+          measureElement.style.letterSpacing = '0.12em';
           measureElement.style.fontSize = '100px';
           measureElement.textContent = 'MOVEO';
           document.body.appendChild(measureElement);
@@ -4267,7 +4271,7 @@ export default function Home() {
           <section
             ref={firstSectionRef}
             className="horizontal-section relative flex-shrink-0"
-            style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
+            style={{ width: 'calc(100vw - var(--frame-pad) * 2)', height: 'calc(100vh - var(--frame-pad) * 2)' }}
           >
             <div
               ref={containerRef}
@@ -4302,14 +4306,13 @@ export default function Home() {
                 fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
                 fontSize: `${dynamicFontSize}px`,
                 lineHeight: '77.3%',
-                letterSpacing: '-0.07em',
+                letterSpacing: '0.12em',
                 whiteSpace: 'nowrap',
                 margin: 0,
                 padding: 0,
-                transform: 'translateX(-1.55%)',
               }}
             >
-              MOV<span style={{ letterSpacing: '0.2em' }}>E</span>O
+              MOVEO
             </div>
 
             <div
@@ -4354,7 +4357,7 @@ export default function Home() {
               style={{
                 left: 0,
                 right: 0,
-                top: `calc(${centerTop} - 50px)`,
+                top: `calc(${centerTop} - var(--frame-pad))`,
                 bottom: 0,
               }}
             >
@@ -4454,8 +4457,8 @@ export default function Home() {
             <div
               className="absolute z-50 pointer-events-none transition-opacity duration-150"
               style={{
-                left: `calc(${centerLeft} - 50px)`,
-                top: `calc(${centerTop} - 50px)`,
+                left: `calc(${centerLeft} - var(--frame-pad))`,
+                top: `calc(${centerTop} - var(--frame-pad))`,
                 transform: 'translate(-50%, -50%)',
                 opacity: isGuidesVisible ? 1 : 0,
               }}
@@ -4470,7 +4473,7 @@ export default function Home() {
           <section
             ref={secondSectionRef}
             className="horizontal-section relative flex-shrink-0 text-white"
-            style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
+            style={{ width: 'calc(100vw - var(--frame-pad) * 2)', height: 'calc(100vh - var(--frame-pad) * 2)' }}
           >
             {/* Vertical editorial label — left edge */}
             <div className="absolute pointer-events-none" style={{ zIndex: 10, left: 6, top: '50%', transform: 'translateY(-50%) rotate(180deg)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -4484,7 +4487,7 @@ export default function Home() {
               <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
               <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>02</span>
             </div>
-            <div className="w-full h-full p-[50px] box-border">
+            <div className="w-full h-full p-[var(--frame-pad)] box-border">
               <div className="w-full h-full">
                 <div className="grid md:grid-cols-2 gap-6 h-full" style={{ position: 'relative' }}>
                   {/* Hairline divider between columns */}
@@ -4686,7 +4689,7 @@ export default function Home() {
                             fontWeight: 700,
                             fontSize: FONT_LARGE,
                             lineHeight: '1.2',
-                            marginLeft: `calc(${getMarkerPosition(7)} - 50px - 2rem)`,
+                            marginLeft: `calc(${getMarkerPosition(7)} - var(--frame-pad) - 2rem)`,
                           }}
                         >
                           {t('focadoEmCineastas').split('\n').map((line, i) => (
@@ -4729,14 +4732,14 @@ export default function Home() {
           <section
             ref={thirdSectionRef}
             className="horizontal-section relative flex-shrink-0 text-white"
-            style={{ width: 'calc(100vw - 100px)', height: 'calc(100vh - 100px)' }}
+            style={{ width: 'calc(100vw - var(--frame-pad) * 2)', height: 'calc(100vh - var(--frame-pad) * 2)' }}
           >
             {/* Section index — top right */}
             <div className="absolute pointer-events-none" style={{ zIndex: 10, top: 16, right: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
               <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em' }}>03</span>
             </div>
-            <div className="w-full h-full p-[50px] box-border">
+            <div className="w-full h-full p-[var(--frame-pad)] box-border">
               <div className="w-full h-full grid md:grid-cols-2 gap-6" style={{ position: 'relative' }}>
                 {/* Hairline divider between columns */}
                 <div className="absolute pointer-events-none hidden md:block" style={{ top: 0, bottom: 0, left: '50%', width: 1, background: 'rgba(255,255,255,0.08)', transform: 'translateX(-50%)' }} />
@@ -4960,7 +4963,7 @@ export default function Home() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '50px',
+            padding: 'var(--frame-pad)',
             overflow: 'hidden',
           }}
         >
@@ -5133,8 +5136,8 @@ export default function Home() {
             data-film-panel=""
             data-mouse-parallax=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               position: 'relative',
               backgroundColor: '#000',
@@ -5256,8 +5259,8 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             data-natureza-panel="1"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               display: 'grid',
               gridTemplateColumns: '1.2fr 0.8fr',
@@ -5305,7 +5308,7 @@ export default function Home() {
 
             {/* Left - Editorial Content */}
             <div
-              className="flex flex-col justify-center p-[50px] relative"
+              className="flex flex-col justify-center p-[var(--frame-pad)] relative"
               style={{
                 backgroundColor: 'rgba(10, 10, 10, 0.85)',
                 zIndex: 1,
@@ -5445,8 +5448,8 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             data-natureza-panel="2"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               display: 'flex',
               alignItems: 'center',
@@ -5687,8 +5690,8 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 text-white"
             data-natureza-panel="3"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
@@ -5696,7 +5699,7 @@ export default function Home() {
           >
             {/* Left - Sinopse */}
             <div
-              className="flex flex-col justify-center p-[50px]"
+              className="flex flex-col justify-center p-[var(--frame-pad)]"
               style={{
                 backgroundColor: '#121212',
                 paddingRight: '3vw',
@@ -5770,7 +5773,7 @@ export default function Home() {
 
             {/* Right - Distribution & Technical Info */}
             <div
-              className="flex flex-col justify-center p-[50px]"
+              className="flex flex-col justify-center p-[var(--frame-pad)]"
               style={{
                 backgroundColor: '#0a0a0a',
                 overflow: 'hidden',
@@ -5859,8 +5862,8 @@ export default function Home() {
             data-movie-transition="natureza-micangas"
             data-transition-type="diagonal"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
             }}
           >
             {/* Preview of next video - revealed through diagonal bars */}
@@ -5906,8 +5909,8 @@ export default function Home() {
             data-micangas-reveal="filmstrip"
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               backgroundColor: '#0a0a0a',
             }}
@@ -6071,8 +6074,8 @@ export default function Home() {
             data-micangas-mosaic=""
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               backgroundColor: '#050505',
             }}
@@ -6324,8 +6327,8 @@ export default function Home() {
             data-micangas-panel="2"
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
             }}
           >
@@ -6419,8 +6422,8 @@ export default function Home() {
             data-movie-transition="micangas-misterio"
             data-transition-type="spotlight"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
             }}
           >
             {/* Preview of next video - warm sepia tint for noir feel */}
@@ -6504,8 +6507,8 @@ export default function Home() {
             data-misterio-reveal="venetian"
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               backgroundColor: '#0a0a0a',
             }}
@@ -6631,8 +6634,8 @@ export default function Home() {
             data-misterio-panel="1"
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
             }}
           >
@@ -6817,8 +6820,8 @@ export default function Home() {
             data-misterio-panel="2"
             data-film-panel=""
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
               overflow: 'hidden',
               display: 'grid',
               gridTemplateColumns: '60% 40%',
@@ -6962,8 +6965,8 @@ export default function Home() {
             className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
             data-movie-transition="finale"
             style={{
-              width: 'calc(100vw - 100px)',
-              height: 'calc(100vh - 100px)',
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
             }}
           >
             <div data-finale-overlay className="absolute inset-0 bg-black z-10" />
@@ -6991,10 +6994,10 @@ export default function Home() {
         data-section-divider
         className="relative bg-black"
         style={{
-          marginLeft: '50px',
-          marginRight: '50px',
+          marginLeft: 'var(--frame-pad)',
+          marginRight: 'var(--frame-pad)',
           height: '2px',
-          marginBottom: '50px',
+          marginBottom: 'var(--frame-pad)',
           overflow: 'hidden',
         }}
       >
@@ -7012,15 +7015,15 @@ export default function Home() {
       <div
         className="relative bg-black text-white"
         style={{
-          marginLeft: '50px',
-          marginRight: '50px',
-          marginBottom: '50px',
-          height: 'calc(100vh - 100px)',
+          marginLeft: 'var(--frame-pad)',
+          marginRight: 'var(--frame-pad)',
+          marginBottom: 'var(--frame-pad)',
+          height: 'calc(100vh - var(--frame-pad) * 2)',
           overflow: 'visible',
         }}
       >
         <section ref={cinemaSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
-          <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
+          <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0">
                 {/* Bloco vertical esquerdo - torre */}
@@ -7250,7 +7253,7 @@ export default function Home() {
       <div
         data-section-divider
         className="relative bg-black"
-        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+        style={{ marginLeft: 'var(--frame-pad)', marginRight: 'var(--frame-pad)', height: '2px', marginBottom: 'var(--frame-pad)', overflow: 'hidden' }}
       >
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
       </div>
@@ -7259,15 +7262,15 @@ export default function Home() {
       <div
         className="relative bg-black text-white"
         style={{
-          marginLeft: '50px',
-          marginRight: '50px',
-          marginBottom: '50px',
-          height: 'calc(100vh - 100px)',
+          marginLeft: 'var(--frame-pad)',
+          marginRight: 'var(--frame-pad)',
+          marginBottom: 'var(--frame-pad)',
+          height: 'calc(100vh - var(--frame-pad) * 2)',
           overflow: 'visible',
         }}
       >
         <section ref={arquivoSectionRef} className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
-          <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
+          <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="w-full h-full relative" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-8 gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
                 {/* Coluna video esquerda */}
@@ -7477,7 +7480,7 @@ export default function Home() {
       <div
         data-section-divider
         className="relative bg-black"
-        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+        style={{ marginLeft: 'var(--frame-pad)', marginRight: 'var(--frame-pad)', height: '2px', marginBottom: 'var(--frame-pad)', overflow: 'hidden' }}
       >
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
       </div>
@@ -7487,15 +7490,15 @@ export default function Home() {
         className="relative bg-black text-white"
         data-noticias-section
         style={{
-          marginLeft: '50px',
-          marginRight: '50px',
-          marginBottom: '50px',
-          height: 'calc(100vh - 100px)',
+          marginLeft: 'var(--frame-pad)',
+          marginRight: 'var(--frame-pad)',
+          marginBottom: 'var(--frame-pad)',
+          height: 'calc(100vh - var(--frame-pad) * 2)',
           overflow: 'visible',
         }}
       >
         <section className="relative w-full h-full" style={{ height: '100%', overflow: 'visible' }}>
-          <div className="w-full h-full p-[50px] box-border" style={{ overflow: 'visible' }}>
+          <div className="w-full h-full p-[var(--frame-pad)] box-border" style={{ overflow: 'visible' }}>
             <div className="max-w-7xl mx-auto w-full h-full" style={{ overflow: 'visible' }}>
               <div className="grid grid-cols-12 grid-rows-6 gap-4 md:gap-6 h-full min-h-0">
                 {/* Carrossel minimal */}
@@ -7675,7 +7678,7 @@ export default function Home() {
       <div
         data-section-divider
         className="relative bg-black"
-        style={{ marginLeft: '50px', marginRight: '50px', height: '2px', marginBottom: '50px', overflow: 'hidden' }}
+        style={{ marginLeft: 'var(--frame-pad)', marginRight: 'var(--frame-pad)', height: '2px', marginBottom: 'var(--frame-pad)', overflow: 'hidden' }}
       >
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)', transform: 'scaleX(0)', transformOrigin: 'center' }} />
       </div>
@@ -7685,10 +7688,10 @@ export default function Home() {
         ref={contactSectionRef}
         className="relative bg-black text-white"
         style={{
-          marginLeft: '50px',
-          marginRight: '50px',
-          marginBottom: '50px',
-          padding: '50px',
+          marginLeft: 'var(--frame-pad)',
+          marginRight: 'var(--frame-pad)',
+          marginBottom: 'var(--frame-pad)',
+          padding: 'var(--frame-pad)',
           borderTop: 'none',
         }}
       >

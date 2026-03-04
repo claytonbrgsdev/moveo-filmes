@@ -40,19 +40,19 @@ export function LocationInfo() {
         className="fixed text-white text-xs z-40"
         style={{
           left: getMarkerPosition(1),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           ...fontStyle,
         }}
       >
         Brasília-DF, Brasil
       </div>
 
-      {/* GPS coordinates — col 3 (mirrors logo at col 3) */}
+      {/* GPS coordinates — col 3 (hidden on mobile) */}
       <div
-        className="fixed text-white text-xs z-40"
+        className="fixed text-white text-xs z-40 hidden sm:block"
         style={{
           left: getMarkerPosition(3),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           ...fontStyle,
           letterSpacing: '0.02em',
         }}
@@ -60,13 +60,13 @@ export function LocationInfo() {
         -15.7942°S, -47.8822°W
       </div>
 
-      {/* Timecode — col 11 (mirrors date at col 11) */}
+      {/* Timecode — col 11 (hidden on mobile) */}
       <div
-        className="fixed text-white text-xs z-40"
+        className="fixed text-white text-xs z-40 hidden sm:block"
         suppressHydrationWarning
         style={{
           left: getMarkerPosition(11),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           ...fontStyle,
           letterSpacing: '0.05em',
         }}

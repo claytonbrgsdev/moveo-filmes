@@ -19,16 +19,16 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Global cinematic grain overlay */}
       <CinematicOverlays />
 
-      {/* Linha horizontal superior - Linha A (50px do topo) */}
-      <div 
+      {/* Linha horizontal superior - Linha A */}
+      <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ top: '50px' }}
+        style={{ top: 'var(--frame-pad)' }}
       />
-      
-      {/* Linha horizontal inferior - Linha J (50px do bottom) */}
-      <div 
+
+      {/* Linha horizontal inferior - Linha J */}
+      <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ bottom: '50px' }}
+        style={{ bottom: 'var(--frame-pad)' }}
       />
 
       {/* Navbar fixa no topo */}
@@ -38,8 +38,8 @@ export function MainLayout({ children }: MainLayoutProps) {
       <main
         className="relative bg-black"
         style={{
-          margin: '50px',
-          minHeight: 'calc(100vh - 100px)',
+          margin: 'var(--frame-pad)',
+          minHeight: 'calc(100vh - var(--frame-pad) * 2)',
         }}
       >
         {children}
@@ -49,11 +49,11 @@ export function MainLayout({ children }: MainLayoutProps) {
       <LocationInfo />
 
       {/* Switch de linguagem na posição J13 - fixo no bottom */}
-      <div 
+      <div
         className="fixed text-white text-xs z-40 cursor-pointer hover:opacity-70 transition-opacity"
-        style={{ 
+        style={{
           left: getMarkerPosition(13),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
@@ -67,4 +67,3 @@ export function MainLayout({ children }: MainLayoutProps) {
     </div>
   );
 }
-

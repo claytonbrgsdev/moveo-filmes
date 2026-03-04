@@ -53,7 +53,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent" style={{ height: '50px', mixBlendMode: 'difference' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent" style={{ height: 'var(--frame-pad)', mixBlendMode: 'difference' }}>
         <div className="relative w-full h-full flex items-center">
           {/* REC indicator — col 1 */}
           <div
@@ -103,9 +103,9 @@ export default function Navbar() {
             />
           </div>
 
-          {/* Date stamp — col 11 */}
+          {/* Date stamp — col 11 (hidden on mobile) */}
           <div
-            className="absolute text-white text-xs"
+            className="absolute text-white text-xs hidden sm:block"
             suppressHydrationWarning
             style={{ left: getMarkerPosition(11), bottom: '0px', ...fontStyle, letterSpacing: '0.05em' }}
           >

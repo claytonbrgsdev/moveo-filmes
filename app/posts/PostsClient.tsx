@@ -186,13 +186,13 @@ export default function PostsClient({ posts }: PostsClientProps) {
       {/* Top border line */}
       <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ top: '50px' }}
+        style={{ top: 'var(--frame-pad)' }}
       />
 
       {/* Bottom border line */}
       <div
         className="fixed left-0 right-0 h-px bg-white z-40"
-        style={{ bottom: '50px' }}
+        style={{ bottom: 'var(--frame-pad)' }}
       />
 
       {/* Navbar */}
@@ -206,23 +206,22 @@ export default function PostsClient({ posts }: PostsClientProps) {
         className="relative"
         style={{
           minHeight: '100vh',
-          paddingTop: '50px',
-          paddingBottom: '50px',
+          paddingTop: 'var(--frame-pad)',
+          paddingBottom: 'var(--frame-pad)',
         }}
       >
         <div
           className="relative h-full flex items-center"
           style={{
-            minHeight: 'calc(100vh - 100px)',
-            padding: '0 50px',
+            minHeight: 'calc(100vh - var(--frame-pad) * 2)',
+            padding: '0 var(--frame-pad)',
           }}
         >
           {/* Left Side - Title and Text */}
           <div
-            className="relative z-10"
+            className="relative z-10 w-full sm:max-w-[55%]"
             style={{
-              maxWidth: '55%',
-              paddingRight: '60px',
+              paddingRight: '0px',
             }}
           >
             {/* Title - Stacked */}
@@ -231,7 +230,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
               className="leading-none mb-8"
               style={{
                 fontFamily: "'Helvetica Neue LT Pro Bold Extended', 'Helvetica Neue LT Pro', Arial, sans-serif",
-                fontSize: 'clamp(80px, 14vw, 180px)',
+                fontSize: 'clamp(36px, 14vw, 180px)',
                 fontWeight: 700,
                 color: 'white',
                 letterSpacing: '-0.02em',
@@ -284,7 +283,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
             className="absolute right-0 top-0 bottom-0"
             style={{
               width: '45%',
-              right: '50px',
+              right: 'var(--frame-pad)',
             }}
           >
             <div
@@ -310,7 +309,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
           {/* Decorative Circle - Bottom Right */}
           <div
             data-hero-circle
-            className="absolute pointer-events-none"
+            className="absolute pointer-events-none hidden sm:block"
             style={{
               right: '100px',
               bottom: '60px',
@@ -337,7 +336,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
       >
         {/* Decorative Circle - Left Edge */}
         <div
-          className="absolute pointer-events-none"
+          className="absolute pointer-events-none hidden sm:block"
           style={{
             left: '-100px',
             top: '30%',
@@ -352,7 +351,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
         <div
           className="relative z-10"
           style={{
-            padding: '0 50px 0 150px',
+            padding: '0 var(--frame-pad) 0 var(--circle-offset)',
           }}
         >
           {/* Section Title */}
@@ -492,7 +491,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
           className="absolute"
           style={{
             bottom: '80px',
-            left: '50px',
+            left: 'var(--frame-pad)',
           }}
         >
           <Image
@@ -514,7 +513,7 @@ export default function PostsClient({ posts }: PostsClientProps) {
         className="fixed text-white text-xs z-40 cursor-pointer hover:opacity-70 transition-opacity"
         style={{
           left: getMarkerPosition(13),
-          top: 'calc(100vh - 50px + 2px)',
+          top: 'calc(100vh - var(--frame-pad) + 2px)',
           fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
         }}
         onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
