@@ -28,6 +28,34 @@ const newsImages = [
 ];
 
 const FONT_HUGE = 'var(--font-huge)';
+// Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
+const MOVEO_TRACKING_EM = -0.04;
+
+/**
+ * Mede a "tinta" (ink bounds) de MOVEO a 100px via canvas TextMetrics.
+ * Diferente de offsetWidth (que usa advance widths), desconta os side bearings
+ * do M inicial e do O final — permitindo dimensionar o bloco para que a tinta
+ * fique exatamente rente às duas bordas do container.
+ * Retorna { inkWidth, lsb } a 100px, ou null se indisponível.
+ */
+const measureMoveoInk = (): { inkWidth: number; lsb: number } | null => {
+  if (typeof document === 'undefined') return null;
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return null;
+  ctx.font = "100px 'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
+  const chars = 'MOVEO'.split('');
+  const advances = chars.map((c) => ctx.measureText(c).width);
+  const totalAdvance = advances.reduce((a, b) => a + b, 0);
+  const first = ctx.measureText(chars[0]);
+  const last = ctx.measureText(chars[chars.length - 1]);
+  if (typeof first.actualBoundingBoxLeft !== 'number' || typeof last.actualBoundingBoxRight !== 'number') return null;
+  // lsb: distância do início do advance até a tinta do M; rsb: idem no fim do O
+  const lsb = -first.actualBoundingBoxLeft;
+  const rsb = advances[advances.length - 1] - last.actualBoundingBoxRight;
+  const trackingPx = MOVEO_TRACKING_EM * 100;
+  const inkWidth = totalAdvance + trackingPx * (chars.length - 1) - lsb - rsb;
+  return { inkWidth, lsb };
+};
 const FONT_LARGE = 'clamp(24px, 2.3vw, 40px)';
 const FONT_MEDIUM = 'clamp(16px, 1.5vw, 22px)';
 const FONT_SMALL = 'clamp(10px, 0.85vw, 13px)';
@@ -69,6 +97,8 @@ export default function Home() {
   // Initialize video lazy loading
   useVideoLazyLoad();
   const [dynamicFontSize, setDynamicFontSize] = useState<number>(100);
+  // Deslocamento para o ink do M encostar na borda esquerda (compensa o side bearing do glifo)
+  const [moveoLeftOffset, setMoveoLeftOffset] = useState<number>(-20);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const produtoraTextRef = useRef<HTMLDivElement>(null);
@@ -3955,18 +3985,26 @@ export default function Home() {
       const referenceHeight = 698;
       const minHeight = 400; // Altura mínima para evitar overflow extremo
       
-      // Calcular proporção baseada na largura
-      const measureElement = document.createElement('div');
-      measureElement.style.position = 'absolute';
-      measureElement.style.visibility = 'hidden';
-      measureElement.style.whiteSpace = 'nowrap';
-      measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
-      measureElement.style.letterSpacing = '0.12em';
-      measureElement.style.fontSize = '100px';
-      measureElement.textContent = 'MOVEO';
-      document.body.appendChild(measureElement);
-
-      const baseWidth = measureElement.offsetWidth;
+      // Mede a tinta real do wordmark (canvas TextMetrics); fallback para medição DOM
+      const ink = measureMoveoInk();
+      let baseWidth: number;
+      if (ink) {
+        baseWidth = ink.inkWidth;
+      } else {
+        const measureElement = document.createElement('div');
+        measureElement.style.position = 'absolute';
+        measureElement.style.visibility = 'hidden';
+        measureElement.style.whiteSpace = 'nowrap';
+        measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
+        measureElement.style.letterSpacing = `${MOVEO_TRACKING_EM}em`;
+        measureElement.style.fontSize = '100px';
+        measureElement.textContent = 'MOVEO';
+        document.body.appendChild(measureElement);
+        // offsetWidth inclui o letter-spacing residual após o último caractere;
+        // descontamos para que o O final fique rente à borda direita do bloco.
+        baseWidth = measureElement.offsetWidth - MOVEO_TRACKING_EM * 100;
+        document.body.removeChild(measureElement);
+      }
       let calculatedFontSize = (targetWidth / baseWidth) * 100;
       
       // Ajustar baseado na altura se necessário
@@ -4000,8 +4038,12 @@ export default function Home() {
         calculatedFontSize = calculatedFontSize * extraReduction;
       }
       
-      document.body.removeChild(measureElement);
-      setDynamicFontSize(Math.max(calculatedFontSize, 30)); // Tamanho mínimo de 30px
+      const finalSize = Math.max(calculatedFontSize, 30); // Tamanho mínimo de 30px
+      setDynamicFontSize(finalSize);
+      // M rente à borda esquerda: compensa o left side bearing do glifo no tamanho final
+      if (ink) {
+        setMoveoLeftOffset(-(ink.lsb * finalSize) / 100);
+      }
     };
 
   useEffect(() => {
@@ -4027,6 +4069,11 @@ export default function Home() {
     };
 
     runCalculation();
+
+    // Recalcula quando a webfont carrega — o canvas mede com o fallback (Arial) antes disso
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(() => calculateDynamicFontSize());
+    }
 
     const handleResize = () => {
       calculateDynamicFontSize();
@@ -4068,18 +4115,27 @@ export default function Home() {
       const timer = setTimeout(() => {
         if (containerRef.current && containerRef.current.offsetWidth > 0) {
           const targetWidth = containerRef.current.offsetWidth;
-          const measureElement = document.createElement('div');
-          measureElement.style.position = 'absolute';
-          measureElement.style.visibility = 'hidden';
-          measureElement.style.whiteSpace = 'nowrap';
-          measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
-          measureElement.style.letterSpacing = '0.12em';
-          measureElement.style.fontSize = '100px';
-          measureElement.textContent = 'MOVEO';
-          document.body.appendChild(measureElement);
-          const baseWidth = measureElement.offsetWidth;
-          const calculatedFontSize = (targetWidth / baseWidth) * 100;
-          document.body.removeChild(measureElement);
+          // Mede a tinta real do wordmark (canvas TextMetrics); fallback para medição DOM
+          const ink = measureMoveoInk();
+          let calculatedFontSize: number;
+          if (ink) {
+            calculatedFontSize = (targetWidth / ink.inkWidth) * 100;
+            setMoveoLeftOffset(-(ink.lsb * calculatedFontSize) / 100);
+          } else {
+            const measureElement = document.createElement('div');
+            measureElement.style.position = 'absolute';
+            measureElement.style.visibility = 'hidden';
+            measureElement.style.whiteSpace = 'nowrap';
+            measureElement.style.fontFamily = "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif";
+            measureElement.style.letterSpacing = `${MOVEO_TRACKING_EM}em`;
+            measureElement.style.fontSize = '100px';
+            measureElement.textContent = 'MOVEO';
+            document.body.appendChild(measureElement);
+            // desconta o letter-spacing residual do último caractere (ver calculateDynamicFontSize)
+            const baseWidth = measureElement.offsetWidth - MOVEO_TRACKING_EM * 100;
+            calculatedFontSize = (targetWidth / baseWidth) * 100;
+            document.body.removeChild(measureElement);
+          }
           setDynamicFontSize(calculatedFontSize);
         }
       }, 50);
@@ -4300,13 +4356,13 @@ export default function Home() {
               data-first-animate
               className="absolute text-white uppercase z-30 mix-blend-difference moveo-title"
               style={{
-                left: '-20px',
-                top: '180px',
+                left: `${moveoLeftOffset}px`,
+                top: 'var(--moveo-top)',
                 bottom: `calc(100% - ${getHorizontalLinePosition('F')} + 40px)`,
                 fontFamily: "'Helvetica Neue LT Pro Heavy Extended', Arial, Helvetica, sans-serif",
                 fontSize: `${dynamicFontSize}px`,
                 lineHeight: '77.3%',
-                letterSpacing: '0.12em',
+                letterSpacing: `${MOVEO_TRACKING_EM}em`,
                 whiteSpace: 'nowrap',
                 margin: 0,
                 padding: 0,
@@ -4357,7 +4413,7 @@ export default function Home() {
               style={{
                 left: 0,
                 right: 0,
-                top: `calc(${centerTop} - var(--frame-pad))`,
+                top: `calc(${centerTop} - var(--frame-pad) + var(--video-offset))`,
                 bottom: 0,
               }}
             >
@@ -4867,43 +4923,59 @@ export default function Home() {
                     >
                       {language === 'pt' ? (
                         <>
-                          {'FILMES DE'.split('').map((ch, i) => (
-                            <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'FILMES DE'.split('').map((ch, i) => (
+                              <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'ARTE'.split('').map((ch, i) => (
-                            <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
-                          ))}{'\u00a0'}{' PARA'.split('').map((ch, i) => (
-                            <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'ARTE'.split('').map((ch, i) => (
+                              <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
+                            ))}{'\u00a0'}{' PARA'.split('').map((ch, i) => (
+                              <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'O MERCADO'.split('').map((ch, i) => (
-                            <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'O MERCADO'.split('').map((ch, i) => (
+                              <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'INTERNACIONAL'.split('').map((ch, i) => (
-                            <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'INTERNACIONAL'.split('').map((ch, i) => (
+                              <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                            ))}
+                          </span>
                         </>
                       ) : (
                         <>
-                          {'ART FILMS'.split('').map((ch, i) => (
-                            <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'ART FILMS'.split('').map((ch, i) => (
+                              <span key={`l0-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch === ' ' ? '\u00a0' : ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'FOR'.split('').map((ch, i) => (
-                            <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
-                          ))}{'\u00a0'}{'THE'.split('').map((ch, i) => (
-                            <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'FOR'.split('').map((ch, i) => (
+                              <span key={`l1a-${i}`} data-third-char style={{ display: 'inline-block', fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontWeight: 700 }}>{ch}</span>
+                            ))}{'\u00a0'}{'THE'.split('').map((ch, i) => (
+                              <span key={`l1b-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'INTERNATIONAL'.split('').map((ch, i) => (
-                            <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'INTERNATIONAL'.split('').map((ch, i) => (
+                              <span key={`l2-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                            ))}
+                          </span>
                           <br />
-                          {'MARKET'.split('').map((ch, i) => (
-                            <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
-                          ))}
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {'MARKET'.split('').map((ch, i) => (
+                              <span key={`l3-${i}`} data-third-char style={{ display: 'inline-block' }}>{ch}</span>
+                            ))}
+                          </span>
                         </>
                       )}
                     </h2>
