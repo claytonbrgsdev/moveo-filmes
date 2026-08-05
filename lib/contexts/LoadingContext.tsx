@@ -10,7 +10,9 @@ interface LoadingContextType {
   setGsapReady: () => void;
 }
 
-const LoadingContext = createContext<LoadingContextType | null>(null);
+// Exportado para quem precisa tolerar a ausência do provider (ver
+// app/em-breve/EmBreveClient.tsx). Prefira o hook useLoading.
+export const LoadingContext = createContext<LoadingContextType | null>(null);
 
 export function LoadingProvider({ children }: { children: ReactNode }) {
   const [fontsLoaded, setFontsLoadedState] = useState(false);
