@@ -1,76 +1,53 @@
-name: Rebuild on Instagram Sync
+name: Rebuild após sync do Instagram
+
+# A Edge Function supabase/functions/instagram-sync dispara um repository_dispatch
+# depois de gravar posts novos. Como as páginas são pré-renderizadas no build, o
+# conteúdo novo só aparece no site depois de um rebuild.
+#
+# Antes este workflow reconstruía o projeto e publicava no GitHub Pages a partir
+# de ./out — alvo errado desde que o site foi para a Vercel, e ./out nem é mais
+# gerado (o next.config.ts não tem `output: 'export'`). Agora ele só aciona um
+# Deploy Hook, e quem constrói é a Vercel.
+#
+# Para ativar: criar um Deploy Hook em
+#   Vercel > Project moveo-filmes > Settings > Git > Deploy Hooks
+# e salvar a URL como o secret VERCEL_DEPLOY_HOOK_URL no repositório.
+# Sem o secret o workflow avisa e passa, em vez de falhar a cada sync.
 
 on:
-  # Triggered by Supabase Edge Function after Instagram sync
   repository_dispatch:
     types: [instagram-sync]
-  # Allow manual trigger
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  build:
+  rebuild:
+    name: Acionar deploy na Vercel
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
+      - name: Disparar Deploy Hook
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+          if [ -z "${DEPLOY_HOOK_URL:-}" ]; then
+            echo "::warning::Secret VERCEL_DEPLOY_HOOK_URL ausente — rebuild não disparado. Ver README-INFRA.md."
+            exit 0
+          fi
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './out'
+          status=$(curl -sS -o /tmp/hook.json -w '%{http_code}' --max-time 30 \
+            -X POST "$DEPLOY_HOOK_URL")
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          echo "HTTP ${status}"
+          head -c 300 /tmp/hook.json || true
+          echo
+
+          if [ "$status" != "200" ] && [ "$status" != "201" ]; then
+            echo "::error::Deploy Hook respondeu ${status}."
+            exit 1
+          fi
+
+          echo "Deploy disparado na Vercel."

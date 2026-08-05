@@ -1,0 +1,104 @@
+name: Supabase keep-alive
+
+# Por que isto existe:
+# O plano free do Supabase pausa o projeto após ~7 dias sem atividade. Retomar
+# é possível por um bom tempo (o painel do projeto informa a data limite), mas
+# o site fica fora do ar até alguém entrar no dashboard e clicar — e o clique
+# tem duas etapas, o que já custou uma rodada de confusão em 05/08/2026.
+#
+# Tráfego do site NÃO resolve: o Next.js pré-renderiza as páginas no build, e a
+# landing de "em obras" nem toca no banco. Sem uma requisição agendada, o banco
+# fica semanas sem receber nada.
+#
+# Dois jobs:
+#   ping    — a cada 2 dias, consulta uma tabela de verdade (não só o gateway)
+#   backup  — aos domingos, dump completo guardado como artifact
+#
+# Se o ping falhar, o workflow falha de propósito: o e-mail de erro do GitHub
+# vira o alarme de que o banco caiu.
+
+on:
+  schedule:
+    - cron: '17 9 */2 * *' # ping — a cada 2 dias, 09:17 UTC
+    - cron: '32 9 * * 0' # backup — domingos, 09:32 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping no banco
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar uma tabela real
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "::error::Faltam os secrets NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY."
+            exit 1
+          fi
+
+          # Consulta uma tabela em vez de só bater no /rest/v1/, para a
+          # requisição chegar de fato ao Postgres e contar como atividade.
+          status=$(curl -sS -o /tmp/ping.json -w '%{http_code}' --max-time 30 \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/filmes?select=id&limit=1")
+
+          echo "HTTP ${status}"
+          head -c 200 /tmp/ping.json || true
+          echo
+
+          if [ "$status" != "200" ]; then
+            echo "::error::Banco não respondeu 200 (veio ${status}). Pode estar pausado — restaurar em https://supabase.com/dashboard/project/votgiixlnrhfacrjihtx"
+            exit 1
+          fi
+
+          echo "Banco respondeu. Projeto segue ativo."
+
+  backup:
+    name: Dump semanal
+    runs-on: ubuntu-latest
+    # Só no cron de domingo, ou quando disparado na mão.
+    if: github.event.schedule == '32 9 * * 0' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Instalar Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Gerar dump
+        id: dump
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+
+          # O dump é opcional: sem o secret o job avisa e passa, em vez de
+          # deixar o workflow vermelho toda semana.
+          if [ -z "${SUPABASE_DB_URL:-}" ]; then
+            echo "::warning::Secret SUPABASE_DB_URL ausente — backup pulado. Ver README-INFRA.md para ativar."
+            echo "gerou=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          mkdir -p dump
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f dump/data.sql
+
+          ls -lh dump/
+          echo "gerou=true" >> "$GITHUB_OUTPUT"
+
+      - name: Guardar como artifact
+        if: steps.dump.outputs.gerou == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-dump-${{ github.run_id }}
+          path: dump/
+          retention-days: 90
+          if-no-files-found: error
