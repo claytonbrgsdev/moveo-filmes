@@ -7842,7 +7842,7 @@ export default function Home() {
             </div>
             {/* Contact metadata */}
             <div data-contact-animate className="flex flex-wrap gap-4 sm:gap-7 items-start">
-              {[{ label: 'Email', value: 'contato@moveofilmes.com.br' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: 'Fundação', value: 'Brasília · 2018' }].map(({ label, value }, i) => (
+              {[{ label: 'Email', value: 'contato@moveofilmes.com' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: 'Fundação', value: 'Brasília · 2018' }].map(({ label, value }, i) => (
                 <React.Fragment key={label}>
                   {i > 0 && <div className="hidden sm:block" style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
                   <span style={{ display: 'flex', flexDirection: 'column' as const, gap: 3 }}>
