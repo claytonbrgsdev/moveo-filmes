@@ -76,6 +76,50 @@ const neverChanges = () => () => {}
 /** Espessura da linha preta entre os quadros — separação de fotograma. */
 const FRAME_GAP = 2
 
+/* Ícones inline: a navbar tem só dois: não vale trazer biblioteca, e SVG local
+   herda a cor e o mix-blend-difference da barra sem esforço. */
+
+function IconeEmail({ size = 15 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path d="m3.2 6.6 8.8 5.9 8.8-5.9" />
+    </svg>
+  )
+}
+
+function IconeInstagram({ size = 15 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 /**
  * Um quadro do mosaico de vídeo.
  *
@@ -189,11 +233,17 @@ const COPY = {
     subtitle: 'Produtora boutique\nde filmes independentes',
     soon: 'Novo site em breve',
     filme: 'A Natureza das Coisas Invisíveis',
+    copiarEmail: 'Copiar e-mail',
+    emailCopiado: 'E-mail copiado',
+    abrirInstagram: 'Instagram da Moveo Filmes',
   },
   en: {
     subtitle: 'Boutique production company\nfor independent films',
     soon: 'New site coming soon',
     filme: 'The Nature of Invisible Things',
+    copiarEmail: 'Copy email',
+    emailCopiado: 'Email copied',
+    abrirInstagram: 'Moveo Filmes on Instagram',
   },
 } as const
 
@@ -208,6 +258,11 @@ export function EmBreveClient() {
   // O wordmark só tem tamanho depois da medição no cliente. Segurar a composição
   // até lá evita o salto de 100px para o tamanho final na abertura.
   const [ready, setReady] = useState(false)
+
+  // 'ok' quando o e-mail foi para a área de transferência; 'falha' quando o
+  // navegador barrou o acesso — aí o tooltip mostra o endereço para copiar na
+  // mão, em vez de deixar o clique sem resposta nenhuma.
+  const [copia, setCopia] = useState<'idle' | 'ok' | 'falha'>('idle')
 
   // No servidor assume desktop; a hidratação corrige. A composição só aparece
   // depois de `ready`, então a troca não fica visível.
@@ -286,6 +341,22 @@ export function EmBreveClient() {
     setReady(true)
   }, [])
 
+  const copiarEmail = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL)
+      setCopia('ok')
+    } catch {
+      setCopia('falha')
+    }
+  }, [])
+
+  // O aviso some sozinho; sem isso ele ficaria na tela para sempre.
+  useEffect(() => {
+    if (copia === 'idle') return
+    const t = setTimeout(() => setCopia('idle'), 2400)
+    return () => clearTimeout(t)
+  }, [copia])
+
   useEffect(() => {
     const el = measureRef.current
     if (!el) return
@@ -310,15 +381,6 @@ export function EmBreveClient() {
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition(
     'F'
   )} - ${getHorizontalLinePosition('E')}) / 2)`
-
-  const infoLinkStyle: React.CSSProperties = {
-    fontFamily: FONT_STACK,
-    fontSize: FONT_COND,
-    color: 'rgba(255,255,255,0.45)',
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase',
-    textDecoration: 'none',
-  }
 
   return (
     <div className="relative bg-black" style={{ height: '100vh', overflow: 'hidden' }}>
@@ -385,8 +447,70 @@ export function EmBreveClient() {
           >
             {currentDate}
           </div>
+
+          {/* Contato — alinhado à borda direita do frame, mesma coluna do
+              wordmark e do aviso de "em breve". */}
+          {/* No mobile a barra tem só 16px de altura — um ícone de 15px a
+              preencheria inteira e pesaria mais que o "REC" ao lado. */}
+          <div
+            className="absolute flex items-center"
+            style={{ right: 'var(--frame-pad)', bottom: '1px', gap: isMobile ? 12 : 14 }}
+          >
+            <button
+              type="button"
+              onClick={copiarEmail}
+              aria-label={`${copy.copiarEmail}: ${CONTACT_EMAIL}`}
+              title={CONTACT_EMAIL}
+              className="text-white transition-opacity hover:opacity-100 cursor-pointer"
+              style={{ opacity: 0.75, background: 'none', border: 0, padding: 0, lineHeight: 0 }}
+            >
+              <IconeEmail size={isMobile ? 12 : 15} />
+            </button>
+
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label={copy.abrirInstagram}
+              title={copy.abrirInstagram}
+              className="text-white transition-opacity hover:opacity-100"
+              style={{ opacity: 0.75, lineHeight: 0 }}
+            >
+              <IconeInstagram size={isMobile ? 12 : 15} />
+            </a>
+          </div>
         </div>
       </nav>
+
+      {/* Aviso do clique no e-mail. Fica fora do <nav> de propósito: lá dentro o
+          mix-blend-difference inverteria as cores da tarja. */}
+      <div
+        className="fixed z-50 pointer-events-none transition-opacity duration-200"
+        style={{
+          top: 'calc(var(--frame-pad) + 10px)',
+          right: 'var(--frame-pad)',
+          opacity: copia === 'idle' ? 0 : 1,
+        }}
+        role="status"
+        aria-live="polite"
+      >
+        <span
+          style={{
+            display: 'inline-block',
+            fontFamily: FONT_STACK,
+            fontSize: FONT_COND,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.9)',
+            background: 'rgba(0,0,0,0.85)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            padding: '6px 10px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {copia === 'falha' ? CONTACT_EMAIL : copy.emailCopiado}
+        </span>
+      </div>
 
       <main
         className="relative bg-black"
@@ -508,29 +632,6 @@ export function EmBreveClient() {
                 </span>
               </div>
 
-              {/* O contato é outro assunto: respira antes de começar. */}
-              <div
-                className={`flex flex-col ${isMobile ? 'items-start' : 'items-end'}`}
-                style={{ marginTop: 16, gap: 7 }}
-              >
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="transition-opacity hover:!text-white"
-                  style={infoLinkStyle}
-                >
-                  {CONTACT_EMAIL}
-                </a>
-
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="transition-opacity hover:!text-white"
-                  style={infoLinkStyle}
-                >
-                  Instagram ↗
-                </a>
-              </div>
             </div>
           </div>
 
