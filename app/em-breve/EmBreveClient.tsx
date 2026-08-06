@@ -79,11 +79,18 @@ const FRAME_GAP = 2
 /* Ícones inline: a navbar tem só dois: não vale trazer biblioteca, e SVG local
    herda a cor e o mix-blend-difference da barra sem esforço. */
 
-function IconeEmail({ size = 15 }: { size?: number }) {
+/**
+ * Mesma altura da logo da barra — Navbar.tsx a renderiza com `height: 1.125rem`.
+ * Amarrado ao mesmo valor de propósito: se a logo mudar de tamanho, os ícones
+ * acompanham em vez de sair de escala.
+ */
+const ICON_SIZE = '1.125rem'
+
+/** Dimensionado por style, não por atributo: `rem` não vale em atributo de SVG. */
+function IconeEmail({ size = ICON_SIZE }: { size?: string }) {
   return (
     <svg
-      width={size}
-      height={size}
+      style={{ width: size, height: size, display: 'block' }}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -99,11 +106,10 @@ function IconeEmail({ size = 15 }: { size?: number }) {
   )
 }
 
-function IconeInstagram({ size = 15 }: { size?: number }) {
+function IconeInstagram({ size = ICON_SIZE }: { size?: string }) {
   return (
     <svg
-      width={size}
-      height={size}
+      style={{ width: size, height: size, display: 'block' }}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -450,11 +456,11 @@ export function EmBreveClient() {
 
           {/* Contato — alinhado à borda direita do frame, mesma coluna do
               wordmark e do aviso de "em breve". */}
-          {/* No mobile a barra tem só 16px de altura — um ícone de 15px a
-              preencheria inteira e pesaria mais que o "REC" ao lado. */}
           <div
             className="absolute flex items-center"
-            style={{ right: 'var(--frame-pad)', bottom: '1px', gap: isMobile ? 12 : 14 }}
+            // bottom 0 como a logo e os demais itens da barra, para os três
+            // pousarem na mesma linha de base.
+            style={{ right: 'var(--frame-pad)', bottom: '0px', gap: 16 }}
           >
             <button
               type="button"
@@ -464,7 +470,7 @@ export function EmBreveClient() {
               className="text-white transition-opacity hover:opacity-100 cursor-pointer"
               style={{ opacity: 0.75, background: 'none', border: 0, padding: 0, lineHeight: 0 }}
             >
-              <IconeEmail size={isMobile ? 12 : 15} />
+              <IconeEmail />
             </button>
 
             <a
@@ -476,7 +482,7 @@ export function EmBreveClient() {
               className="text-white transition-opacity hover:opacity-100"
               style={{ opacity: 0.75, lineHeight: 0 }}
             >
-              <IconeInstagram size={isMobile ? 12 : 15} />
+              <IconeInstagram />
             </a>
           </div>
         </div>
