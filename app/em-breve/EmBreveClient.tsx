@@ -87,10 +87,12 @@ function Frame({
   src,
   destaque = false,
   flex = 1,
+  legenda,
 }: {
   src: string
   destaque?: boolean
   flex?: number
+  legenda?: string
 }) {
   return (
     <div style={{ position: 'relative', flex, overflow: 'hidden', minWidth: 0, minHeight: 0 }}>
@@ -112,6 +114,41 @@ function Frame({
       >
         <source src={src} type="video/mp4" />
       </video>
+
+      {legenda && (
+        <>
+          {/* Degradê só no pé do quadro: a legenda precisa se sustentar sobre
+              qualquer plano do loop, inclusive os mais claros. */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: '40%',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)',
+            }}
+          />
+          <div
+            className="absolute flex items-center pointer-events-none"
+            style={{ left: 18, bottom: 14, gap: 8 }}
+          >
+            <div style={{ width: 18, height: 1, background: 'rgba(255,255,255,0.45)' }} />
+            <span
+              suppressHydrationWarning
+              style={{
+                fontFamily: FONT_STACK,
+                fontSize: FONT_COND,
+                color: 'rgba(255,255,255,0.8)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {legenda}
+            </span>
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -151,10 +188,12 @@ const COPY = {
   pt: {
     subtitle: 'Produtora boutique\nde filmes independentes',
     soon: 'Novo site em breve',
+    filme: 'A Natureza das Coisas Invisíveis',
   },
   en: {
     subtitle: 'Boutique production company\nfor independent films',
     soon: 'New site coming soon',
+    filme: 'The Nature of Invisible Things',
   },
 } as const
 
@@ -500,7 +539,14 @@ export function EmBreveClient() {
                 flexDirection: isMobile ? 'column' : 'row',
               }}
             >
-              <Frame src="/videos/invisiveis-ceu.mp4" destaque flex={isMobile ? 1.7 : 2.1} />
+              {/* Só o quadro de destaque leva o nome do filme — os outros dois
+                  ficam sem palavra nenhuma sobre a imagem. */}
+              <Frame
+                src="/videos/invisiveis-ceu.mp4"
+                destaque
+                flex={isMobile ? 1.7 : 2.1}
+                legenda={copy.filme}
+              />
               <div
                 className="flex"
                 style={{ flex: 1, gap: FRAME_GAP, flexDirection: isMobile ? 'row' : 'column' }}
