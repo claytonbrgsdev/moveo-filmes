@@ -80,47 +80,59 @@ const FRAME_GAP = 2
    herda a cor e o mix-blend-difference da barra sem esforço. */
 
 /**
- * Mesma altura da logo da barra — Navbar.tsx a renderiza com `height: 1.125rem`.
- * Amarrado ao mesmo valor de propósito: se a logo mudar de tamanho, os ícones
- * acompanham em vez de sair de escala.
+ * Altura da TINTA dos ícones — a mesma com que Navbar.tsx desenha a logo
+ * (`height: 1.125rem`, e a arte preenche a caixa).
+ *
+ * O detalhe que importa: aqui isso vale para o desenho, não para a caixa do
+ * SVG. Cada viewBox abaixo está colado na arte, então a altura pedida é a
+ * altura que aparece. Com um viewBox folgado (o clássico "0 0 24 24"), duas
+ * caixas de mesmo tamanho rendem tintas bem diferentes — o envelope ocupa 14
+ * das 24 unidades, o Instagram ocupa 18.
  */
-const ICON_SIZE = '1.125rem'
+const ICON_INK = '1.125rem'
 
-/** Dimensionado por style, não por atributo: `rem` não vale em atributo de SVG. */
-function IconeEmail({ size = ICON_SIZE }: { size?: string }) {
+/**
+ * Largura fica em `auto` para cada ícone manter sua proporção; o que se iguala
+ * é a altura. `vectorEffect="non-scaling-stroke"` mantém o traço com a mesma
+ * espessura em px nos dois, apesar das escalas de viewBox diferentes.
+ */
+const svgBase = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  vectorEffect: 'non-scaling-stroke',
+} as const
+
+/** viewBox colado na arte: x 2,5→21,5 e y 5→19 do desenho original. */
+function IconeEmail({ size = ICON_INK }: { size?: string }) {
   return (
     <svg
-      style={{ width: size, height: size, display: 'block' }}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      style={{ height: size, width: 'auto', display: 'block', overflow: 'visible' }}
+      viewBox="2.5 5 19 14"
       aria-hidden="true"
       focusable="false"
+      {...svgBase}
     >
-      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-      <path d="m3.2 6.6 8.8 5.9 8.8-5.9" />
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" vectorEffect="non-scaling-stroke" />
+      <path d="m3.2 6.6 8.8 5.9 8.8-5.9" vectorEffect="non-scaling-stroke" />
     </svg>
   )
 }
 
-function IconeInstagram({ size = ICON_SIZE }: { size?: string }) {
+/** viewBox colado na arte: 3→21 nos dois eixos. */
+function IconeInstagram({ size = ICON_INK }: { size?: string }) {
   return (
     <svg
-      style={{ width: size, height: size, display: 'block' }}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      style={{ height: size, width: 'auto', display: 'block', overflow: 'visible' }}
+      viewBox="3 3 18 18"
       aria-hidden="true"
       focusable="false"
+      {...svgBase}
     >
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
+      <rect x="3" y="3" width="18" height="18" rx="5" vectorEffect="non-scaling-stroke" />
+      <circle cx="12" cy="12" r="4" vectorEffect="non-scaling-stroke" />
       <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
     </svg>
   )
