@@ -73,6 +73,49 @@ function getBrasiliaDate(): string {
 
 const neverChanges = () => () => {}
 
+/** Espessura da linha preta entre os quadros — separação de fotograma. */
+const FRAME_GAP = 2
+
+/**
+ * Um quadro do mosaico de vídeo.
+ *
+ * `destaque` clareia e dessatura menos: é assim que o corte de A Natureza das
+ * Coisas Invisíveis puxa o olho sem precisar de legenda por cima — o pedido era
+ * dar destaque e, ao mesmo tempo, não ter palavra nenhuma sobre a imagem.
+ */
+function Frame({
+  src,
+  destaque = false,
+  flex = 1,
+}: {
+  src: string
+  destaque?: boolean
+  flex?: number
+}) {
+  return (
+    <div style={{ position: 'relative', flex, overflow: 'hidden', minWidth: 0, minHeight: 0 }}>
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        // O quadro de destaque carrega na frente; os outros só o cabeçalho.
+        preload={destaque ? 'auto' : 'metadata'}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          // Os quadros menores ficam nas bordas, onde a vinheta já escurece —
+          // por isso o brilho deles não pode ser tão baixo quanto parece.
+          filter: destaque
+            ? 'brightness(0.52) grayscale(12%) contrast(1.06)'
+            : 'brightness(0.42) grayscale(38%) contrast(1.12)',
+        }}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+    </div>
+  )
+}
+
 /** Tracking do wordmark MOVEO (em) — idêntico ao da home. */
 const MOVEO_TRACKING_EM = -0.04
 
@@ -445,20 +488,27 @@ export function EmBreveClient() {
               bottom: 0,
             }}
           >
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+            {/* Mosaico de fotogramas. O quadro grande é A Natureza das Coisas
+                Invisíveis; os outros dois ficam ao lado, menores e mais
+                escuros. As linhas pretas entre eles imitam a separação de
+                fotograma da película. */}
+            <div
+              className="absolute inset-0 flex"
               style={{
                 zIndex: 0,
-                transform: 'scale(1.0)',
-                filter: 'brightness(0.35) grayscale(25%) contrast(1.1)',
+                gap: FRAME_GAP,
+                flexDirection: isMobile ? 'column' : 'row',
               }}
             >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
-            </video>
+              <Frame src="/videos/invisiveis-ceu.mp4" destaque flex={isMobile ? 1.7 : 2.1} />
+              <div
+                className="flex"
+                style={{ flex: 1, gap: FRAME_GAP, flexDirection: isMobile ? 'row' : 'column' }}
+              >
+                <Frame src="/videos/invisiveis-casa.mp4" />
+                <Frame src="/videos/misterio.mp4" />
+              </div>
+            </div>
 
             <Image
               src="/imagens/capahome.png"
@@ -475,8 +525,10 @@ export function EmBreveClient() {
               className="absolute inset-0 pointer-events-none"
               style={{
                 zIndex: 2,
+                // Mais suave que a original: com o mosaico, a vinheta antiga
+                // apagava os dois quadros da direita.
                 background:
-                  'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%)',
+                  'radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 100%)',
               }}
             />
 
