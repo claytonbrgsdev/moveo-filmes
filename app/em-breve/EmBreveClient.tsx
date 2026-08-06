@@ -468,51 +468,70 @@ export function EmBreveClient() {
             </div>
           </div>
 
-          {/* Aviso + contato. Desktop: canto onde ficava o índice "— 01".
+          {/* Aviso + contato.
+              Desktop: o bloco espelha o subtítulo — mesmo container A→C, mesmo
+              deslocamento de 25%. Assim os dois pousam na mesma linha óptica em
+              vez de o canto ficar espremido contra a borda de cima.
               Mobile: logo abaixo do wordmark, alinhado à esquerda. */}
           <div
-            className={`absolute z-30 flex flex-col ${isMobile ? 'items-start' : 'items-end'}`}
+            className="absolute z-30"
             style={{
-              top: isMobile ? 152 : 0,
               right: isMobile ? undefined : 0,
               left: isMobile ? 0 : undefined,
-              gap: 6,
-              textAlign: isMobile ? 'left' : 'right',
+              top: isMobile ? 152 : 0,
+              height: isMobile ? 'auto' : getHeightBetweenLines('A', 'C'),
             }}
           >
-            <div className="flex items-center" style={{ gap: 8 }}>
-              <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.2)' }} />
-              <span
-                suppressHydrationWarning
-                style={{
-                  fontFamily: FONT_STACK,
-                  fontSize: FONT_COND,
-                  color: 'rgba(255,255,255,0.35)',
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                }}
+            <div
+              className={`flex flex-col ${isMobile ? 'items-start' : 'items-end'}`}
+              style={{
+                position: isMobile ? 'static' : 'absolute',
+                right: isMobile ? undefined : 0,
+                top: isMobile ? undefined : '25%',
+                textAlign: isMobile ? 'left' : 'right',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <div className="flex items-center" style={{ gap: 8 }}>
+                <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.22)' }} />
+                <span
+                  suppressHydrationWarning
+                  style={{
+                    fontFamily: FONT_STACK,
+                    fontSize: FONT_COND,
+                    color: 'rgba(255,255,255,0.4)',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {copy.soon}
+                </span>
+              </div>
+
+              {/* O contato é outro assunto: respira antes de começar. */}
+              <div
+                className={`flex flex-col ${isMobile ? 'items-start' : 'items-end'}`}
+                style={{ marginTop: 16, gap: 7 }}
               >
-                {copy.soon}
-              </span>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="transition-opacity hover:!text-white"
+                  style={infoLinkStyle}
+                >
+                  {CONTACT_EMAIL}
+                </a>
+
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="transition-opacity hover:!text-white"
+                  style={infoLinkStyle}
+                >
+                  Instagram ↗
+                </a>
+              </div>
             </div>
-
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="transition-opacity hover:!text-white"
-              style={infoLinkStyle}
-            >
-              {CONTACT_EMAIL}
-            </a>
-
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="transition-opacity hover:!text-white"
-              style={infoLinkStyle}
-            >
-              Instagram ↗
-            </a>
           </div>
 
           {/* Quadro de vídeo — sem os textos de metadado da home */}
@@ -556,15 +575,10 @@ export function EmBreveClient() {
               </div>
             </div>
 
-            <Image
-              src="/imagens/capahome.png"
-              alt=""
-              fill
-              className="object-cover"
-              style={{ zIndex: 1, opacity: 0.18, mixBlendMode: 'screen' }}
-              priority
-              unoptimized
-            />
+            {/* A home mistura aqui uma foto estática (capahome.png) em blend
+                screen. Sobre um vídeo só, virava textura; esticada sobre três
+                quadros ela não acompanha nenhum deles e lê como borrão parado.
+                A granulação do FilmGrain e as scan lines já dão a textura. */}
 
             {/* Vinheta */}
             <div
