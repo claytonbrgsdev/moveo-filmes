@@ -42,8 +42,18 @@ export function isGateEnabled(): boolean {
  * a própria landing, a porta de entrada e os assets que a landing consome
  * (fontes .otf, vídeo .mp4, imagens). Sem isso a landing carregaria sem
  * tipografia e sem vídeo.
+ *
+ * `/auth/` também entra, e não é conveniência: link de recuperação de senha
+ * chega por e-mail e abre em qualquer navegador — nenhum deles tem o cookie de
+ * preview. Com `/auth/callback` bloqueado, o Supabase até valida o token e o
+ * usuário cai na landing, sem nunca chegar na tela de trocar a senha. Expor
+ * `/auth/login` não afreta nada: quem protege o painel é a sessão do Supabase
+ * mais a whitelist `ADMIN_EMAILS`, não o gate — que, por decisão registrada no
+ * README-INFRA, nem senha tem.
  */
 const STATIC_FILE = /\.(?:otf|ttf|woff2?|mp4|webm|mp3|svg|png|jpe?g|gif|webp|avif|ico|txt|xml|json|map)$/i
+
+export const AUTH_PREFIX = '/auth'
 
 export function isAlwaysAllowed(pathname: string): boolean {
   return (
@@ -51,6 +61,8 @@ export function isAlwaysAllowed(pathname: string): boolean {
     pathname.startsWith(`${LANDING_PATH}/`) ||
     pathname === UNLOCK_PATH ||
     pathname.startsWith(`${UNLOCK_PATH}/`) ||
+    pathname === AUTH_PREFIX ||
+    pathname.startsWith(`${AUTH_PREFIX}/`) ||
     pathname.startsWith('/_next/') ||
     STATIC_FILE.test(pathname)
   )
