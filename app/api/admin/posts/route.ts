@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarPosts } from '@/lib/cache/revalidate'
 
 export async function GET() {
   await requireAdmin()
@@ -23,5 +24,6 @@ export async function POST(request: Request) {
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarPosts()
   return NextResponse.json(data, { status: 201 })
 }

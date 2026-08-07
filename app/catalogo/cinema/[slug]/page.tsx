@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { createCachedAnonClient } from "@/lib/supabase/cached";
+import { TAG_FILMES } from "@/lib/cache/tags";
 import FilmeContent from "./FilmeContent";
 
 interface PageProps {
@@ -10,11 +12,7 @@ interface PageProps {
 export async function generateStaticParams() {
   try {
     // Criar cliente sem cookies para uso durante build estático
-    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createCachedAnonClient([TAG_FILMES]);
     
     const { data: filmes } = await supabase
       .from("filmes")
@@ -34,11 +32,7 @@ export async function generateStaticParams() {
 export default async function FilmeCinemaPage({ params }: PageProps) {
   const { slug } = await params;
   // Usar cliente sem cookies para build estático
-  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-  const supabase = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createCachedAnonClient([TAG_FILMES]);
 
   // Buscar filme pelo slug
   const { data: filme, error } = await supabase

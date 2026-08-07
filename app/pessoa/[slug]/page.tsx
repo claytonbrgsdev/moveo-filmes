@@ -1,13 +1,11 @@
 import { notFound } from 'next/navigation';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createCachedAnonClient } from "@/lib/supabase/cached";
+import { TAG_PESSOAS, TAG_FILMES } from "@/lib/cache/tags";
 import { PessoaContent } from './PessoaContent';
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   try {
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createCachedAnonClient([TAG_PESSOAS, TAG_FILMES]);
     const { data } = await supabase
       .from('pessoas')
       .select('slug')
@@ -26,10 +24,7 @@ export default async function PessoaPage({
 }) {
   const { slug } = await params;
 
-  const supabase = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createCachedAnonClient([TAG_PESSOAS, TAG_FILMES]);
 
   // Fetch person
   const { data: pessoa, error: pessoaError } = await supabase

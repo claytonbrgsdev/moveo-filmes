@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarFilmes } from '@/lib/cache/revalidate'
 import type { FilmeInsert } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
 
@@ -59,6 +60,8 @@ export async function POST(req: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
+
+  revalidarFilmes()
 
   return NextResponse.json(data, { status: 201 })
 }

@@ -1,4 +1,6 @@
 import { MainLayout } from "@/app/components/MainLayout";
+import { createCachedAnonClient } from "@/lib/supabase/cached";
+import { TAG_FILMES } from "@/lib/cache/tags";
 import { FilmeCard } from "../cinema/FilmeCard";
 
 interface Filme {
@@ -24,11 +26,7 @@ function isConnectionError(msg: string, str: string): boolean {
 }
 
 export default async function DistribuicaoPage() {
-  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-  const supabase = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createCachedAnonClient([TAG_FILMES]);
 
   let filmes: Filme[] | null = null;
   let error: { message: string; details?: string } | null = null;

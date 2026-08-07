@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarFilmes } from '@/lib/cache/revalidate'
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string; eId: string }> }) {
   await requireAdmin()
@@ -15,6 +16,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarFilmes()
   return NextResponse.json(data)
 }
 
@@ -24,5 +26,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const supabase = createServiceClient()
   const { error } = await supabase.from('filmes_elenco').delete().eq('id', eId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarFilmes()
   return new NextResponse(null, { status: 204 })
 }

@@ -5,7 +5,8 @@
  * Used for static generation at build time.
  */
 
-import { createServiceClient } from './service'
+import { createCachedServiceClient } from './cached'
+import { TAG_POSTS } from '@/lib/cache/tags'
 import type { PostRow } from './types'
 
 // Columns fetched for list views — excludes large conteudo_pt/en body fields
@@ -28,7 +29,7 @@ export type PostListRow = Pick<PostRow,
  * Get all published posts, ordered by publication date
  */
 export async function getAllPosts(): Promise<PostListRow[]> {
-  const supabase = createServiceClient()
+  const supabase = createCachedServiceClient([TAG_POSTS])
 
   const { data, error } = await supabase
     .from('posts')
@@ -48,7 +49,7 @@ export async function getAllPosts(): Promise<PostListRow[]> {
  * Get a single post by slug
  */
 export async function getPostBySlug(slug: string): Promise<PostRow | null> {
-  const supabase = createServiceClient()
+  const supabase = createCachedServiceClient([TAG_POSTS])
 
   const { data, error } = await supabase
     .from('posts')
@@ -69,7 +70,7 @@ export async function getPostBySlug(slug: string): Promise<PostRow | null> {
  * Get all post slugs for static generation
  */
 export async function getAllPostSlugs(): Promise<string[]> {
-  const supabase = createServiceClient()
+  const supabase = createCachedServiceClient([TAG_POSTS])
 
   const { data, error } = await supabase
     .from('posts')
@@ -88,7 +89,7 @@ export async function getAllPostSlugs(): Promise<string[]> {
  * Get posts by category (tipo)
  */
 export async function getPostsByCategory(category: string): Promise<PostListRow[]> {
-  const supabase = createServiceClient()
+  const supabase = createCachedServiceClient([TAG_POSTS])
 
   const { data, error } = await supabase
     .from('posts')
@@ -109,7 +110,7 @@ export async function getPostsByCategory(category: string): Promise<PostListRow[
  * Get Instagram posts only
  */
 export async function getInstagramPosts(): Promise<PostListRow[]> {
-  const supabase = createServiceClient()
+  const supabase = createCachedServiceClient([TAG_POSTS])
 
   const { data, error } = await supabase
     .from('posts')

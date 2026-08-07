@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarFilmes } from '@/lib/cache/revalidate'
 import type { FilmeUpdate } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
 
@@ -66,6 +67,8 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
+  revalidarFilmes()
+
   return NextResponse.json(data)
 }
 
@@ -90,6 +93,8 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
+
+  revalidarFilmes()
 
   return new NextResponse(null, { status: 204 })
 }

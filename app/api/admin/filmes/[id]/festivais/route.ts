@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarFilmes } from '@/lib/cache/revalidate'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   await requireAdmin()
@@ -26,6 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarFilmes()
   return NextResponse.json(data, { status: 201 })
 }
 
@@ -38,5 +40,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   await Promise.all(items.map(({ id: rowId, ordem }) =>
     supabase.from('filmes_festivais').update({ ordem }).eq('id', rowId)
   ))
+  revalidarFilmes()
   return NextResponse.json({ updated: items.length })
 }

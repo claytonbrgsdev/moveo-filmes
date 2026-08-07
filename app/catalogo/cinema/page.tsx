@@ -1,4 +1,6 @@
 import { MainLayout } from "@/app/components/MainLayout";
+import { createCachedAnonClient } from "@/lib/supabase/cached";
+import { TAG_FILMES } from "@/lib/cache/tags";
 import { FilmeCard } from "./FilmeCard";
 
 interface Filme {
@@ -13,12 +15,9 @@ interface Filme {
 }
 
 export default async function CinemaPage() {
-  // Usar cliente sem cookies para build estático
-  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-  const supabase = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  // Cliente sem cookies, com a query etiquetada: é a etiqueta que deixa o
+  // /central republicar esta página ao salvar (ver lib/cache/revalidate.ts).
+  const supabase = createCachedAnonClient([TAG_FILMES]);
 
   // Buscar filmes da tabela filmes
   let filmes: Filme[] | null = null;

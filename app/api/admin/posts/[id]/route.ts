@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createServiceClient } from '@/lib/supabase/service'
+import { revalidarPosts } from '@/lib/cache/revalidate'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   await requireAdmin()
@@ -24,6 +25,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarPosts()
   return NextResponse.json(data)
 }
 
@@ -33,5 +35,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const supabase = createServiceClient()
   const { error } = await supabase.from('posts').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidarPosts()
   return new NextResponse(null, { status: 204 })
 }
