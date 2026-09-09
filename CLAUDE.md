@@ -23,6 +23,14 @@ Redirect URLs. Verificado funcionalmente (um `redirect_to` para o domínio volta
 honrado; um domínio de fora cai no fallback).
 
 
+**A constraint de `categoria_site` foi relaxada** (migração
+`supabase/migrations/002`, aplicada em produção em 09/09/2026): o banco agora
+aceita as seis categorias que o site sempre assumiu, incluindo `cinema` e
+`mostra`. Falta o outro lado disso — ver *Pendências*.
+
+**O painel ganhou a seção Empresas.** CRUD completo, mais o select de empresa
+no painel de créditos do filme, que não existia.
+
 O Supabase **estava pausado e foi retomado**. Dados intactos e conferidos:
 18 filmes, 21 pessoas, 20 empresas, 10 itens de catálogo, 0 posts, 1 conta no
 Auth (`claytonborgesdev@gmail.com`).
@@ -143,9 +151,15 @@ porque a query volta do Data Cache. Por isso as etiquetas.
 
    Tem que voltar vazio.
 
-2. **Rota admin nova que escreve precisa chamar a revalidação.** Hoje são 18
-   arquivos de rota com 33 chamadas — todo POST/PATCH/DELETE que existe já
-   chama. Veja qualquer um em `app/api/admin/`.
+2. **Rota admin nova que escreve precisa chamar a revalidação.** Hoje são 20
+   arquivos de rota com 36 chamadas — todo POST/PATCH/DELETE que existe já
+   chama. Os 5 arquivos restantes dos 25 só têm GET (os quatro `slug-check` e
+   o `upload`). Veja qualquer um em `app/api/admin/`.
+
+   Empresa é o caso a estudar quando a entidade nova não tem página própria:
+   `revalidarEmpresas` invalida `TAG_FILMES`, porque empresa só aparece no site
+   dentro dos créditos, carregada no mesmo `select` do filme. Etiqueta nova ali
+   não invalidaria nada — nenhum fetch a carregaria.
 
 3. **`revalidateTag` do Next 16 exige um segundo argumento.** Aqui é
    `{ expire: 0 }`, não o `'max'` que a doc recomenda: `'max'` é
@@ -169,7 +183,7 @@ build de produção e uma linha-sonda no banco:
    **`visibilidade: 'publico'`** — as páginas públicas usam a chave anônima e a
    RLS esconde `rascunho`; com rascunho a sonda não aparece nunca e você
    conclui errado que a revalidação quebrou (aconteceu).
-   `categoria_site` tem que ser um dos quatro valores aceitos (ver armadilhas).
+   `categoria_site` aceita os seis valores do site, ou `NULL`.
 4. Ler a página de novo: a sonda **não** deve aparecer. É o cache fazendo o
    trabalho dele.
 5. Disparar a revalidação e ler de novo: a sonda **deve** aparecer.
@@ -196,20 +210,20 @@ Três portas em série:
 3. **Whitelist** — o e-mail precisa estar em `ADMIN_EMAILS` (está correto na
    Vercel, nos três ambientes).
 
-Em 06/08/2026 existia **uma** conta no Supabase Auth:
-`claytonborgesdev@gmail.com`. O `moveofilmes@gmail.com` está na whitelist mas
-**não tinha conta** — a cliente não conseguiria entrar. Não reconferível hoje
-(banco pausado).
+Reconferido em 09/09/2026 com o banco no ar: existe **uma** conta no Supabase
+Auth, `claytonborgesdev@gmail.com`. O `moveofilmes@gmail.com` está na whitelist
+mas **não tem conta** — a cliente ainda não consegue entrar. Criar a conta é
+por `/auth/signup` ou pelo painel do Supabase.
 
 ---
 
 ## Estrutura
 
-- `app/central/` — o CMS. `CentralClient.tsx` é uma SPA de estado local com 4
-  seções (Dashboard, Filmes, Pessoas, Posts). `FilmeForm.tsx` é o maior
-  componente (~700 linhas) e, em modo edição, monta 6 painéis de tabelas
+- `app/central/` — o CMS. `CentralClient.tsx` é uma SPA de estado local com 5
+  seções (Dashboard, Filmes, Pessoas, Empresas, Posts). `FilmeForm.tsx` é o
+  maior componente (~700 linhas) e, em modo edição, monta 6 painéis de tabelas
   filhas em `components/sub/`.
-- `app/api/admin/` — 22 rotas REST, todas com `requireAdmin` + service role.
+- `app/api/admin/` — 25 rotas REST, todas com `requireAdmin` + service role.
 - `app/catalogo/`, `app/pessoa/`, `app/posts/`, `app/post/` — páginas públicas.
 - `app/page.tsx` — home, 271KB, GSAP ScrollTrigger com carrosséis horizontais.
 - `lib/supabase/service.ts` — cliente **sem** cache, para o painel e as rotas
@@ -226,14 +240,18 @@ Tabelas: `filmes`, `posts`, `pessoas`, `empresas`, `catalogo`,
 
 ## Armadilhas conhecidas
 
-**O form oferece categorias que o banco rejeita.** A constraint
-`filmes_categoria_site_check` aceita `desenvolvimento`, `pre-producao`,
-`pos-producao` e `distribuicao`, e **rejeita `cinema` e `mostra`** — que o
-`FilmeForm` oferece no select. Quem escolher uma das duas não consegue salvar.
-Verificado por inserção direta em 06/08/2026. O conserto é decisão de
-modelagem (relaxar a constraint, ou tirar as opções do form), agravada por
-`/catalogo/cinema` listar **todos** os filmes sem filtrar `categoria_site`,
-enquanto as páginas de etapa filtram. Perguntar antes de mexer.
+**O catálogo mostra números que não fecham.** `/catalogo/cinema` lista
+**todos** os filmes sem filtrar `categoria_site`, enquanto as páginas de etapa
+filtram e o índice `/catalogo` conta por categoria. Como doze dos dezoito
+filmes estão com `categoria_site` nulo, o índice soma 6 e a página de cinema
+mostra 18. Não dá para consertar só no código: depende de classificar os
+filmes no painel e de decidir se "Cinema" é uma categoria como as outras ou a
+visão geral do acervo (ver *Pendências*).
+
+**Rotas-esqueleto.** `app/empresa/[slug]` e `app/filme/[slug]` aparecem no
+quadro de rotas do build, mas `generateStaticParams` devolve `[]` e o
+componente devolve `null`. Não são páginas; não confunda a presença delas com
+a existência de uma página de empresa.
 
 **Upload antes de salvar vira órfão.** No filme novo o `storagePath` usa
 `filmes/${filmeId ?? 'new'}/…`, então o arquivo cai numa pasta `new/` e nunca
@@ -257,7 +275,8 @@ Router e não existe como endpoint — custou uma rodada de debug.
 |---|---|
 | Conta da cliente (`moveofilmes@gmail.com`) | está em `ADMIN_EMAILS`, mas não existe no Auth |
 | Deploy hook nunca testado | existe e está no secret, mas dispará-lo publica em produção |
-| Categorias `cinema` e `mostra` | o form oferece, o banco rejeita (ver armadilhas) |
-| CRUD de `empresas` e `catalogo` | 20 e 10 linhas no banco, rota pública existente, sem tela no painel |
+| Classificar os 12 filmes sem `categoria_site` | trabalho editorial, pelo `/central`. O banco já aceita as seis categorias |
+| `/catalogo/cinema` não filtra por categoria | decisão editorial pendente: "Cinema" é categoria ou é o acervo inteiro? Filtrar antes de classificar levaria a página de 18 filmes a 0 |
+| CRUD de `catalogo` | 10 linhas no banco, rota pública existente, sem tela no painel |
 | `filmes_relacionamentos`, `pessoas_filmografias` | sem tela no painel |
-| Estado do painel na URL | sem deep link; F5 volta ao dashboard; listas sem busca/filtro/paginação |
+| Estado do painel na URL | sem deep link; F5 volta ao dashboard. As quatro listas já têm busca; falta paginação |
