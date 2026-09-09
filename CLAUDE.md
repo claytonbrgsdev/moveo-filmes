@@ -10,42 +10,59 @@ fica **fora** do repositório, na pasta acima.
 
 ---
 
-## ⚠️ Leia antes de mexer em qualquer coisa
+## Estado em 09/09/2026
 
-**O Supabase está pausado.** Verificado em 09/09/2026: o host
-`votgiixlnrhfacrjihtx.supabase.co` devolve `NXDOMAIN` — é a assinatura de
-projeto pausado no plano free. Enquanto durar:
+O Supabase **estava pausado e foi retomado**. Dados intactos e conferidos:
+18 filmes, 21 pessoas, 20 empresas, 10 itens de catálogo, 0 posts, 1 conta no
+Auth (`claytonborgesdev@gmail.com`).
 
-- o CMS não funciona (sem login, sem leitura, sem escrita);
-- **não rodar `pnpm build` e não deployar** — o build lê o banco e assaria o
-  catálogo vazio por cima do conteúdo bom que está no ar;
-- o site público continua normal, porque é 100% estático desde o build.
+> **Ao retomar, o banco aparece VAZIO por alguns minutos.** Durante o resume o
+> `public` fica sem nenhuma tabela e o `auth.users` com zero linhas, enquanto o
+> REST devolve 502/521. Não é perda de dados — é o restore em andamento.
+> Esperar o PostgREST responder `200` antes de concluir qualquer coisa. Isso
+> assustou de verdade nesta sessão.
 
-Para retomar: painel do Supabase → *Resume project*. São **dois** cliques — o
-botão abre um diálogo com um segundo *Resume*, e parar no primeiro não faz nada
-(a tela fica idêntica). Depois confirme com:
+**O keep-alive voltou a funcionar** — os três secrets foram cadastrados em
+09/09/2026 e o workflow passou pela primeira vez em 24 execuções (as 23
+anteriores, desde 07/08, falharam todas por falta de secret). O primeiro
+artifact de backup do projeto existe desde então.
+
+Ainda falta **um** secret: `VERCEL_DEPLOY_HOOK_URL` (Vercel → Settings → Git →
+Deploy Hooks), usado pelo `rebuild-on-sync.yml` quando o instagram-sync grava
+posts. Sem ele o workflow avisa e passa.
+
+### Antes de buildar ou deployar, confirme que o banco responde
+
+`pnpm build` lê o Supabase. Com o banco fora do ar o build **passa** mas assa o
+catálogo vazio — e push na `main` publica isso em produção sozinho.
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/filmes?select=id&limit=1" -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY"
 ```
 
-**O keep-alive que deveria ter evitado isso nunca funcionou.** 23 execuções
-agendadas desde 07/08/2026, *todas* falhando, porque os secrets do repositório
-nunca foram cadastrados — `gh secret list` volta vazio. O `README-INFRA.md`
-afirmava que os do ping "já existem"; era falso, e está corrigido lá.
-Consequência dupla: nada segurou o banco de pé, e **não existe nenhum backup**
-(o dump semanal é `skipped`, zero artifacts no repositório).
+`200` é o único resultado que libera. `000`/`NXDOMAIN` = pausado;
+`502`/`521` = subindo, espere.
 
-Secrets que faltam em `claytonbrgsdev/moveo-filmes`:
+Para retomar: painel do Supabase → *Resume project*. São **dois** cliques — o
+botão abre um diálogo com um segundo *Resume*, e parar no primeiro não faz nada
+(a tela fica idêntica).
 
-| Secret | Para quê |
+### Backups
+
+| Onde | O quê |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | ping do keep-alive |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ping do keep-alive |
-| `SUPABASE_DB_URL` | dump semanal (o backup que não existe) |
-| `VERCEL_DEPLOY_HOOK_URL` | rebuild disparado pelo instagram-sync |
+| artifact do workflow, semanal | `supabase db dump` de schema e dados, retido 90 dias |
+| `../backups/2026-09-09/` | dump manual desta sessão: 13 tabelas em JSON (265 linhas) + schema |
 
-Os três primeiros valores estão no `.env.local`. Cadastrar com `gh secret set`.
+O `pg_dump` local é 14 e o servidor é 17 — incompatíveis. Por isso o dump
+manual saiu via PostgREST em JSON, não como `.sql` restaurável. Quem precisar
+de um dump restaurável na mão: instalar o cliente 17, ou baixar o artifact do
+workflow.
+
+**A conexão direta (`db.<ref>.supabase.co`) é só IPv6** — GitHub Actions não
+alcança. Qualquer conexão a partir de CI tem que usar o *session pooler*
+(`aws-0-sa-east-1.pooler.supabase.com:5432`, usuário `postgres.<ref>`). O
+transaction pooler (6543) conecta mas não serve para `pg_dump`.
 
 ---
 
@@ -226,10 +243,11 @@ Router e não existe como endpoint — custou uma rodada de debug.
 
 | O quê | Estado |
 |---|---|
-| Retomar o Supabase | **bloqueia tudo** |
-| Cadastrar os 4 secrets do repositório | keep-alive e backup nunca rodaram |
-| Site URL + Redirect URLs no Supabase | Site URL aponta para o domínio `.vercel.app`; `moveofilmes.com/**` não está na allow-list. Quebra recuperação de senha por e-mail (não quebra o login) |
-| Conta da cliente (`moveofilmes@gmail.com`) | na whitelist, sem conta no Auth |
-| CRUD de `empresas` e `catalogo` | tabelas com dados e rota pública, sem tela no painel |
+| `VERCEL_DEPLOY_HOOK_URL` | último secret que falta; sem ele o rebuild do instagram-sync avisa e passa |
+| Site URL + Redirect URLs no Supabase | Site URL aponta para o domínio `.vercel.app`; `moveofilmes.com/**` não está na allow-list. Quebra recuperação de senha por e-mail — **não** quebra o login |
+| Conta da cliente (`moveofilmes@gmail.com`) | está em `ADMIN_EMAILS`, mas não existe no Auth |
+| Revalidação verificada em produção | provada em build de produção local, ponta a ponta; na Vercel é o mesmo código mas o cache é a infra deles, e disparar exige sessão de admin |
+| Categorias `cinema` e `mostra` | o form oferece, o banco rejeita (ver armadilhas) |
+| CRUD de `empresas` e `catalogo` | 20 e 10 linhas no banco, rota pública existente, sem tela no painel |
 | `filmes_relacionamentos`, `pessoas_filmografias` | sem tela no painel |
 | Estado do painel na URL | sem deep link; F5 volta ao dashboard; listas sem busca/filtro/paginação |
