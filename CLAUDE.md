@@ -12,6 +12,17 @@ fica **fora** do repositório, na pasta acima.
 
 ## Estado em 09/09/2026
 
+**A revalidação está provada em produção.** Em 09/09 uma edição feita no
+`/central` (título em inglês de um filme) apareceu no site em ~1 minuto, com o
+último deploy datando de uma hora antes — ou seja, não foi rebuild, foi
+revalidação, na infra de cache da Vercel.
+
+**As URLs de auth do Supabase foram corrigidas**: Site URL é
+`https://moveofilmes.com` e `https://moveofilmes.com/**` está na allow-list de
+Redirect URLs. Verificado funcionalmente (um `redirect_to` para o domínio volta
+honrado; um domínio de fora cai no fallback).
+
+
 O Supabase **estava pausado e foi retomado**. Dados intactos e conferidos:
 18 filmes, 21 pessoas, 20 empresas, 10 itens de catálogo, 0 posts, 1 conta no
 Auth (`claytonborgesdev@gmail.com`).
@@ -27,9 +38,10 @@ Auth (`claytonborgesdev@gmail.com`).
 anteriores, desde 07/08, falharam todas por falta de secret). O primeiro
 artifact de backup do projeto existe desde então.
 
-Ainda falta **um** secret: `VERCEL_DEPLOY_HOOK_URL` (Vercel → Settings → Git →
-Deploy Hooks), usado pelo `rebuild-on-sync.yml` quando o instagram-sync grava
-posts. Sem ele o workflow avisa e passa.
+Os quatro secrets do repositório estão cadastrados — o
+`VERCEL_DEPLOY_HOOK_URL` foi criado pela API da Vercel em 09/09/2026 (hook
+`instagram-sync`, ref `main`) porque o painel estava atrás de uma tela de 2FA.
+O hook nunca foi disparado para teste: dispará-lo publica em produção.
 
 ### Antes de buildar ou deployar, confirme que o banco responde
 
@@ -243,10 +255,8 @@ Router e não existe como endpoint — custou uma rodada de debug.
 
 | O quê | Estado |
 |---|---|
-| `VERCEL_DEPLOY_HOOK_URL` | último secret que falta; sem ele o rebuild do instagram-sync avisa e passa |
-| Site URL + Redirect URLs no Supabase | Site URL aponta para o domínio `.vercel.app`; `moveofilmes.com/**` não está na allow-list. Quebra recuperação de senha por e-mail — **não** quebra o login |
 | Conta da cliente (`moveofilmes@gmail.com`) | está em `ADMIN_EMAILS`, mas não existe no Auth |
-| Revalidação verificada em produção | provada em build de produção local, ponta a ponta; na Vercel é o mesmo código mas o cache é a infra deles, e disparar exige sessão de admin |
+| Deploy hook nunca testado | existe e está no secret, mas dispará-lo publica em produção |
 | Categorias `cinema` e `mostra` | o form oferece, o banco rejeita (ver armadilhas) |
 | CRUD de `empresas` e `catalogo` | 20 e 10 linhas no banco, rota pública existente, sem tela no painel |
 | `filmes_relacionamentos`, `pessoas_filmografias` | sem tela no painel |
