@@ -9,7 +9,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('filmes_creditos')
-    .select('*, pessoas(id, nome, nome_exibicao)')
+    .select('*, pessoas(id, nome, nome_exibicao), empresas(id, nome)')
     .eq('filme_id', id)
     .order('ordem', { ascending: true })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

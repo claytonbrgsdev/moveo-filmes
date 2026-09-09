@@ -105,3 +105,23 @@ export function revalidarPessoas() {
   invalidarEtiqueta(TAG_PESSOAS)
   republicar('/pessoa/[slug]', 'page')
 }
+
+/**
+ * Chamar depois de criar, editar ou apagar uma empresa.
+ *
+ * Não existe `TAG_EMPRESAS`, e é de propósito: empresa não tem página própria
+ * com conteúdo. Ela aparece no site só dentro dos créditos da página de
+ * detalhe do filme, carregada no mesmo `select` do filme (`empresas(*)`
+ * aninhado em `filmes_creditos`, ver as rotas de detalhe listadas acima). Essa
+ * query já é etiquetada com `TAG_FILMES` — uma etiqueta nova aqui não
+ * invalidaria coisa nenhuma, porque nenhum fetch a carregaria.
+ *
+ * A rota `app/empresa/[slug]` até existe no build, mas é um esqueleto:
+ * `generateStaticParams` devolve `[]` e o componente devolve `null`. Quando
+ * ela virar página de verdade, aí sim vale criar a etiqueta e revalidá-la
+ * aqui. O mesmo vale para `app/filme/[slug]`, no `revalidarFilmes`.
+ */
+export function revalidarEmpresas() {
+  invalidarEtiqueta(TAG_FILMES)
+  for (const rota of FILME_ROTAS_DETALHE) republicar(rota, 'page')
+}

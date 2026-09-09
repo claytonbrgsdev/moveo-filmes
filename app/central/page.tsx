@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase/service'
 import CentralClient from './CentralClient'
 import type { PessoaListItem } from './components/PessoasList'
 import type { PostListItem } from './components/PostsList'
+import type { EmpresaListItem } from './components/EmpresasList'
 
 // Force dynamic rendering so cookies() works for auth
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,7 @@ export default async function CentralPage() {
 
   const supabase = createServiceClient()
 
-  const [filmesResult, pessoasResult, postsResult] = await Promise.all([
+  const [filmesResult, pessoasResult, postsResult, empresasResult] = await Promise.all([
     supabase
       .from('filmes')
       .select('id, slug, titulo_pt, titulo_en, categoria_site, visibilidade, ano, status_interno_pt, updated_at')
@@ -37,6 +38,12 @@ export default async function CentralPage() {
       .from('posts')
       .select('id, slug, titulo_pt, titulo_en, tipo, visibilidade, publicado_em, updated_at')
       .order('updated_at', { ascending: false }),
+    // `filmes_creditos(count)` diz quantos créditos apontam para cada empresa —
+    // é o que revela as duplicatas órfãs herdadas da carga inicial.
+    supabase
+      .from('empresas')
+      .select('id, nome, slug, tipo, pais, logo_url, visibilidade, updated_at, filmes_creditos(count)')
+      .order('nome', { ascending: true }),
   ])
 
   return (
@@ -44,6 +51,7 @@ export default async function CentralPage() {
       initialFilmes={(filmesResult.data ?? []) as FilmeListItem[]}
       initialPessoas={(pessoasResult.data ?? []) as PessoaListItem[]}
       initialPosts={(postsResult.data ?? []) as PostListItem[]}
+      initialEmpresas={(empresasResult.data ?? []) as EmpresaListItem[]}
       userEmail={user.email ?? ''}
     />
   )

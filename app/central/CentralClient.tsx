@@ -6,25 +6,29 @@ import { useRouter } from 'next/navigation'
 import type { FilmeListItem } from './page'
 import type { PessoaListItem } from './components/PessoasList'
 import type { PostListItem } from './components/PostsList'
+import type { EmpresaListItem } from './components/EmpresasList'
 import { FilmesList } from './components/FilmesList'
 import { FilmeForm } from './components/FilmeForm'
 import { PessoasList } from './components/PessoasList'
 import { PessoaForm } from './components/PessoaForm'
 import { PostsList } from './components/PostsList'
 import { PostForm } from './components/PostForm'
+import { EmpresasList } from './components/EmpresasList'
+import { EmpresaForm } from './components/EmpresaForm'
 import { UnsavedChangesPrompt } from './components/UnsavedChangesPrompt'
 import { DashboardView } from './components/dashboard/DashboardView'
 
 const FONT_HEADING = "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif"
 const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 
-type Section = 'dashboard' | 'filmes' | 'pessoas' | 'posts'
+type Section = 'dashboard' | 'filmes' | 'pessoas' | 'posts' | 'empresas'
 type View = 'list' | 'create' | 'edit'
 
 interface CentralClientProps {
   initialFilmes: FilmeListItem[]
   initialPessoas: PessoaListItem[]
   initialPosts: PostListItem[]
+  initialEmpresas: EmpresaListItem[]
   userEmail: string
 }
 
@@ -32,6 +36,7 @@ export default function CentralClient({
   initialFilmes,
   initialPessoas,
   initialPosts,
+  initialEmpresas,
   userEmail,
 }: CentralClientProps) {
   const router = useRouter()
@@ -44,10 +49,13 @@ export default function CentralClient({
   const [pessoasEditingId, setPessoasEditingId] = useState<string | null>(null)
   const [postsView, setPostsView] = useState<View>('list')
   const [postsEditingId, setPostsEditingId] = useState<string | null>(null)
+  const [empresasView, setEmpresasView] = useState<View>('list')
+  const [empresasEditingId, setEmpresasEditingId] = useState<string | null>(null)
 
   const [filmes, setFilmes] = useState<FilmeListItem[]>(initialFilmes)
   const [pessoas, setPessoas] = useState<PessoaListItem[]>(initialPessoas)
   const [posts, setPosts] = useState<PostListItem[]>(initialPosts)
+  const [empresas, setEmpresas] = useState<EmpresaListItem[]>(initialEmpresas)
   const [refreshing, setRefreshing] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -104,6 +112,14 @@ export default function CentralClient({
     } finally { setRefreshing(false) }
   }, [])
 
+  const refreshEmpresas = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      const res = await fetch('/api/admin/empresas')
+      if (res.ok) setEmpresas(await res.json())
+    } finally { setRefreshing(false) }
+  }, [])
+
   // ── Form navigation handlers ──────────────────────────────────────────────────
   const handleFilmeEdit = useCallback((id: string) => { setFilmesEditingId(id); setFilmesView('edit') }, [])
   const handleFilmeSaved = useCallback(async () => {
@@ -138,6 +154,17 @@ export default function CentralClient({
     guardedNavigate(() => { setPostsView('list'); setPostsEditingId(null) })
   }, [guardedNavigate])
 
+  const handleEmpresaEdit = useCallback((id: string) => { setEmpresasEditingId(id); setEmpresasView('edit') }, [])
+  const handleEmpresaSaved = useCallback(async () => {
+    dirtyRef.current = false
+    await refreshEmpresas()
+    setEmpresasView('list')
+    setEmpresasEditingId(null)
+  }, [refreshEmpresas])
+  const handleEmpresaCancel = useCallback(() => {
+    guardedNavigate(() => { setEmpresasView('list'); setEmpresasEditingId(null) })
+  }, [guardedNavigate])
+
   const handleLogout = async () => {
     setLoggingOut(true)
     const supabase = createClient()
@@ -150,6 +177,7 @@ export default function CentralClient({
     if (s === 'dashboard') return 'Dashboard'
     if (s === 'filmes') return `Filmes${refreshing && section === 'filmes' ? ' …' : ` (${filmes.length})`}`
     if (s === 'pessoas') return `Pessoas${refreshing && section === 'pessoas' ? ' …' : ` (${pessoas.length})`}`
+    if (s === 'empresas') return `Empresas${refreshing && section === 'empresas' ? ' …' : ` (${empresas.length})`}`
     return `Posts${refreshing && section === 'posts' ? ' …' : ` (${posts.length})`}`
   }
 
@@ -166,8 +194,13 @@ export default function CentralClient({
     setPosts(prev => prev.map(p => p.id === id ? { ...p, visibilidade: v } : p))
   }, [])
 
+  const handleEmpresaVisibilidadeChanged = useCallback((id: string, v: string) => {
+    setEmpresas(prev => prev.map(e => e.id === id ? { ...e, visibilidade: v } : e))
+  }, [])
+
   const pessoasForForm = pessoas.map(p => ({ id: p.id, nome: p.nome, nome_exibicao: p.nome_exibicao }))
   const filmesForForm = filmes.map(f => ({ id: f.id, titulo_pt: f.titulo_pt }))
+  const empresasForForm = empresas.map(e => ({ id: e.id, nome: e.nome }))
 
   return (
     <div className="relative min-h-screen bg-black text-white" style={{ fontFamily: FONT_BODY }}>
@@ -202,7 +235,7 @@ export default function CentralClient({
 
         {/* Section switcher */}
         <div className="flex items-center gap-0 mb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
-          {(['dashboard', 'filmes', 'pessoas', 'posts'] as Section[]).map(s => (
+          {(['dashboard', 'filmes', 'pessoas', 'empresas', 'posts'] as Section[]).map(s => (
             <button key={s} onClick={() => guardedNavigate(() => setSection(s))}
               className="transition-colors pb-3 pr-6 text-sm"
               style={{
@@ -258,6 +291,26 @@ export default function CentralClient({
           </div>
         )}
 
+        {section === 'empresas' && (
+          <div className="flex items-center gap-0 mb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <button onClick={() => guardedNavigate(() => { setEmpresasView('list'); setEmpresasEditingId(null) })}
+              className="transition-colors pb-2 pr-6 text-xs"
+              style={{ fontFamily: FONT_BODY, color: empresasView === 'list' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: empresasView === 'list' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
+              Lista
+            </button>
+            <button onClick={() => guardedNavigate(() => { setEmpresasView('create'); setEmpresasEditingId(null) })}
+              className="transition-colors pb-2 px-6 text-xs"
+              style={{ fontFamily: FONT_BODY, color: empresasView === 'create' ? 'white' : 'rgba(255,255,255,0.3)', borderBottom: empresasView === 'create' ? '1px solid rgba(255,255,255,0.4)' : '1px solid transparent', marginBottom: '-1px' }}>
+              + Nova Empresa
+            </button>
+            {empresasView === 'edit' && (
+              <span className="pb-2 px-6 text-xs" style={{ fontFamily: FONT_BODY, color: 'white', borderBottom: '1px solid rgba(255,255,255,0.4)', marginBottom: '-1px' }}>
+                Editando
+              </span>
+            )}
+          </div>
+        )}
+
         {section === 'posts' && (
           <div className="flex items-center gap-0 mb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <button onClick={() => guardedNavigate(() => { setPostsView('list'); setPostsEditingId(null) })}
@@ -293,6 +346,7 @@ export default function CentralClient({
             onSave={handleFilmeSaved}
             onCancel={handleFilmeCancel}
             pessoas={pessoasForForm}
+            empresas={empresasForForm}
             onDirtyChange={handleDirtyChange}
           />
         )}
@@ -306,6 +360,19 @@ export default function CentralClient({
             pessoaId={pessoasView === 'edit' ? pessoasEditingId ?? undefined : undefined}
             onSave={handlePessoaSaved}
             onCancel={handlePessoaCancel}
+            onDirtyChange={handleDirtyChange}
+          />
+        )}
+
+        {/* Empresas section */}
+        {section === 'empresas' && empresasView === 'list' && (
+          <EmpresasList empresas={empresas} onEdit={handleEmpresaEdit} onDeleted={refreshEmpresas} onVisibilidadeChanged={handleEmpresaVisibilidadeChanged} loading={refreshing} />
+        )}
+        {section === 'empresas' && (empresasView === 'create' || empresasView === 'edit') && (
+          <EmpresaForm
+            empresaId={empresasView === 'edit' ? empresasEditingId ?? undefined : undefined}
+            onSave={handleEmpresaSaved}
+            onCancel={handleEmpresaCancel}
             onDirtyChange={handleDirtyChange}
           />
         )}

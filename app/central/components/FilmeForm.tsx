@@ -259,10 +259,11 @@ interface FilmeFormProps {
   onSave: () => void
   onCancel: () => void
   pessoas?: { id: string; nome: string; nome_exibicao: string | null }[]
+  empresas?: { id: string; nome: string }[]
   onDirtyChange?: (isDirty: boolean) => void
 }
 
-export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChange }: FilmeFormProps) {
+export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], empresas = [], onDirtyChange }: FilmeFormProps) {
   const isEdit = !!filmeId
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [initialForm, setInitialForm] = useState<FormData>(EMPTY_FORM)
@@ -628,7 +629,7 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], onDirtyChan
 
           {/* Créditos */}
           <section className="mb-8 p-6" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-            <CreditosPanel filmeId={filmeId} pessoas={pessoas} />
+            <CreditosPanel filmeId={filmeId} pessoas={pessoas} empresas={empresas} />
           </section>
 
           {/* Elenco */}

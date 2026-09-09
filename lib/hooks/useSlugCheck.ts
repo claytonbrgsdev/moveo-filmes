@@ -4,7 +4,7 @@ export type SlugStatus = 'idle' | 'checking' | 'available' | 'taken'
 
 export function useSlugCheck(
   slug: string,
-  endpoint: 'filmes' | 'pessoas' | 'posts',
+  endpoint: 'filmes' | 'pessoas' | 'posts' | 'empresas',
   excludeId?: string
 ) {
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
