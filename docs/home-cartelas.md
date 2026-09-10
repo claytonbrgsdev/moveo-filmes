@@ -40,8 +40,8 @@ edição.
 | 08 | **não existe** | Bloco novo: Não Há Magia |
 | 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` | Destaque do filme |
 | 10 | `AS MIÇANGAS - Panel 1` e `Panel 2` | Láureas e créditos |
-| 11 | `O MISTÉRIO DA CARNE - Panel 0` | **Vira Três** |
-| 12 | `O MISTÉRIO DA CARNE - Panel 1` e `Panel 2` | **Vira Três** (circulação) |
+| 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
+| 12 | `TRÊS - Panel 1` e `Panel 2` | **Três**: circulação em festivais e ficha |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
 | 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
 | 15 | penúltimo `<section>` | Notícias |
@@ -60,10 +60,23 @@ cliente reportou — havia 26 `<video autoPlay>` com `<source src>` baixando e
 decodificando ao mesmo tempo no parse. **Não devolva `autoPlay` nem `<source>`
 para esta página.**
 
-**Trocar o filme de um bloco é mais do que trocar o texto.** Os três painéis de
-um filme compartilham o mesmo arquivo de vídeo, atributos `data-video-parallax`
-com o nome do filme, e as transições vizinhas. Trocar O Mistério da Carne por
-Três significa vídeo, imagens, ficha, `data-*` e as duas transições.
+**Trocar o filme de um bloco é mais do que trocar o texto.** Foi o que a troca
+de O Mistério da Carne por Três (cartelas 11 e 12) exigiu:
+
+- o vídeo nos três painéis **e** na prévia da transição que chega neles;
+- 22 atributos `data-misterio-*`, que o GSAP usa como seletor — renomeados
+  para `data-tres-*` nos dois lados de uma vez;
+- os valores de `data-video-parallax` e `data-movie-transition`;
+- o selo de festival do painel 1, que era desenhado em cima do Sundance;
+- a ficha, a circulação e as chaves de i18n, que ficaram órfãs e saíram.
+
+**`misterio.mp4` continua em uso.** Fora do bloco de destaque ele aparece na
+cartela 02 (grade de destaques) e na coluna de vídeo da cartela 14. Não apague
+o arquivo achando que ele sobrou da troca.
+
+**Rótulo de láurea não é enfeite.** Os dois rodapés do selo diziam "Melhor
+Filme". A cliente listou festivais em que Três *passou*, não prêmios — trocar só
+o nome do festival teria inventado prêmio. Viraram "Seleção Oficial".
 
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
@@ -96,5 +109,8 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
 | Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |
 | Sinopse de A Natureza | a home usa a versão curta que a cliente escreveu na cartela 07; `filmes.sinopse_pt` ainda tem a antiga, mais longa, que é a que aparece em `/catalogo/cinema/[slug]` |
+| Fotos de divulgação do Três | a cliente pediu na cartela 12 ("destacar fotos de divulgação"); há 4 fotos no bucket, em `filmes/tres/`, mas o painel ainda não as mostra |
+| Láureas do Três | pedidas na cartela 12; ela não mandou imagem de láurea para este filme, só a lista de festivais |
+| Elenco do Três no celular | escondido abaixo de `sm` no painel 2, mesma causa do painel da cartela 07 (coluna de 137px) |
 | Painel da cartela 07 no celular | grid de duas colunas fixas que não empilha: a coluna de texto fica com 140px. A sinopse está escondida abaixo de `sm` por isso |
 | Cartela 04 | o título do documento diz "retirar", a nota sob o print diz "ok" — **perguntar antes de mexer**. É o cartão "CATÁLOGO EM DESTAQUE", que abre a sequência que a cartela 13 fechava |
