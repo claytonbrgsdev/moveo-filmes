@@ -41,7 +41,7 @@ edição.
 | 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` | Destaque do filme |
 | 10 | `AS MIÇANGAS - Panel 1` e `Panel 2` | Láureas e créditos |
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
-| 12 | `TRÊS - Panel 1` e `Panel 2` | **Três**: circulação em festivais e ficha |
+| 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
 | 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
 | 15 | penúltimo `<section>` | Notícias |
@@ -78,6 +78,30 @@ o arquivo achando que ele sobrou da troca.
 Filme". A cliente listou festivais em que Três *passou*, não prêmios — trocar só
 o nome do festival teria inventado prêmio. Viraram "Seleção Oficial".
 
+**Dois mosaicos dividem uma animação.** O efeito `MIÇANGAS: Fragmented Memory
+Mosaic Animation` percorre `[data-micangas-mosaic], [data-tres-mosaic]`. Os
+fragmentos nascem com `opacity: 0` inline e só o timeline os revela — um mosaico
+novo que não entre nesse seletor fica invisível, sem erro nenhum. Era um
+`querySelector` até a cartela 12 pedir o segundo.
+
+**As fotos da home ficam em `public/`, não no bucket.** O mosaico do Três usa
+`/imagens/tres/*.jpg` (1400px), servido pela Vercel. A home é a porta de
+entrada e não pode depender de o Supabase estar acordado — o plano free pausa
+sozinho, e a landing já é desenhada para ficar de pé com ele fora. Os originais
+em 2000px continuam no bucket, em `filmes/tres/`, ligados ao filme em
+`filmes_assets`. Das sete fotos, seis estão na home; a sétima é a mesma cena da
+foto grande.
+
+**O texto dos mosaicos usa `left: min(55%, …)`.** Com `55%` puro, no celular o
+bloco passava 46px da borda e era cortado pelo `overflow: hidden` — nas
+Miçangas desde sempre, no Três por herança. Não volte para `55%`.
+
+**Para ver um painel da trilha, não use `scrollIntoView`.** A trilha é presa à
+rolagem vertical: role a página até o fim (ou a fração certa) do `pin-spacer`
+que a contém. E com o painel do navegador oculto o `lagSmoothing` do GSAP conta
+quadros espaçados como 33ms, então a trilha quase não anda entre screenshots
+lentos — uma rajada de screenshots curtos faz ela alcançar.
+
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
 
@@ -109,7 +133,6 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
 | Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |
 | Sinopse de A Natureza | a home usa a versão curta que a cliente escreveu na cartela 07; `filmes.sinopse_pt` ainda tem a antiga, mais longa, que é a que aparece em `/catalogo/cinema/[slug]` |
-| Fotos de divulgação do Três | a cliente pediu na cartela 12 ("destacar fotos de divulgação"); há 4 fotos no bucket, em `filmes/tres/`, mas o painel ainda não as mostra |
 | Láureas do Três | pedidas na cartela 12; ela não mandou imagem de láurea para este filme, só a lista de festivais |
 | Elenco do Três no celular | escondido abaixo de `sm` no painel 2, mesma causa do painel da cartela 07 (coluna de 137px) |
 | Painel da cartela 07 no celular | grid de duas colunas fixas que não empilha: a coluna de texto fica com 140px. A sinopse está escondida abaixo de `sm` por isso |
