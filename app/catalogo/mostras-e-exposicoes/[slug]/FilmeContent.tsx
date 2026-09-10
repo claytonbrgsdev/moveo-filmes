@@ -22,10 +22,10 @@ interface Pessoa {
   [key: string]: unknown;
 }
 
+/** `empresas` no banco nao tem `nome_exibicao` — quem tem e `pessoas`. */
 interface Empresa {
   id?: string | null;
   nome?: string | null;
-  nome_exibicao?: string | null;
   [key: string]: unknown;
 }
 
@@ -696,7 +696,7 @@ export default function FilmeContent({
                           {credito.pessoa_id && credito.pessoas
                             ? (credito.pessoas.nome_exibicao || credito.pessoas.nome)
                             : credito.empresa_id && credito.empresas
-                            ? (credito.empresas.nome_exibicao || credito.empresas.nome)
+                            ? credito.empresas.nome
                             : credito.nome_exibicao || 'N/A'}
                         </span>
                       </div>
@@ -828,7 +828,7 @@ export default function FilmeContent({
                           {credito.pessoa_id && credito.pessoas
                             ? (credito.pessoas.nome_exibicao || credito.pessoas.nome)
                             : credito.empresa_id && credito.empresas
-                            ? (credito.empresas.nome_exibicao || credito.empresas.nome)
+                            ? credito.empresas.nome
                             : credito.nome_exibicao || 'N/A'}
                         </span>
                       </div>
