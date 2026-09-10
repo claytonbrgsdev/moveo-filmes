@@ -42,7 +42,7 @@ edição.
 | 10 | `AS MIÇANGAS - Panel 1` e `Panel 2` | Láureas e créditos |
 | 11 | `O MISTÉRIO DA CARNE - Panel 0` | **Vira Três** |
 | 12 | `O MISTÉRIO DA CARNE - Panel 1` e `Panel 2` | **Vira Três** (circulação) |
-| 13 | `Finale: End of showcase` | "Esses e muitos outros…" |
+| 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
 | 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
 | 15 | penúltimo `<section>` | Notícias |
 | 16 | último `<section>` | Vídeo da logo |
@@ -95,4 +95,6 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |
 | Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
 | Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |
-| Cartela 04 | o título do documento diz "retirar", a nota sob o print diz "ok" |
+| Sinopse de A Natureza | a home usa a versão curta que a cliente escreveu na cartela 07; `filmes.sinopse_pt` ainda tem a antiga, mais longa, que é a que aparece em `/catalogo/cinema/[slug]` |
+| Painel da cartela 07 no celular | grid de duas colunas fixas que não empilha: a coluna de texto fica com 140px. A sinopse está escondida abaixo de `sm` por isso |
+| Cartela 04 | o título do documento diz "retirar", a nota sob o print diz "ok" — **perguntar antes de mexer**. É o cartão "CATÁLOGO EM DESTAQUE", que abre a sequência que a cartela 13 fechava |
