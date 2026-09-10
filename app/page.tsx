@@ -1838,8 +1838,17 @@ export default function Home() {
               // Clear the span and add character spans
               lineSpan.innerHTML = '';
               chars.forEach((char) => {
+                // Espaço vai como nó de texto, e não como <span> com &nbsp;.
+                // Com espaço inquebrável cada linha virava uma tira única que
+                // nunca quebrava — texto curto cabia por sorte, texto de frase
+                // transbordava a caixa. Espaço não tem glifo, então deixá-lo
+                // fora da animação não muda nada na tela.
+                if (char === ' ') {
+                  lineSpan.appendChild(document.createTextNode(' '));
+                  return;
+                }
                 const charSpan = document.createElement('span');
-                charSpan.textContent = char === ' ' ? '\u00A0' : char;
+                charSpan.textContent = char;
                 charSpan.style.opacity = '0';
                 charSpan.style.display = 'inline';
                 lineSpan.appendChild(charSpan);
@@ -4809,8 +4818,8 @@ export default function Home() {
                       style={{
                         fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                         fontWeight: 700,
-                        fontSize: FONT_LARGE,
-                        lineHeight: '1.2',
+                        fontSize: FONT_MEDIUM,
+                        lineHeight: '1.35',
                         width: '100%',
                         maxWidth: '100%',
                         aspectRatio: '1',

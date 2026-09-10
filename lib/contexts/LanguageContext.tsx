@@ -28,7 +28,7 @@ const translations: Record<Language, Record<string, string>> = {
     sobreAMoveo: 'SOBRE A\nMOVEO',
     saibaMais: 'Saiba mais →',
     focadoEmCineastas: 'Focado em\npromissores\ncineastas\nbrasileiros',
-    historicoSolidodeColaboracoes: 'Um histórico sólido\nde colaborações com\ntalentos emergentes',
+    historicoSolidodeColaboracoes: 'O cinema independente nos principais mercados e laboratórios do mundo.\nUma plataforma para realizadores e narrativas fora do eixo tradicional.\nDezenas de prêmios e seleções oficiais na última década.',
     filmesDeArteParaMercado: 'FILMES DE\nARTE PARA\nO MERCADO\nINTERNACIONAL',
     filmesDestaqueDoCatalogo: 'FILMES DESTAQUE DO NOSSO CATÁLOGO',
     // Catálogo section
@@ -115,7 +115,7 @@ const translations: Record<Language, Record<string, string>> = {
     sobreAMoveo: 'ABOUT\nMOVEO',
     saibaMais: 'Learn more →',
     focadoEmCineastas: 'Focused on\npromising\nBrazilian\nfilmmakers',
-    historicoSolidodeColaboracoes: 'A solid history\nof collaborations with\nemerging talents',
+    historicoSolidodeColaboracoes: 'Independent cinema in the world\u2019s leading markets and labs.\nA platform for filmmakers and narratives outside the mainstream.\nDozens of awards and official selections over the past decade.',
     filmesDeArteParaMercado: 'ART FILMS\nFOR THE\nINTERNATIONAL\nMARKET',
     filmesDestaqueDoCatalogo: 'HIGHLIGHTED FILMS FROM OUR CATALOG',
     // Catálogo section
