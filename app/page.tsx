@@ -1205,7 +1205,8 @@ export default function Home() {
     };
   }, []);
 
-  // Animações para seções de "O Mistério da Carne"
+  // Animações para as seções de "Três" (antes eram de "O Mistério da Carne";
+  // a cliente pediu a troca do filme em destaque na cartela 11)
   useLayoutEffect(() => {
 
     if (!secondTrackReady) return;
@@ -1214,7 +1215,7 @@ export default function Home() {
 
 
     const ctx = gsap.context(() => {
-      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-misterio-panel]') || []) as HTMLElement[];
+      const panels = Array.from(horizontalSecondTrackRef.current?.querySelectorAll('[data-tres-panel]') || []) as HTMLElement[];
       if (!panels.length) return;
 
       const horizontalTrackST = ScrollTrigger.getById('horizontal-second-track');
@@ -1222,7 +1223,7 @@ export default function Home() {
 
       // Animate each panel when it enters viewport
       panels.forEach((panel) => {
-        const title = panel.querySelector('.data-misterio-title') as HTMLElement;
+        const title = panel.querySelector('.data-tres-title') as HTMLElement;
 
         // Title animation - Individual
         if (title) {
@@ -1253,7 +1254,7 @@ export default function Home() {
         }
 
         // Header (title + year) — drops from above with 3D flip and blur
-        const header = panel.querySelector('.data-misterio-header') as HTMLElement;
+        const header = panel.querySelector('.data-tres-header') as HTMLElement;
         if (header) {
           gsap.fromTo(header,
             { opacity: 0, y: -40, rotationX: 12, filter: 'blur(8px)' },
@@ -1277,7 +1278,7 @@ export default function Home() {
         }
 
         // Technical info — alternating directions with rotation
-        const tech = panel.querySelector('.data-misterio-tech') as HTMLElement;
+        const tech = panel.querySelector('.data-tres-tech') as HTMLElement;
         if (tech) {
           const techItems = Array.from(tech.querySelectorAll('div')) as HTMLElement[];
           techItems.forEach((item, index) => {
@@ -1305,7 +1306,7 @@ export default function Home() {
         }
 
         // Prêmios — elastic bounce from below
-        const premios = panel.querySelector('.data-misterio-premios') as HTMLElement;
+        const premios = panel.querySelector('.data-tres-premios') as HTMLElement;
         if (premios) {
           gsap.fromTo(premios,
             { opacity: 0, scale: 0.85, y: 45 },
@@ -1329,7 +1330,7 @@ export default function Home() {
         }
 
         // Estreias — slides from right with blur
-        const estreias = panel.querySelector('.data-misterio-estreias') as HTMLElement;
+        const estreias = panel.querySelector('.data-tres-estreias') as HTMLElement;
         if (estreias) {
           gsap.fromTo(estreias,
             { opacity: 0, x: 50, filter: 'blur(6px)' },
@@ -2635,7 +2636,7 @@ export default function Home() {
           return;
         }
 
-        // ===== SPOTLIGHT + CURTAIN TRANSITION (Miçangas → Mistério) =====
+        // ===== SPOTLIGHT + CURTAIN TRANSITION (Miçangas → Três) =====
         if (transitionVariant === 'spotlight') {
           const leftCurtain = panel.querySelector('[data-curtain="left"]') as HTMLElement;
           const rightCurtain = panel.querySelector('[data-curtain="right"]') as HTMLElement;
@@ -3405,15 +3406,15 @@ export default function Home() {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
     const ctx = gsap.context(() => {
-      const venetianPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-reveal="venetian"]') as HTMLElement;
+      const venetianPanel = horizontalSecondTrackRef.current?.querySelector('[data-tres-reveal="venetian"]') as HTMLElement;
       if (!venetianPanel) return;
 
       const blindSlats = Array.from(venetianPanel.querySelectorAll('[data-blind-slat]')) as HTMLElement[];
-      const primaryVideo = venetianPanel.querySelector('[data-misterio-video="primary"]') as HTMLVideoElement;
-      const secondaryVideo = venetianPanel.querySelector('[data-misterio-video="secondary"]') as HTMLVideoElement;
-      const spotlight = venetianPanel.querySelector('[data-misterio-spotlight]') as HTMLElement;
-      const venetianTitle = venetianPanel.querySelector('[data-misterio-venetian-title]') as HTMLElement;
-      const venetianYear = venetianPanel.querySelector('[data-misterio-venetian-year]') as HTMLElement;
+      const primaryVideo = venetianPanel.querySelector('[data-tres-video="primary"]') as HTMLVideoElement;
+      const secondaryVideo = venetianPanel.querySelector('[data-tres-video="secondary"]') as HTMLVideoElement;
+      const spotlight = venetianPanel.querySelector('[data-tres-spotlight]') as HTMLElement;
+      const venetianTitle = venetianPanel.querySelector('[data-tres-venetian-title]') as HTMLElement;
+      const venetianYear = venetianPanel.querySelector('[data-tres-venetian-year]') as HTMLElement;
 
       if (!blindSlats.length) return;
 
@@ -3514,7 +3515,7 @@ export default function Home() {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
     const ctx = gsap.context(() => {
-      const letterboxPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="1"]') as HTMLElement;
+      const letterboxPanel = horizontalSecondTrackRef.current?.querySelector('[data-tres-panel="1"]') as HTMLElement;
       if (!letterboxPanel) return;
 
       const letterboxTop = letterboxPanel.querySelector('[data-letterbox-top]') as HTMLElement;
@@ -5152,7 +5153,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Segundo Track Horizontal - A Natureza, AS MIÇANGAS e O Mistério da Carne */}
+      {/* Segundo Track Horizontal - A Natureza, AS MIÇANGAS e Três */}
       <div
         ref={horizontalSecondWrapperRef}
         className="relative bg-black"
@@ -6513,10 +6514,10 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Transition: Miçangas → Mistério - SPOTLIGHT + CURTAIN */}
+          {/* Transition: Miçangas → Três - SPOTLIGHT + CURTAIN */}
           <section
             className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
-            data-movie-transition="micangas-misterio"
+            data-movie-transition="micangas-tres"
             data-transition-type="spotlight"
             style={{
               width: 'calc(100vw - var(--frame-pad) * 2)',
@@ -6526,11 +6527,11 @@ export default function Home() {
             {/* Preview of next video - warm sepia tint for noir feel */}
             <video
               preload="none"
-              data-src="/videos/misterio.mp4"
+              data-src="/videos/tres.mp4"
               muted
               loop
               playsInline
-              data-transition-video="misterio"
+              data-transition-video="tres"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
                 zIndex: 0,
@@ -6597,11 +6598,11 @@ export default function Home() {
 {/* Title removed - displayed in Panel 0 venetian reveal instead */}
           </section>
 
-          {/* ===== O MISTÉRIO DA CARNE - Panel 0: Venetian Blind Reveal ===== */}
+          {/* ===== TRÊS - Panel 0: Venetian Blind Reveal ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
-            data-misterio-panel="0"
-            data-misterio-reveal="venetian"
+            data-tres-panel="0"
+            data-tres-reveal="venetian"
             data-film-panel=""
             style={{
               width: 'calc(100vw - var(--frame-pad) * 2)',
@@ -6613,11 +6614,11 @@ export default function Home() {
             {/* Secondary Video - warm sepia depth layer */}
             <video
               preload="none"
-              data-src="/videos/misterio.mp4"
+              data-src="/videos/tres.mp4"
               muted
               loop
               playsInline
-              data-misterio-video="secondary"
+              data-tres-video="secondary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
                 zIndex: 0,
@@ -6632,11 +6633,11 @@ export default function Home() {
             {/* Primary Video - revealed through venetian blinds */}
             <video
               preload="none"
-              data-src="/videos/misterio.mp4"
+              data-src="/videos/tres.mp4"
               muted
               loop
               playsInline
-              data-misterio-video="primary"
+              data-tres-video="primary"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
                 zIndex: 1,
@@ -6670,7 +6671,7 @@ export default function Home() {
 
             {/* Warm spotlight gradient overlay */}
             <div
-              data-misterio-spotlight=""
+              data-tres-spotlight=""
               className="absolute inset-0 pointer-events-none"
               style={{
                 zIndex: 3,
@@ -6685,7 +6686,7 @@ export default function Home() {
               style={{ zIndex: 4 }}
             >
               <h2
-                data-misterio-venetian-title=""
+                data-tres-venetian-title=""
                 className="text-white text-center uppercase"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
@@ -6698,10 +6699,10 @@ export default function Home() {
                   willChange: 'transform, opacity',
                 }}
               >
-                {t('oMisterio')}<br/>{t('daCarne')}
+                {t('tresTitulo')}
               </h2>
               <div
-                data-misterio-venetian-year=""
+                data-tres-venetian-year=""
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(12px, 1.2vw, 18px)',
@@ -6711,7 +6712,7 @@ export default function Home() {
                   opacity: 0,
                 }}
               >
-                SUNDANCE 2019
+                {t('tresPremiereNacional').toUpperCase()} · 35º KINOFORUM
               </div>
             </div>
             {/* Bottom metadata strip */}
@@ -6719,16 +6720,16 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase' as const }}>REEL 03</span>
                 <div style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.25)' }} />
-                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>O MISTÉRIO DA CARNE</span>
+                <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>TRÊS</span>
               </div>
-              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2019 · SUNDANCE</span>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2024 · KINOFORUM</span>
             </div>
           </section>
 
-          {/* ===== O MISTÉRIO DA CARNE - Panel 1: Letterbox Festival Showcase ===== */}
+          {/* ===== TRÊS - Panel 1: Letterbox Festival Showcase ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
-            data-misterio-panel="1"
+            data-tres-panel="1"
             data-film-panel=""
             style={{
               width: 'calc(100vw - var(--frame-pad) * 2)',
@@ -6739,11 +6740,11 @@ export default function Home() {
             {/* Full-Bleed Video */}
             <video
               preload="none"
-              data-src="/videos/misterio.mp4"
+              data-src="/videos/tres.mp4"
               muted
               loop
               playsInline
-              data-video-parallax="misterio-letterbox"
+              data-video-parallax="tres-letterbox"
               data-parallax-speed="0.1"
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{
@@ -6774,9 +6775,9 @@ export default function Home() {
               }}
             />
 
-            {/* Sundance Laurel - centered */}
+            {/* Láurea do Kinoforum - centered */}
             <div
-              data-laurel="sundance"
+              data-laurel="kinoforum"
               className="absolute flex flex-col items-center justify-center"
               style={{
                 left: '50%',
@@ -6836,7 +6837,7 @@ export default function Home() {
                   marginBottom: 'clamp(8px, 1vh, 12px)',
                 }}
               >
-                Official Selection
+                {t('tresPremiereNacional')}
               </div>
               <div
                 style={{
@@ -6848,7 +6849,7 @@ export default function Home() {
                   textShadow: '0 2px 30px rgba(255,180,80,0.3), 0 4px 20px rgba(0,0,0,0.8)',
                 }}
               >
-                SUNDANCE
+                35º KINOFORUM
               </div>
               <div
                 style={{
@@ -6859,7 +6860,7 @@ export default function Home() {
                   marginTop: 'clamp(6px, 0.8vh, 12px)',
                 }}
               >
-                FILM FESTIVAL 2019
+                SÃO PAULO · 2024
               </div>
             </div>
 
@@ -6885,8 +6886,8 @@ export default function Home() {
                   letterSpacing: '0.1em',
                 }}
               >
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('melhorFilme')}</div>
-                Biarritz Amérique Latine
+                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('selecaoOficial')}</div>
+                26º Fest Curtas BH
               </div>
               <div
                 style={{
@@ -6905,16 +6906,16 @@ export default function Home() {
                   letterSpacing: '0.1em',
                 }}
               >
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('melhorFilme')}</div>
-                New Directors / New Films
+                <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('selecaoOficial')}</div>
+                28ª Mostra de Tiradentes
               </div>
             </div>
           </section>
 
-          {/* ===== O MISTÉRIO DA CARNE - Panel 2: Split Video + Credits ===== */}
+          {/* ===== TRÊS - Panel 2: Split Video + Credits ===== */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
-            data-misterio-panel="2"
+            data-tres-panel="2"
             data-film-panel=""
             style={{
               width: 'calc(100vw - var(--frame-pad) * 2)',
@@ -6928,11 +6929,11 @@ export default function Home() {
             <div className="relative overflow-hidden">
               <video
                 preload="none"
-                data-src="/videos/misterio.mp4"
+                data-src="/videos/tres.mp4"
                 muted
                 loop
                 playsInline
-                data-video-parallax="misterio-credits"
+                data-video-parallax="tres-credits"
                 data-parallax-speed="0.12"
                 className="absolute inset-0 w-full h-full object-cover transform-gpu"
                 style={{
@@ -6962,7 +6963,7 @@ export default function Home() {
               className="relative flex flex-col justify-center"
               style={{
                 backgroundColor: '#0a0a0a',
-                padding: 'clamp(30px, 5vw, 60px)',
+                padding: 'min(clamp(24px, 5vw, 60px), 6vh)',
               }}
             >
               {/* Warm accent line */}
@@ -6985,47 +6986,76 @@ export default function Home() {
                   color: 'white',
                 }}
               >
-                {t('oMisterioDaCarne')}
+                {t('tresTitulo')}
               </h3>
               <div
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(12px, 1vw, 14px)',
                   color: 'rgba(255,200,150,0.7)',
-                  marginBottom: 'clamp(25px, 4vh, 50px)',
+                  marginBottom: 'clamp(12px, 4vh, 50px)',
                 }}
               >
-                Curta-metragem • 2019
+                Curta-metragem • 2024
               </div>
+
+              {/* Logline — a cliente escreveu esta linha na cartela 11 */}
+              <p
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(14px, 1.4vw, 20px)',
+                  lineHeight: '1.5',
+                  fontStyle: 'italic',
+                  color: 'rgba(255,255,255,0.75)',
+                  margin: 0,
+                  marginBottom: 'clamp(6px, 3vh, 40px)',
+                  maxWidth: '38ch',
+                }}
+              >
+                “{t('tresLogline')}”
+              </p>
 
               {/* Technical Credits */}
               <div
+                /* Duas colunas a partir de `sm`: a ficha do Três tem quatro
+                 * linhas e o elenco ocupa duas, e numa coluna só o bloco
+                 * passava 69px da altura do painel em 1280x600. Elenco
+                 * atravessa as duas — é o único texto longo. */
+                className="grid grid-cols-1 sm:grid-cols-2 gap-x-8"
                 style={{
                   fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                   fontSize: 'clamp(11px, 1vw, 14px)',
-                  lineHeight: '2',
+                  lineHeight: '1.7',
                   color: 'rgba(255, 255, 255, 0.7)',
                 }}
               >
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('direcao')}</span> Grace Passô
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('formato')}</span> {t('tresFormato')}
+                </div>
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('direcao')}</span> Lila Foster
+                </div>
+                {/*
+                  * Elenco escondido no celular, pelo mesmo motivo da sinopse no
+                  * painel de A Natureza: este painel também é um grid de duas
+                  * colunas fixas que não empilha, e em 375px a coluna de texto
+                  * fica com 137px. Os cinco nomes quebram em seis linhas, 112px
+                  * de altura, e o bloco passa 21px do painel. O elenco continua
+                  * na página do filme.
+                  */}
+                <div className="hidden sm:block sm:col-span-2">
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('elenco')}</span> {t('tresElenco')}
                 </div>
                 <div>
                   <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('producao')}</span> Moveo Filmes
-                </div>
-                <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('distribuicao')}</span> {t('agenciaFreakMundo')}
-                </div>
-                <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t('financiamento')}</span> FAC-DF, Edital Cardume
                 </div>
               </div>
 
               {/* Festival Premieres */}
               <div
                 style={{
-                  marginTop: 'clamp(30px, 5vh, 60px)',
-                  paddingTop: 'clamp(20px, 3vh, 40px)',
+                  marginTop: 'clamp(16px, 5vh, 60px)',
+                  paddingTop: 'clamp(12px, 3vh, 40px)',
                   borderTop: '1px solid rgba(255,255,255,0.1)',
                 }}
               >
@@ -7036,10 +7066,10 @@ export default function Home() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
                     color: 'rgba(255,200,150,0.6)',
-                    marginBottom: 'clamp(15px, 2vh, 25px)',
+                    marginBottom: 'clamp(8px, 2vh, 25px)',
                   }}
                 >
-                  {t('estreias')}
+                  {t('tresCirculacao')}
                 </div>
                 <div
                   style={{
@@ -7049,9 +7079,9 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>Sundance</strong> — {t('mundial')}</div>
-                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>Biarritz</strong> — {t('europa')}</div>
-                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>New Directors</strong> — {t('eua')}</div>
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>35º Kinoforum</strong> — {t('tresPremiereNacional')}, São Paulo SP</div>
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>26º Fest Curtas BH</strong> — Belo Horizonte MG</div>
+                  <div><strong style={{ color: 'rgba(255,255,255,0.9)' }}>28ª Mostra de Tiradentes</strong> — Tiradentes MG</div>
                 </div>
               </div>
             </div>
