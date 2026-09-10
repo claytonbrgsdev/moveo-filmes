@@ -27,6 +27,35 @@ const newsImages = [
   '/imagens/secao2home/Rectangle 9.png',
 ];
 
+/**
+ * Láureas de A Natureza das Coisas Invisíveis na abertura (cartela 01), na
+ * ordem em que a cliente listou. As artes vêm das pastas da produção e foram
+ * preparadas para fundo escuro: aparadas, em 240px de altura; Gramado e Mix
+ * Brasil vinham pretas e foram invertidas, a do Santander vinha numa caixa
+ * cinza. `largura` é a do PNG a 240px — só para o next/image reservar a
+ * proporção. Os textos alternativos seguem o documento oficial de prêmios, e
+ * não a arte: a de Gramado diz "Melhor Atriz" (o prêmio foi de coadjuvante) e
+ * a de Seattle diz "Special Jury Prize" (foi menção especial).
+ */
+const LAUREAS_NATUREZA = [
+  { srcPt: '/imagens/laureas/berlinale75-generation-opening.png', srcEn: '/imagens/laureas/berlinale75-generation-opening.png', largura: 389,
+    altPt: '75ª Berlinale — Generation, filme de abertura', altEn: '75th Berlinale — Generation, opening film' },
+  { srcPt: '/imagens/laureas/siff51-special-jury.png', srcEn: '/imagens/laureas/siff51-special-jury.png', largura: 440,
+    altPt: '51º Festival de Seattle — Menção Especial do Júri, Competição Ibero-Americana', altEn: '51st Seattle International Film Festival — Ibero-American Competition Special Jury Mention' },
+  { srcPt: '/imagens/laureas/mixbrasil33-selecao-oficial.png', srcEn: '/imagens/laureas/mixbrasil33-official-selection.png', largura: 408,
+    altPt: '33º Festival Mix Brasil — Seleção Oficial', altEn: '33rd Mix Brasil Festival — Official Selection' },
+  { srcPt: '/imagens/laureas/frameline49-jury-award.png', srcEn: '/imagens/laureas/frameline49-jury-award.png', largura: 384,
+    altPt: 'Frameline49 — Prêmio do Júri, Outstanding First Feature', altEn: 'Frameline49 — Jury Award, Outstanding First Feature' },
+  { srcPt: '/imagens/laureas/santander9-opera-prima.png', srcEn: '/imagens/laureas/santander9-opera-prima.png', largura: 413,
+    altPt: '9º Festival de Cine de Santander — Seleção Oficial Óperas Primas', altEn: '9th Santander International Film Festival — Opera Prima Official Selection' },
+  { srcPt: '/imagens/laureas/gramado53-premio-especial-juri.png', srcEn: '/imagens/laureas/gramado53-premio-especial-juri.png', largura: 445,
+    altPt: '53º Festival de Gramado — Prêmio Especial do Júri', altEn: '53rd Gramado Film Festival — Special Jury Award' },
+  { srcPt: '/imagens/laureas/gramado53-atriz-coadjuvante.png', srcEn: '/imagens/laureas/gramado53-atriz-coadjuvante.png', largura: 445,
+    altPt: '53º Festival de Gramado — Melhor Atriz Coadjuvante', altEn: '53rd Gramado Film Festival — Best Supporting Actress' },
+  { srcPt: '/imagens/laureas/gramado53-trilha-sonora.png', srcEn: '/imagens/laureas/gramado53-trilha-sonora.png', largura: 445,
+    altPt: '53º Festival de Gramado — Melhor Trilha Sonora', altEn: '53rd Gramado Film Festival — Best Original Score' },
+] as const;
+
 const FONT_HUGE = 'var(--font-huge)';
 // Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
 const MOVEO_TRACKING_EM = -0.04;
@@ -4397,7 +4426,7 @@ export default function Home() {
               {/* Video background */}
               <video
                 preload="none"
-                data-src="/videos/misterio.mp4"
+                data-src="/videos/natureza-teaser.mp4"
                 muted
                 loop
                 playsInline
@@ -4435,7 +4464,7 @@ export default function Home() {
               </div>
               {/* Metadata strip */}
               <div className="absolute pointer-events-none" style={{ zIndex: 20, bottom: 16, left: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
-                {['2018', '—', 'BRASÍLIA', '—', 'BR'].map((seg, i) => (
+                {['2025', '—', 'BRASÍLIA', '—', 'BR'].map((seg, i) => (
                   <span key={i} style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>
                     {seg}
                   </span>
@@ -4448,8 +4477,61 @@ export default function Home() {
               {/* Right-edge format strip */}
               <div className="absolute pointer-events-none" style={{ zIndex: 20, right: 8, top: '50%', transform: 'translateY(-50%) rotate(180deg)' }}>
                 <span style={{ writingMode: 'vertical-lr' as const, fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
-                  16MM · 2018 · BRASÍLIA
+                  90 MIN · 2025 · BRASÍLIA
                 </span>
+              </div>
+              {/*
+                * Cartela 01: foco em A Natureza das Coisas Invisíveis. O vídeo é o
+                * teaser do filme; embaixo, título e as láureas que a cliente
+                * listou (LAUREAS_NATUREZA). O Grande Otelo não tem arte em
+                * nenhuma pasta da produção e vai em texto.
+                *
+                * A <Image alt="Capa Home"> acima fica: o GSAP da abertura procura
+                * por ela para revelar esta caixa, e sem ela a caixa inteira
+                * ficaria presa em opacity: 0.
+                */}
+              <div
+                className="absolute inset-x-0 bottom-0 pointer-events-none"
+                style={{ zIndex: 19, height: '70%', background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)' }}
+              />
+              <div
+                data-natureza-hero=""
+                className="absolute pointer-events-none"
+                style={{
+                  zIndex: 21,
+                  left: 'clamp(20px, 3vw, 48px)',
+                  right: 'clamp(28px, 3vw, 48px)',
+                  bottom: 'clamp(40px, 7vh, 64px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'clamp(10px, 1.8vh, 18px)',
+                }}
+              >
+                <div>
+                  <div style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontSize: 'clamp(15px, 1.7vw, 28px)', color: 'white', letterSpacing: '0.02em', lineHeight: 1.1 }}>
+                    {t('aNaturezaDasCoisasInvisiveis')}
+                  </div>
+                  <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.12em', marginTop: 6, textTransform: 'uppercase' as const }}>
+                    Rafaela Camelo · 2025
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'clamp(10px, 1.6vw, 26px)' }}>
+                  {LAUREAS_NATUREZA.map((laurea) => (
+                    <Image
+                      key={laurea.srcPt}
+                      src={language === 'en' ? laurea.srcEn : laurea.srcPt}
+                      alt={language === 'en' ? laurea.altEn : laurea.altPt}
+                      width={laurea.largura}
+                      height={240}
+                      unoptimized
+                      style={{ height: 'clamp(26px, 3.6vw, 58px)', width: 'auto' }}
+                    />
+                  ))}
+                  <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", color: 'white', lineHeight: 1.25, borderLeft: '1px solid rgba(255,255,255,0.35)', paddingLeft: 'clamp(8px, 1vw, 14px)' }}>
+                    <div style={{ fontSize: FONT_SMALL, letterSpacing: '0.12em', textTransform: 'uppercase' as const, fontWeight: 700 }}>{t('grandeOteloTitulo')}</div>
+                    <div style={{ fontSize: FONT_COND, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.06em' }}>{t('grandeOteloCategoria')}</div>
+                  </div>
+                </div>
               </div>
             </div>
 

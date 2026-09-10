@@ -55,6 +55,8 @@ const translations: Record<Language, Record<string, string>> = {
     naturezaFormato: '90 min · Cor · Drama · 12 anos',
     naturezaElenco: 'Laura Brandão, Serena, Larissa Mauro, Camila Márdila, Aline Marta Maia',
     naturezaSinopse: 'Durante as férias de verão, duas meninas de dez anos se encontram num hospital e formam um vínculo inesperado. Esse laço as conduz por uma jornada agridoce de despedidas e de profundas descobertas sobre a vida.',
+    grandeOteloTitulo: 'Prêmio Grande Otelo 2026',
+    grandeOteloCategoria: 'Melhor Primeira Direção de Longa-Metragem',
     estreiaMundial: 'Estreia Mundial',
     festivais: 'Festivais',
     premios: 'Prêmios',
@@ -149,6 +151,10 @@ const translations: Record<Language, Record<string, string>> = {
     naturezaFormato: '90 min · Color · Drama · 12+',
     naturezaElenco: 'Laura Brandão, Serena, Larissa Mauro, Camila Márdila, Aline Marta Maia',
     naturezaSinopse: 'During summer break, two ten-year-old girls meet in a hospital and form an unexpected bond. That bond leads them on a bittersweet journey of farewells and profound discoveries about life.',
+    // Sem versão oficial: o documento de prêmios da produção só lista o
+    // Grande Otelo em português. Tradução nossa — confirmar com a Moveo.
+    grandeOteloTitulo: 'Grande Otelo Award 2026',
+    grandeOteloCategoria: 'Best Directorial Debut, Feature Film',
     estreiaMundial: 'World Premiere',
     festivais: 'Festivals',
     premios: 'Awards',
