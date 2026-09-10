@@ -2552,7 +2552,6 @@ export default function Home() {
       if (!transitionPanels.length) return;
 
       transitionPanels.forEach((panel) => {
-        const transitionType = panel.getAttribute('data-movie-transition');
         const titleEl = panel.querySelector('[data-transition-title] h2') as HTMLElement;
 
 
@@ -5829,22 +5828,25 @@ export default function Home() {
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
-                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    marginBottom: 'clamp(8px, 3vh, 40px)',
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
                   Distribuição
                 </div>
-                <div 
+                <div
+                  /* Duas colunas pelo mesmo motivo da ficha logo abaixo: em
+                   * tela baixa cada linha a menos conta. */
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-x-8"
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(13px, 1.2vw, 16px)',
-                    lineHeight: '1.8',
+                    lineHeight: '1.6',
                     color: 'rgba(255, 255, 255, 0.8)',
-                    marginBottom: 'clamp(30px, 4vh, 50px)',
+                    marginBottom: 'clamp(12px, 4vh, 50px)',
                   }}
                 >
-                  <div style={{ marginBottom: 'clamp(12px, 2vh, 18px)' }}>
+                  <div className="mb-3 sm:mb-0">
                     <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Brasil:</strong> Vitrine Filmes
                   </div>
                   <div>
@@ -5858,39 +5860,93 @@ export default function Home() {
                     fontSize: 'clamp(10px, 0.9vw, 13px)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
-                    marginBottom: 'clamp(20px, 3vh, 40px)',
+                    marginBottom: 'clamp(8px, 3vh, 40px)',
                     color: 'rgba(255, 255, 255, 0.6)',
                     borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    paddingTop: 'clamp(20px, 3vh, 30px)',
+                    paddingTop: 'clamp(8px, 3vh, 30px)',
                   }}
                 >
                   Ficha Técnica
                 </div>
-                <div 
+                <div
+                  /*
+                   * Duas colunas a partir de `sm`. A ficha ganhou formato,
+                   * elenco e sinopse a pedido da cliente e, numa lista única,
+                   * passava da altura do painel em telas baixas — o print que
+                   * ela mandou tem 642px de altura, e em 600px o estouro
+                   * chegava a 44px. Em duas colunas as sete linhas curtas
+                   * viram quatro e sobra folga. Elenco e sinopse atravessam as
+                   * duas colunas: são textos longos e ficariam espremidos.
+                   */
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-x-8"
                   style={{
                     fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
                     fontSize: 'clamp(12px, 1.1vw, 14px)',
-                    lineHeight: '1.8',
+                    lineHeight: '1.6',
                     color: 'rgba(255, 255, 255, 0.7)',
                   }}
                 >
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('formato')}</strong> {t('naturezaFormato')}
+                  </div>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Rafaela Camelo
                   </div>
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('roteiro')}</strong> Rafaela Camelo
                   </div>
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                  <div className="sm:col-span-2" style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('elenco')}</strong> {t('naturezaElenco')}
+                  </div>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('producao')}</strong> Moveo Filmes
                   </div>
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('coproducao')}</strong> Brasil-Chile
                   </div>
-                  <div style={{ marginBottom: 'clamp(8px, 1vh, 12px)' }}>
+                  <div style={{ marginBottom: 'clamp(2px, 1vh, 12px)' }}>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, FSA/Ancine
                   </div>
                   <div>
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
+                  </div>
+
+                  {/*
+                    * Sinopse — pedida pela cliente na cartela 07.
+                    *
+                    * Fica escondida no celular. Este painel é um grid de duas
+                    * colunas fixas (1fr 1fr) que não empilha, então em 375px a
+                    * coluna de texto tem 140px de largura: a sinopse ocupa 237px
+                    * de altura e estoura o painel em 37px. Sem ela o bloco cabe
+                    * com 224px de sobra. Além disso, um parágrafo justificado
+                    * numa coluna de 140px não se lê — a sinopse continua
+                    * inteira na página do filme, em /catalogo/cinema/[slug].
+                    *
+                    * O conserto de verdade é o painel empilhar no celular, mas
+                    * isso é redesenho da seção inteira, não desta linha.
+                    */}
+                  <div
+                    className="hidden sm:block sm:col-span-2"
+                    style={{
+                      marginTop: 'clamp(8px, 3vh, 30px)',
+                      paddingTop: 'clamp(6px, 2vh, 24px)',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 'clamp(10px, 0.9vw, 13px)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        marginBottom: 'clamp(4px, 1.5vh, 16px)',
+                      }}
+                    >
+                      {t('sinopse')}
+                    </div>
+                    <p style={{ margin: 0, lineHeight: '1.6', color: 'rgba(255, 255, 255, 0.75)' }}>
+                      {t('naturezaSinopse')}
+                    </p>
                   </div>
                 </div>
               </div>
