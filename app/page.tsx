@@ -4419,7 +4419,8 @@ export default function Home() {
             >
               {/* Video background */}
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/misterio.mp4"
                 muted
                 loop
                 playsInline
@@ -4430,7 +4431,6 @@ export default function Home() {
                   filter: 'brightness(0.35) grayscale(25%) contrast(1.1)',
                 }}
               >
-                <source src="/videos/misterio.mp4" type="video/mp4" />
               </video>
               {/* Image overlay with reduced opacity for blend effect */}
               <Image
@@ -5217,7 +5217,8 @@ export default function Home() {
           >
             {/* Primary Video background - revealed through stripes */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5227,12 +5228,12 @@ export default function Home() {
               className="absolute inset-0 w-full h-full object-cover transform-gpu"
               style={{ zIndex: 0, willChange: 'transform, filter', transform: 'scale(1.0)', opacity: 0 }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Secondary Video - desaturated, pinned/slower parallax for depth */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5247,7 +5248,6 @@ export default function Home() {
                 filter: 'saturate(0) brightness(0.4)',
               }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Horizontal stripe overlay bars - initially cover the video */}
@@ -5340,7 +5340,8 @@ export default function Home() {
           >
             {/* Primary Video - subtle parallax background */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5355,12 +5356,12 @@ export default function Home() {
                 filter: 'brightness(0.6)',
               }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Secondary Video - pinned/fixed effect, desaturated */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5375,7 +5376,6 @@ export default function Home() {
                 filter: 'saturate(0) brightness(0.5)',
               }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Left - Editorial Content */}
@@ -5472,7 +5472,8 @@ export default function Home() {
             >
               {/* Video peek through the image */}
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/natureza.mp4"
                 muted
                 loop
                 playsInline
@@ -5482,7 +5483,6 @@ export default function Home() {
                   transform: 'scale(1.15)',
                 }}
               >
-                <source src="/videos/natureza.mp4" type="video/mp4" />
               </video>
               <div
                 className="absolute inset-0"
@@ -5530,7 +5530,8 @@ export default function Home() {
           >
             {/* Primary Video - full background with parallax */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5543,12 +5544,12 @@ export default function Home() {
                 transform: 'scale(1.0)',
               }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Secondary Video - slower, desaturated layer for depth */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/natureza.mp4"
               muted
               loop
               playsInline
@@ -5562,7 +5563,6 @@ export default function Home() {
                 filter: 'saturate(0) blur(3px)',
               }}
             >
-              <source src="/videos/natureza.mp4" type="video/mp4" />
             </video>
 
             {/* Cinematic vignette */}
@@ -5940,7 +5940,8 @@ export default function Home() {
           >
             {/* Preview of next video - revealed through diagonal bars */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/micangas.mp4"
               muted
               loop
               playsInline
@@ -5953,7 +5954,6 @@ export default function Home() {
                 willChange: 'transform, opacity, filter',
               }}
             >
-              <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
             {/* Diagonal bars at -45° angle */}
             {Array.from({ length: 8 }).map((_, i) => (
@@ -5989,7 +5989,8 @@ export default function Home() {
           >
             {/* Secondary Video - depth layer, desaturated */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/micangas.mp4"
               muted
               loop
               playsInline
@@ -6003,12 +6004,12 @@ export default function Home() {
                 filter: 'saturate(0.4) brightness(0.4)',
               }}
             >
-              <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
             {/* Primary Video - revealed through film strips */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/micangas.mp4"
               muted
               loop
               playsInline
@@ -6021,7 +6022,6 @@ export default function Home() {
                 opacity: 0,
               }}
             >
-              <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
             {/* Film Strip Bars - 6 horizontal strips with sprocket holes */}
@@ -6169,14 +6169,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.1)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6196,14 +6196,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.15) scaleX(-1)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6223,14 +6223,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.2)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6249,14 +6249,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.1)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6276,14 +6276,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.15) scaleY(-1)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6303,14 +6303,14 @@ export default function Home() {
               }}
             >
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/micangas.mp4"
                 muted
                 loop
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scale(1.3)' }}
               >
-                <source src="/videos/micangas.mp4" type="video/mp4" />
               </video>
             </div>
 
@@ -6406,7 +6406,8 @@ export default function Home() {
           >
             {/* Full-Bleed Video Hero */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/micangas.mp4"
               muted
               loop
               playsInline
@@ -6419,7 +6420,6 @@ export default function Home() {
                 transform: 'scale(1.1)',
               }}
             >
-              <source src="/videos/micangas.mp4" type="video/mp4" />
             </video>
 
             {/* Subtle bottom gradient only */}
@@ -6500,7 +6500,8 @@ export default function Home() {
           >
             {/* Preview of next video - warm sepia tint for noir feel */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/misterio.mp4"
               muted
               loop
               playsInline
@@ -6513,7 +6514,6 @@ export default function Home() {
                 willChange: 'transform, opacity, filter',
               }}
             >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
 
             {/* Spotlight mask - radial gradient that expands */}
@@ -6587,7 +6587,8 @@ export default function Home() {
           >
             {/* Secondary Video - warm sepia depth layer */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/misterio.mp4"
               muted
               loop
               playsInline
@@ -6601,12 +6602,12 @@ export default function Home() {
                 filter: 'sepia(0.4) saturate(0.8) brightness(0.5)',
               }}
             >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
 
             {/* Primary Video - revealed through venetian blinds */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/misterio.mp4"
               muted
               loop
               playsInline
@@ -6619,7 +6620,6 @@ export default function Home() {
                 opacity: 0,
               }}
             >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
 
             {/* Venetian Blind Slats - 10 vertical slats */}
@@ -6713,7 +6713,8 @@ export default function Home() {
           >
             {/* Full-Bleed Video */}
             <video
-              autoPlay
+              preload="none"
+              data-src="/videos/misterio.mp4"
               muted
               loop
               playsInline
@@ -6726,7 +6727,6 @@ export default function Home() {
                 transform: 'scale(1.1)',
               }}
             >
-              <source src="/videos/misterio.mp4" type="video/mp4" />
             </video>
 
             {/* Letterbox bars - cinematic widescreen feel */}
@@ -6902,7 +6902,8 @@ export default function Home() {
             {/* Left 60% - Video Hero with gradient fade */}
             <div className="relative overflow-hidden">
               <video
-                autoPlay
+                preload="none"
+                data-src="/videos/misterio.mp4"
                 muted
                 loop
                 playsInline
@@ -6914,7 +6915,6 @@ export default function Home() {
                   transform: 'scale(1.0)',
                 }}
               >
-                <source src="/videos/misterio.mp4" type="video/mp4" />
               </video>
               {/* Horizontal fade to right */}
               <div
@@ -7199,14 +7199,14 @@ export default function Home() {
                 {/* Quadrado superior direito - video */}
                 <div className="col-span-2 sm:col-span-3 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <video
-                    autoPlay
+                    preload="none"
+                    data-src="/videos/natureza.mp4"
                     muted
                     loop
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: 'brightness(0.9) saturate(0.9)' }}
                   >
-                    <source src="/videos/natureza.mp4" type="video/mp4" />
                   </video>
                   {/* Subtle vignette overlay */}
                   <div
@@ -7277,14 +7277,14 @@ export default function Home() {
                 {/* Retângulo horizontal inferior - video */}
                 <div className="hidden sm:block col-span-2 row-span-3 bg-[#1f1f1f] min-h-0 relative overflow-hidden" data-cinema-image>
                   <video
-                    autoPlay
+                    preload="none"
+                    data-src="/videos/micangas.mp4"
                     muted
                     loop
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: 'brightness(0.85) saturate(0.85)' }}
                   >
-                    <source src="/videos/micangas.mp4" type="video/mp4" />
                   </video>
                   {/* Subtle vignette overlay */}
                   <div
@@ -7348,14 +7348,14 @@ export default function Home() {
                 {/* Coluna video esquerda */}
                 <div className="hidden sm:block col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
                   <video
-                    autoPlay
+                    preload="none"
+                    data-src="/videos/misterio.mp4"
                     muted
                     loop
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: 'brightness(0.8) saturate(0.7)' }}
                   >
-                    <source src="/videos/misterio.mp4" type="video/mp4" />
                   </video>
                   {/* Subtle vignette overlay */}
                   <div
