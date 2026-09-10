@@ -7414,13 +7414,30 @@ export default function Home() {
                   data-draw-border="top,right"
                 >
                   <h1
-                    className="font-black tracking-tighter leading-none text-white mix-blend-difference"
+                    /*
+                     * `sm:whitespace-nowrap` conserta a cartela 14. O título é
+                     * escrito em duas linhas com <br/>; em telas por volta de
+                     * 1300px "DOS FILMES" não cabia na coluna e quebrava numa
+                     * terceira linha. Como o bloco é alinhado embaixo, a linha
+                     * extra escapava por cima da célula e caía em cima do
+                     * parágrafo ao lado — a cliente reportou isso como
+                     * "difícil ler a última parte do texto".
+                     *
+                     * No celular a coluna é estreita demais para caber numa
+                     * linha só (o título fica 28px maior que a célula), então
+                     * ali a quebra continua livre, como sempre foi — e ali
+                     * nunca houve sobreposição.
+                     */
+                    className="font-black tracking-tighter leading-none text-white mix-blend-difference whitespace-normal sm:whitespace-nowrap"
                     data-arquivo-animate
                     suppressHydrationWarning
                     style={{
                       fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
                       fontWeight: 500,
-                      fontSize: FONT_HUGE,
+                      // O mínimo de 60px do --font-huge era grande demais para
+                      // a coluna em telas de 1024–1400px; acompanhar a largura
+                      // da tela é o que faz caber sem quebrar.
+                      fontSize: 'clamp(30px, 4.4vw, 200px)',
                       lineHeight: '0.9',
                     }}
                   >
