@@ -70,6 +70,8 @@ const translations: Record<Language, Record<string, string>> = {
     tresFestivais: 'Festivais',
     tresCirculacao: 'Circulação',
     selecaoOficial: 'Seleção Oficial',
+    tresFotosDivulgacao: 'Fotos de divulgação',
+    fotos: 'Fotos:',
     // Arquivo
     alemDosFilmes: 'ALÉM\nDOS FILMES',
     verArquivoCompleto: 'Ver arquivo completo',
@@ -162,6 +164,8 @@ const translations: Record<Language, Record<string, string>> = {
     tresFestivais: 'Festivals',
     tresCirculacao: 'Circulation',
     selecaoOficial: 'Official Selection',
+    tresFotosDivulgacao: 'Publicity stills',
+    fotos: 'Photos:',
     // Arquivo
     alemDosFilmes: 'BEYOND\nTHE FILMS',
     verArquivoCompleto: 'View full archive',

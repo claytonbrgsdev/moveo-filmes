@@ -3344,64 +3344,72 @@ export default function Home() {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
     const ctx = gsap.context(() => {
-      const mosaicPanel = horizontalSecondTrackRef.current?.querySelector('[data-micangas-mosaic]') as HTMLElement;
-      if (!mosaicPanel) return;
+      // Dois mosaicos usam esta animação: o de As Miçangas e o de fotos de
+      // divulgação do Três (cartela 12). Era um querySelector, que só pega o
+      // primeiro — um segundo mosaico ficaria com os fragmentos presos no
+      // opacity: 0 inline, invisível.
+      const mosaicPanels = Array.from(
+        horizontalSecondTrackRef.current?.querySelectorAll('[data-micangas-mosaic], [data-tres-mosaic]') || []
+      ) as HTMLElement[];
 
-      const fragments = Array.from(mosaicPanel.querySelectorAll('[data-mosaic-fragment]')) as HTMLElement[];
-      const textContent = mosaicPanel.querySelector('[data-mosaic-text]') as HTMLElement;
+      mosaicPanels.forEach((mosaicPanel) => {
 
-      if (!fragments.length) return;
+        const fragments = Array.from(mosaicPanel.querySelectorAll('[data-mosaic-fragment]')) as HTMLElement[];
+        const textContent = mosaicPanel.querySelector('[data-mosaic-text]') as HTMLElement;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: mosaicPanel,
-          start: 'left 75%',
-          end: 'right 25%',
-          containerAnimation: secondTrackTweenRef.current || undefined,
-          scrub: 0.7,
-        },
-      });
+        if (!fragments.length) return;
 
-      // Phase 1: Fragments fade in with stagger from different directions
-      fragments.forEach((fragment, i) => {
-        const delay = 0.05 * i;
-        tl.to(fragment, {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          duration: 0.4,
-          ease: 'power3.out',
-        }, delay);
-      });
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: mosaicPanel,
+            start: 'left 75%',
+            end: 'right 25%',
+            containerAnimation: secondTrackTweenRef.current || undefined,
+            scrub: 0.7,
+          },
+        });
 
-      // Phase 2: Text content fades up
-      if (textContent) {
-        tl.to(textContent, {
-          opacity: 1,
-          y: 0,
-          duration: 0.35,
-          ease: 'power2.out',
-        }, 0.25);
-      }
+        // Phase 1: Fragments fade in with stagger from different directions
+        fragments.forEach((fragment, i) => {
+          const delay = 0.05 * i;
+          tl.to(fragment, {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: 0.4,
+            ease: 'power3.out',
+          }, delay);
+        });
 
-      // Phase 3: Subtle parallax drift on fragments as scroll continues
-      fragments.forEach((fragment, i) => {
-        const driftX = (i % 2 === 0 ? -1 : 1) * (5 + (i * 2));
-        const driftY = (i % 3 === 0 ? -1 : 1) * (3 + i);
-        tl.to(fragment, {
-          x: driftX,
-          y: driftY,
-          duration: 0.4,
-          ease: 'none',
-        }, 0.5);
+        // Phase 2: Text content fades up
+        if (textContent) {
+          tl.to(textContent, {
+            opacity: 1,
+            y: 0,
+            duration: 0.35,
+            ease: 'power2.out',
+          }, 0.25);
+        }
+
+        // Phase 3: Subtle parallax drift on fragments as scroll continues
+        fragments.forEach((fragment, i) => {
+          const driftX = (i % 2 === 0 ? -1 : 1) * (5 + (i * 2));
+          const driftY = (i % 3 === 0 ? -1 : 1) * (3 + i);
+          tl.to(fragment, {
+            x: driftX,
+            y: driftY,
+            duration: 0.4,
+            ease: 'none',
+          }, 0.5);
+        });
       });
     }, horizontalSecondTrackRef);
 
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // ===== MISTÉRIO: Venetian Blind Reveal Animation =====
+  // ===== TRÊS: Venetian Blind Reveal Animation =====
   useLayoutEffect(() => {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
@@ -3510,7 +3518,7 @@ export default function Home() {
     return () => ctx.revert();
   }, [secondTrackReady]);
 
-  // ===== MISTÉRIO: Letterbox + Laurel Animation =====
+  // ===== TRÊS: Letterbox + Laurel Animation =====
   useLayoutEffect(() => {
     if (!secondTrackReady || !horizontalSecondTrackRef.current) return;
 
@@ -6345,7 +6353,11 @@ export default function Home() {
               data-mosaic-text=""
               className="absolute"
               style={{
-                left: '55%',
+                // No celular, 55% mais a largura mínima de 200px passava 46px da
+                // borda direita do painel (343px) e o overflow: hidden cortava o
+                // texto. O min() fica em 55% onde cabe e puxa para a esquerda
+                // quando não cabe; no desktop (painel de 1180px) nada muda.
+                left: 'min(55%, calc(100% - clamp(200px, 30vw, 350px) - 16px))',
                 top: '55%',
                 width: 'clamp(200px, 30vw, 350px)',
                 zIndex: 10,
@@ -7085,6 +7097,259 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* ===== TRÊS - Panel 3: Fotos de divulgação (mosaico) ===== */}
+          {/*
+            * Pedido da cartela 12: "destacar fotos de divulgação … terminar
+            * destaques aqui". Reaproveita o mosaico de As Miçangas — mesma
+            * geometria, mesmos estados iniciais — e por isso o efeito do GSAP
+            * foi generalizado para `[data-micangas-mosaic], [data-tres-mosaic]`.
+            *
+            * As fotos ficam em public/imagens/tres, e não no bucket do Supabase,
+            * de propósito: a home não pode depender do banco estar acordado. O
+            * Supabase free pausa sozinho, e a landing já é desenhada para ficar
+            * de pé com ele fora. Os originais em 2000px estão no bucket
+            * (filmes/tres/), ligados ao filme em filmes_assets.
+            *
+            * Fotos de Bella Montiel — conferido por hash contra os arquivos
+            * "Tres_Still por Bella Montiel" da pasta da produção.
+            */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-tres-panel="3"
+            data-tres-mosaic=""
+            data-film-panel=""
+            style={{
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
+              overflow: 'hidden',
+              backgroundColor: '#050505',
+            }}
+          >
+
+            {/* Fragment 1 - Large center-left: os três no parque */}
+            <div
+              data-mosaic-fragment="large"
+              className="absolute overflow-hidden"
+              style={{
+                left: '8%',
+                top: '10%',
+                width: '45%',
+                height: '55%',
+                opacity: 0,
+                transform: 'translateY(40px)',
+                zIndex: 1,
+              }}
+            >
+              <Image
+                src="/imagens/tres/bella-montiel-v500t-1790-mai23aa025.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.05)' }}
+              />
+            </div>
+
+            {/* Fragment 2 - Medium top-right: close */}
+            <div
+              data-mosaic-fragment="medium"
+              className="absolute overflow-hidden"
+              style={{
+                right: '5%',
+                top: '5%',
+                width: '32%',
+                height: '40%',
+                opacity: 0,
+                transform: 'translateX(40px)',
+                zIndex: 2,
+                filter: 'saturate(0.7) brightness(0.9)',
+              }}
+            >
+              <Image
+                src="/imagens/tres/tres-4-300dpi.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.1)' }}
+              />
+            </div>
+
+            {/* Fragment 3 - Small top-left corner: cozinha */}
+            <div
+              data-mosaic-fragment="small"
+              className="absolute overflow-hidden"
+              style={{
+                left: '2%',
+                top: '2%',
+                width: '18%',
+                height: '22%',
+                opacity: 0,
+                transform: 'scale(0.8)',
+                zIndex: 3,
+                filter: 'saturate(0) brightness(0.7)',
+              }}
+            >
+              <Image
+                src="/imagens/tres/tres-6-300dpi.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.15)' }}
+              />
+            </div>
+
+            {/* Fragment 4 - Medium bottom-right: fica sob o texto, por isso a foto mais escura */}
+            <div
+              data-mosaic-fragment="medium"
+              className="absolute overflow-hidden"
+              style={{
+                right: '10%',
+                bottom: '8%',
+                width: '35%',
+                height: '38%',
+                opacity: 0,
+                transform: 'translateY(-30px)',
+                zIndex: 2,
+              }}
+            >
+              <Image
+                src="/imagens/tres/tres-7-300dpi.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.05)' }}
+              />
+            </div>
+
+            {/* Fragment 5 - Small bottom-left: o casal no parque */}
+            <div
+              data-mosaic-fragment="small"
+              className="absolute overflow-hidden"
+              style={{
+                left: '5%',
+                bottom: '12%',
+                width: '22%',
+                height: '28%',
+                opacity: 0,
+                transform: 'translateX(-30px)',
+                zIndex: 3,
+                filter: 'sepia(0.3) brightness(0.85)',
+              }}
+            >
+              <Image
+                src="/imagens/tres/tres-v500t-1790-mai23aa020.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.1)' }}
+              />
+            </div>
+
+            {/* Fragment 6 - Tiny accent right-center: retrato */}
+            <div
+              data-mosaic-fragment="tiny"
+              className="absolute overflow-hidden"
+              style={{
+                right: '2%',
+                top: '50%',
+                width: '12%',
+                height: '15%',
+                opacity: 0,
+                transform: 'scale(0.9)',
+                zIndex: 4,
+                filter: 'saturate(1.3) contrast(1.1)',
+              }}
+            >
+              <Image
+                src="/imagens/tres/tres-v500t-1791-mai23aa024.jpg"
+                alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
+                fill
+                unoptimized
+                className="object-cover"
+                style={{ transform: 'scale(1.2)' }}
+              />
+            </div>
+
+            {/* Floating Text Content - positioned in the gaps */}
+            <div
+              data-mosaic-text=""
+              className="absolute"
+              style={{
+                // No celular, 55% mais a largura mínima de 200px passava 46px da
+                // borda direita do painel (343px) e o overflow: hidden cortava o
+                // texto. O min() fica em 55% onde cabe e puxa para a esquerda
+                // quando não cabe; no desktop (painel de 1180px) nada muda.
+                left: 'min(55%, calc(100% - clamp(200px, 30vw, 350px) - 16px))',
+                top: '55%',
+                width: 'clamp(200px, 30vw, 350px)',
+                zIndex: 10,
+                opacity: 0,
+                transform: 'translateY(20px)',
+                // A foto grande deste mosaico é o parque ao sol, bem mais clara
+                // que o vídeo do mosaico de As Miçangas; no celular o texto
+                // passa por cima dela.
+                textShadow: '0 2px 14px rgba(0, 0, 0, 0.85)',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(10px, 0.9vw, 12px)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  marginBottom: 'clamp(12px, 1.5vh, 20px)',
+                }}
+              >
+                {t('tresFotosDivulgacao')}
+              </div>
+              <h3
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                  fontSize: 'clamp(24px, 3vw, 42px)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'clamp(15px, 2vh, 25px)',
+                  color: 'white',
+                  lineHeight: 1.1,
+                }}
+              >
+                {t('tresTitulo')}
+              </h3>
+
+              {/* Credits */}
+              <div
+                style={{
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(11px, 0.95vw, 13px)',
+                  lineHeight: '1.9',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                }}
+              >
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('direcao')}</span> Lila Foster</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('fotos')}</span> Bella Montiel</div>
+              </div>
+            </div>
+
+            {/* Subtle grid lines for structure */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                zIndex: 5,
+                opacity: 0.03,
+                backgroundImage: `
+                  linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+                `,
+                backgroundSize: '100px 100px',
+              }}
+            />
           </section>
 
         </div>
