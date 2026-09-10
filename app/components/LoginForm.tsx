@@ -1,14 +1,20 @@
 'use client'
 
 import { useAuth } from '@/lib/hooks/useAuth'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 
 export default function LoginForm() {
+  // `?erro=` chega de `/auth/callback` quando o token do e-mail falha (link
+  // expirado, já usado, adulterado). Sem isto o usuário era devolvido para cá
+  // sem explicação nenhuma. Vai como estado inicial, não num efeito, para o
+  // primeiro render já mostrar a mensagem.
+  const erroDaUrl = useSearchParams().get('erro')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(erroDaUrl)
   const [message, setMessage] = useState<string | null>(null)
   const { signIn, loading } = useAuth()
   const router = useRouter()
