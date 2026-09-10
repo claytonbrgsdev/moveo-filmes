@@ -2555,46 +2555,6 @@ export default function Home() {
         const transitionType = panel.getAttribute('data-movie-transition');
         const titleEl = panel.querySelector('[data-transition-title] h2') as HTMLElement;
 
-        if (transitionType === 'finale') {
-          // Finale: fade in overlay + text with letterSpacing reveal
-          const finaleText = panel.querySelector('[data-finale-text] h2') as HTMLElement;
-
-          if (finaleText) {
-            const finaleTl = gsap.timeline({
-              scrollTrigger: {
-                trigger: panel,
-                start: 'left 70%',
-                end: 'right -10%',
-                scrub: 0.5,
-                containerAnimation: secondTrackTweenRef.current || undefined,
-              },
-            });
-
-            // Scale down the last Mistério panel as we enter finale
-            const lastMisterioPanel = horizontalSecondTrackRef.current?.querySelector('[data-misterio-panel="2"]') as HTMLElement;
-            if (lastMisterioPanel) {
-              finaleTl.fromTo(lastMisterioPanel,
-                { scale: 1, borderRadius: '0px' },
-                { scale: 0.85, borderRadius: '24px', duration: 0.5, ease: 'power2.inOut' },
-                0
-              );
-            }
-
-            // Reveal "MOVEO FILMES" text
-            finaleTl.fromTo(finaleText,
-              { opacity: 0, y: 40, letterSpacing: '0.6em', scale: 0.9 },
-              { opacity: 1, y: 0, letterSpacing: '0.3em', scale: 1, duration: 0.5, ease: 'power3.out' },
-              0.3
-            );
-
-            // Hold, then fade out
-            finaleTl.to(finaleText,
-              { opacity: 0.6, y: -10, duration: 0.3, ease: 'power1.in' },
-              0.75
-            );
-          }
-          return;
-        }
 
         // Get transition type - diagonal, spotlight, or standard
         const transitionVariant = panel.getAttribute('data-transition-type');
@@ -7041,32 +7001,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Finale: End of showcase */}
-          <section
-            className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"
-            data-movie-transition="finale"
-            style={{
-              width: 'calc(100vw - var(--frame-pad) * 2)',
-              height: 'calc(100vh - var(--frame-pad) * 2)',
-            }}
-          >
-            <div data-finale-overlay className="absolute inset-0 bg-black z-10" />
-            <div data-finale-text className="absolute inset-0 flex items-center justify-center z-20 px-8">
-              <h2
-                className="text-white font-light uppercase opacity-0 text-center"
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Light Extended', Arial, Helvetica, sans-serif",
-                  fontSize: 'clamp(18px, 3vw, 42px)',
-                  letterSpacing: '0.15em',
-                  lineHeight: '1.4',
-                  maxWidth: '80%',
-                  willChange: 'transform, opacity',
-                }}
-              >
-                {t('catalogoFinale')}
-              </h2>
-            </div>
-          </section>
         </div>
       </div>
 
