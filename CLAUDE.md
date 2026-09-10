@@ -267,6 +267,15 @@ anteriores a este trabalho — não são regressão.
 **`/auth/callback` engole erro de token.** Token inválido não avisa nada: cai
 em `/auth/reset-password`, que não acha sessão e rebota para `/auth/login`.
 
+**A página de detalhe do filme entrega a linha inteira ao navegador.**
+`app/catalogo/*/[slug]/page.tsx` faz `select("*")` e passa o objeto para
+`FilmeContent`, que é `'use client'`. Toda coluna de `filmes` vai serializada no
+HTML público — inclusive `status_interno_*`, `buscando_*` e o que a tela não
+mostra. Na prática: um `grep` no HTML acha texto que não aparece na página
+(aconteceu com uma `logline_pt` desatualizada). Antes de concluir, veja se a
+ocorrência está dentro de `<script>`. E nada que não possa ser público deve
+morar em `filmes`.
+
 **Pastas com `_` não viram rota.** `app/api/__foo/` é pasta privada do App
 Router e não existe como endpoint — custou uma rodada de debug.
 

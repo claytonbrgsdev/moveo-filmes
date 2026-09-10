@@ -132,7 +132,7 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |
 | Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
 | Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |
-| Sinopse de A Natureza | a home usa a versão curta que a cliente escreveu na cartela 07; `filmes.sinopse_pt` ainda tem a antiga, mais longa, que é a que aparece em `/catalogo/cinema/[slug]` |
+| `logline_pt` de A Natureza | a sinopse foi alinhada em 10/09/2026 — a home e `filmes.sinopse_pt`/`sinopse_en` usam a versão curta da cliente. Mas `logline_pt`/`logline_en` ainda guardam a sinopse antiga, que era cópia dela. Nenhuma página exibe a logline hoje; se a home passar a ler `filmes`, ela aparece. Escrever uma logline de verdade é conteúdo |
 | Láureas do Três | pedidas na cartela 12; ela não mandou imagem de láurea para este filme, só a lista de festivais |
 | Elenco do Três no celular | escondido abaixo de `sm` no painel 2, mesma causa do painel da cartela 07 (coluna de 137px) |
 | Painel da cartela 07 no celular | grid de duas colunas fixas que não empilha: a coluna de texto fica com 140px. A sinopse está escondida abaixo de `sm` por isso |
