@@ -30,7 +30,7 @@ edição.
 
 | Cartela | Onde no código (comentário JSX) | O que é |
 |---|---|---|
-| 01 | primeiro `<section>` do arquivo, `Section index 01` | Abertura / hero |
+| 01 | primeiro `<section>` do arquivo, `Section index 01` | Abertura / hero — a caixa de vídeo mostra A Natureza (teaser, título, láureas) desde 10/09/2026 |
 | 02 | segundo `<section>` | Destaques (grade de imagens) |
 | 03 | terceiro `<section>` | Destaques + frase de posicionamento |
 | 04 | `Seção de Transição - Introdução ao Catálogo`, `Section index 04` | Cartão "CATÁLOGO EM DESTAQUE" |
@@ -70,9 +70,12 @@ de O Mistério da Carne por Três (cartelas 11 e 12) exigiu:
 - o selo de festival do painel 1, que era desenhado em cima do Sundance;
 - a ficha, a circulação e as chaves de i18n, que ficaram órfãs e saíram.
 
-**`misterio.mp4` continua em uso.** Fora do bloco de destaque ele aparece na
-cartela 02 (grade de destaques) e na coluna de vídeo da cartela 14. Não apague
-o arquivo achando que ele sobrou da troca.
+**`misterio.mp4` não é d'O Mistério da Carne — é material da Lubrina.** A moça
+de tranças na porta de casa é a mesma dos stills da Lubrina, no mesmo cenário, e
+o print que a cliente mandou da abertura trazia uma legenda sobre a Lubrina em
+cima dele. Hoje só a coluna de vídeo da cartela 14 o usa. Não apague o arquivo.
+(Uma versão anterior deste texto dizia "cartelas 02 e 14"; eram 01 e 14. O da
+01, a caixa de vídeo do hero, virou o teaser do Natureza.)
 
 **Rótulo de láurea não é enfeite.** Os dois rodapés do selo diziam "Melhor
 Filme". A cliente listou festivais em que Três *passou*, não prêmios — trocar só
@@ -96,11 +99,33 @@ foto grande.
 bloco passava 46px da borda e era cortado pelo `overflow: hidden` — nas
 Miçangas desde sempre, no Três por herança. Não volte para `55%`.
 
-**Para ver um painel da trilha, não use `scrollIntoView`.** A trilha é presa à
-rolagem vertical: role a página até o fim (ou a fração certa) do `pin-spacer`
-que a contém. E com o painel do navegador oculto o `lagSmoothing` do GSAP conta
-quadros espaçados como 33ms, então a trilha quase não anda entre screenshots
-lentos — uma rajada de screenshots curtos faz ela alcançar.
+**Para verificar animação de rolagem, role pelo Lenis, não pela janela.** O
+ScrollTrigger desta home não lê `window.scrollY`: `SmoothScrollProvider.tsx`
+instala um `scrollerProxy` que devolve `lenis.scroll`, e o Lenis só recebe
+rolagem por evento de roda. `window.scrollTo` às vezes arrasta a trilha e às
+vezes não — a revelação da caixa do hero (`onEnter` em `top top`) não disparou
+com ele, e parecia que a mudança tinha quebrado a abertura. O que funciona é
+`window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 }))`: um toque pequeno
+passa do gatilho sem empurrar a trilha horizontal para longe. `scrollIntoView`
+também não serve para painel de trilha.
+
+Com o painel do navegador oculto, duas coisas: a rolagem real da ferramenta
+(`computer scroll`) não roda, porque espera a página desenhar; e o `lagSmoothing`
+do GSAP conta quadros espaçados como 33ms, então animação e trilha quase não
+andam entre screenshots lentos. Uma rajada de screenshots curtos faz alcançar.
+
+**A caixa de vídeo do hero depende da `capahome.png`.** O GSAP da abertura
+procura `img[alt="Capa Home"]` ou `img[src*="capahome"]` para revelar a caixa. Um
+efeito zera a opacidade dela; o outro só devolve se achar essa imagem. Trocar ou
+renomear a imagem deixa a caixa inteira invisível, sem erro.
+
+**Láureas são arte de festival, não texto nosso.** Ficam em
+`public/imagens/laureas/`, brancas, aparadas, a 240px de altura, e são listadas em
+`LAUREAS_NATUREZA` no topo de `app/page.tsx`. As de Gramado e do Mix Brasil vinham
+pretas (invisíveis no fundo escuro) e foram invertidas; a do Santander vinha numa
+caixa cinza opaca, removida por luminância. Os originais estão nas pastas de
+láurea da produção no Drive. Os textos alternativos seguem o documento oficial
+de prêmios, não o que está escrito na arte.
 
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
@@ -135,5 +160,11 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | `logline_pt` de A Natureza | a sinopse foi alinhada em 10/09/2026 — a home e `filmes.sinopse_pt`/`sinopse_en` usam a versão curta da cliente. Mas `logline_pt`/`logline_en` ainda guardam a sinopse antiga, que era cópia dela. Nenhuma página exibe a logline hoje; se a home passar a ler `filmes`, ela aparece. Escrever uma logline de verdade é conteúdo |
 | Láureas do Três | pedidas na cartela 12; ela não mandou imagem de láurea para este filme, só a lista de festivais |
 | Elenco do Três no celular | escondido abaixo de `sm` no painel 2, mesma causa do painel da cartela 07 (coluna de 137px) |
+| Láurea do prêmio do Mix Brasil | o filme ganhou o Coelho de Ouro, mas as pastas só têm a láurea de **seleção oficial** — é a que está no hero |
+| Láureas de prêmio do Santander | Melhor Roteiro e Prêmio Sundance TV não têm arte própria; o hero usa a de seleção Ópera Prima |
+| Grande Otelo | sem arte em pasta nenhuma, vai em texto. Não há versão oficial em inglês — a do site é tradução nossa |
+| Texto das artes x prêmio oficial | a arte de Gramado diz "Melhor Atriz" (o prêmio foi de Atriz Coadjuvante); a de Seattle diz "Special Jury Prize" (foi Menção Especial). Arte é do festival; confirmar com a cliente se incomoda |
+| IDV do cartaz na abertura | a cliente escreveu "(IDV do cartaz)" na cartela 01 sem anexar arquivo; o título no hero usa a tipografia do site |
+| Pré-seleção ao Oscar | a cliente pediu por WhatsApp para "aproveitar o hype" (27/08); não entrou em lugar nenhum do site ainda |
 | Painel da cartela 07 no celular | grid de duas colunas fixas que não empilha: a coluna de texto fica com 140px. A sinopse está escondida abaixo de `sm` por isso |
 | Cartela 04 | o título do documento diz "retirar", a nota sob o print diz "ok" — **perguntar antes de mexer**. É o cartão "CATÁLOGO EM DESTAQUE", que abre a sequência que a cartela 13 fechava |
