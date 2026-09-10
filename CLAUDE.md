@@ -6,7 +6,7 @@ catálogo + CMS próprio, tudo num Next.js só.
 Infra (domínio, Vercel, Supabase, e-mail, contas): `../README-INFRA.md` —
 fica **fora** do repositório, na pasta acima.
 
-Última revisão desta página: **09/09/2026**.
+Última revisão desta página: **10/09/2026**.
 
 ---
 
@@ -29,7 +29,10 @@ aceita as seis categorias que o site sempre assumiu, incluindo `cinema` e
 `mostra`. Falta o outro lado disso — ver *Pendências*.
 
 **O painel ganhou a seção Empresas.** CRUD completo, mais o select de empresa
-no painel de créditos do filme, que não existia.
+no painel de créditos do filme, que não existia — 30 dos 57 créditos apontam
+para empresas e apareciam no painel como cargo sem nome. **No ar desde
+10/09/2026** (commit `68cc7d9`, deploy verificado: catálogo com os 18 filmes
+intactos, `/central` e as rotas novas guardadas).
 
 O Supabase **estava pausado e foi retomado**. Dados intactos e conferidos:
 18 filmes, 21 pessoas, 20 empresas, 10 itens de catálogo, 0 posts, 1 conta no
