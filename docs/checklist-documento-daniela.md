@@ -76,13 +76,13 @@ edição 24/08/2026). Para conferir: https://moveofilmes.com/preview.
 ## Cartela 08 — Não Há Magia
 
 - [ ] **08.1** Inserir Não Há Magia nas cartelas de destaque — ✅ painel novo depois da ficha do Natureza
-- [ ] **08.2** Teaser na cartela principal — 🔒 ela escreveu "esperando envio"; no lugar dele, o aviso "Inserir teaser de Não Há Magia aqui"
+- [ ] **08.2** Teaser na cartela principal — 🔒 ela escreveu "esperando envio"; o lugar dele é a transição de ripas diagonais antes de As Miçangas, que mostra o aviso "Inserir teaser de Não Há Magia aqui"
 - [ ] **08.3** 15 minutos, Documentário/Fantasia — ✅
 - [ ] **08.4** Direção: Lucas Milhomem — ✅
 - [ ] **08.5** Lançamento 04/06/2026, Festival Internacional de Curtas-Metragens de Hamburgo — ✅
 - [ ] **08.6** Elenco: Yara Ktaish, Márcia Witczak — ✅
 - [ ] **08.7** Sinopse "Um dia na vida de Yara…" — ✅
-- [ ] **08.8** Stills 01 a 05 — ✅ os cinco, na faixa abaixo do aviso do teaser (crédito Luis Hartmann)
+- [ ] **08.8** Stills 01 a 05 — ✅ os cinco (crédito Luis Hartmann)
 
 ## Cartela 09 — As Miçangas
 
