@@ -37,7 +37,7 @@ edição.
 | 05 | `Seção 1 - … Title Only` e `Seção 2 - … Editorial Split` | Vídeo com o título e o painel "O filme". O print da cliente pega a trilha no meio da transição entre os dois |
 | 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
 | 07 | `Seção 4 - … Split with Sinopse and Distribution` | Distribuição e ficha técnica |
-| 08 | `NÃO HÁ MAGIA — cartela 08`, logo antes de `Transition: Natureza → Miçangas` | **Não Há Magia** desde 10/09/2026: still grande, faixa de stills, ficha e sinopse. Painel sem GSAP; sem teaser ainda |
+| 08 | `NÃO HÁ MAGIA — cartela 08`, logo antes de `Transition: Natureza → Miçangas` | **Não Há Magia** desde 10/09/2026: ficha e sinopse à esquerda; à direita o aviso "Inserir teaser de Não Há Magia aqui" e a faixa com os cinco stills. Painel sem GSAP |
 | 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: Fragmented Memory Mosaic` | Título do filme e o mosaico com sinopse e ficha. O fragmento 2 do mosaico é o still do rio que a cliente indicou |
 | 10 | `AS MIÇANGAS - Panel 2: Full-Bleed Credits` | Faixa de láureas (`LAUREAS_MICANGAS`), os 11 festivais em texto e os créditos |
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
@@ -209,7 +209,7 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 
 | O quê | Estado |
 |---|---|
-| Teaser de Não Há Magia | a cliente ainda não tem — ela escreveu "esperando envio". O painel da cartela 08 usa o still da pedra (`/imagens/nao-ha-magia/pedra.jpg`) no lugar |
+| Teaser de Não Há Magia | a cliente ainda não tem — ela escreveu "esperando envio". O painel da cartela 08 mostra o aviso "Inserir teaser de Não Há Magia aqui" no lugar dele; a mídia fica à direita do texto para o trailer de As Miçangas, que vem na transição seguinte, não parecer o vídeo deste filme |
 | Não Há Magia em inglês | ela só mandou português. Sinopse, formato e lançamento em inglês (home e `filmes.sinopse_en`) são tradução nossa; o título ficou o original |
 | Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco. O espaço dela na cartela 02 (comentário `Linha C` no JSX) está com outro still do Natureza até ela chegar |
 | Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |

@@ -38,7 +38,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Cartela 07 — ficha técnica com formato, elenco e sinopse (`f618e04`)
 - [x] Painel da sinopse (cartela 07): parágrafo sem fonte e citação atribuída à Rafaela Camelo que não existe em nenhum material — trocar pela sinopse oficial e tirar a citação
 - [x] Cartela 08 — Não Há Magia: painel novo entre A Natureza e a transição para As Miçangas, com o still da pedra, faixa com os outros quatro, ficha e sinopse do documento
-- 🔒 Cartela 08 — teaser de Não Há Magia (cliente: "esperando envio"); entra no lugar do still grande
+- 🔒 Cartela 08 — teaser de Não Há Magia (cliente: "esperando envio"); o lugar dele mostra o aviso "Inserir teaser de Não Há Magia aqui"
 - [x] Notícias (cartela 15) — os três destaques do carrossel eram texto de exemplo ("Dois longas autorais selecionados para Rotterdam…", "Residência Criativa DF", "Co-produção transatlântica"); agora são Não Há Magia em Hamburgo, os três prêmios de Gramado e a abertura da Generation KPlus na Berlinale, com foto de cada filme
 - [x] Cartela 09 — As Miçangas: o bloco mostrava retratos da Lubrina; agora é o trailer do filme, com sinopse, formato, elenco, direção (são dois diretores, o site dava um), roteiro e coprodução da ficha técnica oficial
 - [x] Cartela 10 — As Miçangas: os 11 festivais do documento em destaque, com o prêmio de Melhor Curta do Panorama (em texto; as láureas em arte entraram na revisão de 11/09)

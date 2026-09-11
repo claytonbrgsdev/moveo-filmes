@@ -6058,8 +6058,8 @@ export default function Home() {
           {/* ===== NÃO HÁ MAGIA — cartela 08 =====
             * Bloco novo a pedido da cliente, entre A Natureza e a transição para As
             * Miçangas. Ainda sem teaser ("esperando envio"): quando chegar, entra no
-            * lugar do still grande como <video preload="none" data-src>, igual aos
-            * outros blocos. Não depende de GSAP — nada aqui nasce com opacity 0.
+            * lugar do aviso "Inserir teaser…" como <video preload="none" data-src>, igual
+            * aos outros blocos. Não depende de GSAP — nada aqui nasce com opacity 0.
             */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
@@ -6071,20 +6071,22 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
-            <div className="grid h-full grid-rows-[minmax(0,2fr)_minmax(0,3fr)] md:grid-rows-1 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-              {/* Esquerda — still grande e, a partir de md, uma faixa com os outros quatro */}
-              <div className="flex flex-col min-h-0 gap-2">
-                <div className="relative flex-1 min-h-0 overflow-hidden">
-                  <Image
-                    src="/imagens/nao-ha-magia/pedra.jpg"
-                    alt={t('naoHaMagiaTitulo')}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+            <div className="grid h-full grid-rows-[minmax(0,2fr)_minmax(0,3fr)] md:grid-rows-1 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+              {/* Mídia — o lugar do teaser (ainda não chegou: fica o aviso) e, a partir de md, a
+                  faixa com os cinco stills. No desktop fica à direita do texto: com a mídia à
+                  esquerda, o trailer de As Miçangas da transição seguinte aparecia colado na
+                  ficha e parecia ser o vídeo deste filme. */}
+              <div className="flex flex-col min-h-0 gap-2 md:order-2">
+                <div
+                  className="relative flex-1 min-h-0 flex items-center justify-center text-center"
+                  style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: 'clamp(16px, 3vw, 40px)' }}
+                >
+                  <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(12px, 1.2vw, 16px)', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    {t('naoHaMagiaTeaserPendente')}
+                  </span>
                 </div>
-                <div className="hidden md:grid grid-cols-4 gap-2">
-                  {['abertura', 'museu', 'pov', 'teatro'].map((still) => (
+                <div className="hidden md:grid grid-cols-5 gap-2">
+                  {['pedra', 'abertura', 'museu', 'pov', 'teatro'].map((still) => (
                     <div key={still} className="relative overflow-hidden" style={{ aspectRatio: '16 / 9' }}>
                       <Image
                         src={`/imagens/nao-ha-magia/${still}.jpg`}
@@ -6098,9 +6100,9 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Direita — título, ficha e sinopse */}
+              {/* Texto — título, ficha e sinopse (à esquerda no desktop) */}
               <div
-                className="flex flex-col justify-center min-h-0"
+                className="flex flex-col justify-center min-h-0 md:order-1"
                 style={{ padding: 'clamp(16px, 3vw, 48px)', gap: 'clamp(8px, 2vh, 22px)', overflow: 'hidden' }}
               >
                 <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(10px, 0.9vw, 13px)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255, 255, 255, 0.6)' }}>
