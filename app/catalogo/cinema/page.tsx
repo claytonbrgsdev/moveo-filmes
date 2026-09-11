@@ -27,6 +27,11 @@ export default async function CinemaPage() {
     const { data, error: supabaseError } = await supabase
       .from("filmes")
       .select("id, slug, titulo_pt, ano, ano_previsto, status_interno_pt, poster_principal_url, thumbnail_card_url")
+      // Filtra como as outras etapas do catálogo. Sem isto a página listava o
+      // acervo inteiro enquanto /catalogo contava só os de categoria "cinema" —
+      // o índice dizia 6 e a página mostrava 18. Decidido em 10/09/2026:
+      // /catalogo é a visão geral e "Cinema" é uma categoria como as outras.
+      .eq("categoria_site", "cinema")
       .order("ano", { ascending: false });
 
     if (supabaseError) {

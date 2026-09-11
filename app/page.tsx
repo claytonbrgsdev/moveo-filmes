@@ -66,6 +66,25 @@ const LINKS_NATUREZA = [
   { rotulo: 'linkOndeAssistir', href: 'https://www.vitrinefilmes.com.br/pt/movie/the-nature-of-invisible-things?whereToWatch=in-cinemas' },
 ] as const;
 
+/**
+ * Cartela 10 — festivais de As Miçangas, na ordem e com os nomes do documento da
+ * cliente. Não há láurea em arquivo para a maioria deles (as pastas da produção
+ * guardam só a de Curta Brasília e a do prêmio do Panorama), por isso vão em texto.
+ */
+const FESTIVAIS_MICANGAS: { pt: string; en: string; premioPt?: string; premioEn?: string }[] = [
+  { pt: 'Berlinale', en: 'Berlinale' },
+  { pt: 'Hong Kong', en: 'Hong Kong' },
+  { pt: 'Biarritz', en: 'Biarritz' },
+  { pt: 'Palm Springs', en: 'Palm Springs' },
+  { pt: 'New Directors', en: 'New Directors' },
+  { pt: 'Huesca', en: 'Huesca' },
+  { pt: 'Panorama Coisa de Cinema', en: 'Panorama Coisa de Cinema', premioPt: 'Melhor Curta', premioEn: 'Best Short Film' },
+  { pt: 'Kinoforum', en: 'Kinoforum' },
+  { pt: 'Festival do Rio', en: 'Festival do Rio' },
+  { pt: 'Curta Brasília', en: 'Curta Brasília' },
+  { pt: 'Goiânia Mostra Curtas', en: 'Goiânia Mostra Curtas' },
+];
+
 const FONT_HUGE = 'var(--font-huge)';
 // Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
 const MOVEO_TRACKING_EM = -0.04;
@@ -6555,6 +6574,42 @@ export default function Home() {
                 zIndex: 1,
               }}
             />
+
+            {/* Cartela 10: os festivais que a cliente pediu em destaque. Degradê no topo
+                para o texto ler sobre o trailer; os créditos seguem no pé. */}
+            <div
+              className="absolute inset-x-0 top-0 pointer-events-none"
+              style={{ height: '45%', zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)' }}
+            />
+            <div
+              data-micangas-festivais=""
+              className="absolute"
+              style={{
+                left: 'clamp(30px, 5vw, 60px)',
+                right: 'clamp(30px, 5vw, 60px)',
+                top: 'clamp(30px, 5vh, 60px)',
+                zIndex: 2,
+                fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                textShadow: '0 2px 14px rgba(0, 0, 0, 0.85)',
+              }}
+            >
+              <div style={{ fontSize: 'clamp(10px, 0.9vw, 12px)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255, 255, 255, 0.55)', marginBottom: 'clamp(6px, 1vh, 12px)' }}>
+                {t('festivais')}
+              </div>
+              <ul
+                className="grid grid-cols-2 sm:grid-cols-3 gap-x-6"
+                style={{ listStyle: 'none', margin: 0, padding: 0, maxWidth: 760, fontSize: 'clamp(11px, 1vw, 14px)', lineHeight: 1.7, color: 'rgba(255, 255, 255, 0.85)' }}
+              >
+                {FESTIVAIS_MICANGAS.map((festival) => (
+                  <li key={festival.pt} className={festival.premioPt ? 'col-span-2 sm:col-span-3' : undefined}>
+                    {language === 'en' ? festival.en : festival.pt}
+                    {festival.premioPt && (
+                      <span style={{ color: 'rgba(255, 210, 140, 0.95)' }}> — {language === 'en' ? festival.premioEn : festival.premioPt}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {/* Credits - bottom left */}
             <div

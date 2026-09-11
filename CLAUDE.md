@@ -243,13 +243,12 @@ Tabelas: `filmes`, `posts`, `pessoas`, `empresas`, `catalogo`,
 
 ## Armadilhas conhecidas
 
-**O catálogo mostra números que não fecham.** `/catalogo/cinema` lista
-**todos** os filmes sem filtrar `categoria_site`, enquanto as páginas de etapa
-filtram e o índice `/catalogo` conta por categoria. Como doze dos dezoito
-filmes estão com `categoria_site` nulo, o índice soma 6 e a página de cinema
-mostra 18. Não dá para consertar só no código: depende de classificar os
-filmes no painel e de decidir se "Cinema" é uma categoria como as outras ou a
-visão geral do acervo (ver *Pendências*).
+**Filme sem `categoria_site` não aparece em listagem nenhuma.** Desde
+10/09/2026 `/catalogo/cinema` filtra por categoria, como as outras etapas — antes
+listava o acervo inteiro enquanto o índice `/catalogo` contava por categoria, e
+os números não fechavam (6 no índice, 18 na página). `/catalogo` só mostra
+contagens, então um filme com categoria nula fica fora de todas as páginas de
+lista. Classifique antes de publicar um filme novo.
 
 **Rotas-esqueleto.** `app/empresa/[slug]` e `app/filme/[slug]` aparecem no
 quadro de rotas do build, mas `generateStaticParams` devolve `[]` e o
@@ -288,8 +287,7 @@ Router e não existe como endpoint — custou uma rodada de debug.
 | **Home chumbada em código** (`app/page.tsx`) | decisão de 10/09/2026: aplicar as alterações da cliente direto no JSX para entregar antes de 16/09, e tornar a home editável no CMS depois. Mapa cartela → código, o que já mudou, armadilhas e o que deve virar CMS: **`docs/home-cartelas.md`** |
 | Conta da cliente (`moveofilmes@gmail.com`) | está em `ADMIN_EMAILS`, mas não existe no Auth. `/auth/signup` é aberto: ela pode criar a própria, com a senha dela |
 | Deploy hook nunca testado | existe e está no secret, mas dispará-lo publica em produção |
-| Classificar os 12 filmes sem `categoria_site` | trabalho editorial, pelo `/central`. O banco já aceita as seis categorias |
-| `/catalogo/cinema` não filtra por categoria | **decidido em 10/09/2026**: `/catalogo` é o acervo inteiro e `/catalogo/cinema` vira categoria como as outras; filme sem classificação certa fica sem categoria. Falta implementar o filtro — e classificar antes, senão a página cai de 18 filmes para 0 |
+| Filmes sem `categoria_site` | quatro, e por isso fora de qualquer listagem: Feijão com Arroz, O Colar de Coralina e Uma Dose Violenta de Qualquer Coisa (sem ano, sinopse nem imagem) e Não Há Magia (rascunho). Os outros nove foram para `cinema` em 10/09/2026 — backup em `../backups/2026-09-10/categorias-antes.json` |
 | Tabela `catalogo` | 10 linhas, mas **nenhum código lê** — só aparece nos tipos gerados. As páginas `/catalogo/*` consultam `filmes`. Não construir CRUD antes de decidir se a tabela deve existir |
 | `filmes_relacionamentos`, `pessoas_filmografias` | sem tela no painel |
 | Estado do painel na URL | sem deep link; F5 volta ao dashboard. As quatro listas já têm busca; falta paginação |
