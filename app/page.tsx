@@ -6141,7 +6141,8 @@ export default function Home() {
                   <div><strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('elenco')}</strong> {t('naoHaMagiaElenco')}</div>
                   <div><strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('lancamento')}</strong> {t('naoHaMagiaLancamento')}</div>
                 </div>
-                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(9px, 0.8vw, 11px)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>
+                {/* Some abaixo de sm: num celular de 667px de altura a coluna passava 14px e cortava a ficha */}
+                <div className="hidden sm:block" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(9px, 0.8vw, 11px)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>
                   {t('fotos')} Luis Hartmann
                 </div>
               </div>
