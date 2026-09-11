@@ -6042,7 +6042,7 @@ export default function Home() {
             {/* Preview of next video - revealed through diagonal bars */}
             <video
               preload="none"
-              data-src="/videos/micangas.mp4"
+              data-src="/videos/micangas-trailer.mp4"
               muted
               loop
               playsInline
@@ -6091,7 +6091,7 @@ export default function Home() {
             {/* Secondary Video - depth layer, desaturated */}
             <video
               preload="none"
-              data-src="/videos/micangas.mp4"
+              data-src="/videos/micangas-trailer.mp4"
               muted
               loop
               playsInline
@@ -6110,7 +6110,7 @@ export default function Home() {
             {/* Primary Video - revealed through film strips */}
             <video
               preload="none"
-              data-src="/videos/micangas.mp4"
+              data-src="/videos/micangas-trailer.mp4"
               muted
               loop
               playsInline
@@ -6271,7 +6271,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6298,7 +6298,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6325,7 +6325,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6351,7 +6351,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6378,7 +6378,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6405,7 +6405,7 @@ export default function Home() {
             >
               <video
                 preload="none"
-                data-src="/videos/micangas.mp4"
+                data-src="/videos/micangas-trailer.mp4"
                 muted
                 loop
                 playsInline
@@ -6425,11 +6425,18 @@ export default function Home() {
                 // texto. O min() fica em 55% onde cabe e puxa para a esquerda
                 // quando não cabe; no desktop (painel de 1180px) nada muda.
                 left: 'min(55%, calc(100% - clamp(200px, 30vw, 350px) - 16px))',
-                top: '55%',
+                // Ancorado pelo pé, não em top: 55%. Com sinopse, formato e elenco
+                // (cartela 09) o bloco foi de ~130px para ~300px e, preso a 55% da
+                // altura, estourava 90px pelo pé do painel em 1280x600 e 42px no
+                // celular. Ancorado embaixo, cresce para cima e fica no painel.
+                bottom: 'clamp(24px, 6vh, 64px)',
                 width: 'clamp(200px, 30vw, 350px)',
                 zIndex: 10,
                 opacity: 0,
                 transform: 'translateY(20px)',
+                // O trailer de As Miçangas é luz de dia no cerrado, e o texto passa
+                // por cima dos fragmentos.
+                textShadow: '0 2px 14px rgba(0, 0, 0, 0.85)',
               }}
             >
               <div
@@ -6466,7 +6473,8 @@ export default function Home() {
                   marginBottom: 'clamp(20px, 3vh, 35px)',
                 }}
               >
-                Memória e identidade através de narrativas fragmentadas e poéticas.
+                {/* Era "Memória e identidade através de narrativas fragmentadas e poéticas.", sem fonte. */}
+                {t('micangasSinopse')}
               </p>
 
               {/* Credits */}
@@ -6478,7 +6486,9 @@ export default function Home() {
                   color: 'rgba(255, 255, 255, 0.5)',
                 }}
               >
-                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('direcao')}</span> Rafaela Camelo</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('direcao')}</span> Emanuel Lavor e Rafaela Camelo</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('formato')}</span> {t('micangasFormato')}</div>
+                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('elenco')}</span> {t('micangasElenco')}</div>
                 <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('producao')}</span> Moveo Filmes</div>
               </div>
             </div>
@@ -6512,7 +6522,7 @@ export default function Home() {
             {/* Full-Bleed Video Hero */}
             <video
               preload="none"
-              data-src="/videos/micangas.mp4"
+              data-src="/videos/micangas-trailer.mp4"
               muted
               loop
               playsInline
@@ -6564,13 +6574,16 @@ export default function Home() {
                 }}
               >
                 <div style={{ marginBottom: 'clamp(5px, 0.8vh, 10px)' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('direcao')}</span> Rafaela Camelo
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('direcao')}</span> Emanuel Lavor e Rafaela Camelo
+                </div>
+                <div style={{ marginBottom: 'clamp(5px, 0.8vh, 10px)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('roteiro')}</span> Emanuel Lavor
                 </div>
                 <div style={{ marginBottom: 'clamp(5px, 0.8vh, 10px)' }}>
                   <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('producao')}</span> Moveo Filmes
                 </div>
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('financiamento')}</span> FAC-DF, Edital Cardume
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>{t('coproducao')}</span> Apoteótica Cinematográfica, Fuskazul Filmes (Cardume Curtas), Relatar-se, Terra Cultural, Stelios Produções
                 </div>
               </div>
             </div>

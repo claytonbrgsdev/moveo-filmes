@@ -38,8 +38,8 @@ edição.
 | 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
 | 07 | `Seção 4 - … Split with Sinopse and Distribution` | Distribuição e ficha técnica |
 | 08 | **não existe** | Bloco novo: Não Há Magia |
-| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` | Destaque do filme |
-| 10 | `AS MIÇANGAS - Panel 1` e `Panel 2` | Láureas e créditos |
+| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: Fragmented Memory Mosaic` | Título do filme e o mosaico com sinopse e ficha |
+| 10 | `AS MIÇANGAS - Panel 2: Full-Bleed Credits` | Créditos e láureas |
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
 | 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
@@ -76,10 +76,10 @@ stills de cada filme, em 10/09/2026:
 | Arquivo | O que é de verdade | Onde fica |
 |---|---|---|
 | `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | coluna de vídeo da cartela 14 |
-| `micangas.mp4` | retratos de moradores, material da Lubrina | bloco de As Miçangas — errado, a trocar |
+| `micangas.mp4` | retratos de moradores, material da Lubrina | retângulo decorativo na seção de catálogo |
 | `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
 | `capahome.png` | still de As Miçangas | sobreposto ao teaser na abertura — a trocar |
-| `natureza-teaser.mp4`, `tres.mp4` | corretos: vieram do Drive da produção | blocos do Natureza e do Três |
+| `natureza-teaser.mp4`, `tres.mp4`, `micangas-trailer.mp4` | corretos: vieram do Drive da produção. O de As Miçangas foi cortado antes da cartela de título e da logo da Tarrafa | blocos do Natureza, do Três e de As Miçangas |
 
 Não confie no nome: antes de usar um vídeo num bloco, extraia quadros e compare
 com os stills. (Uma versão anterior deste documento dizia que `misterio.mp4`

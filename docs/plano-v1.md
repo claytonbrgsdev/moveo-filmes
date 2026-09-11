@@ -36,7 +36,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Cartela 07 — ficha técnica com formato, elenco e sinopse (`f618e04`)
 - [x] Painel da sinopse (cartela 07): parágrafo sem fonte e citação atribuída à Rafaela Camelo que não existe em nenhum material — trocar pela sinopse oficial e tirar a citação
 - [ ] Cartela 08 — bloco novo de Não Há Magia com ficha e stills (teaser 🔒 cliente)
-- [ ] Cartela 09 — As Miçangas em destaque: teaser e ficha técnica (o bloco usa `micangas.mp4`, que são retratos da Lubrina — trocar pelo material certo)
+- [x] Cartela 09 — As Miçangas: o bloco mostrava retratos da Lubrina; agora é o trailer do filme, com sinopse, formato, elenco, direção (são dois diretores, o site dava um), roteiro e coprodução da ficha técnica oficial
 - [ ] Cartela 10 — As Miçangas: láureas e festivais em destaque
 - [x] Cartelas 11 e 12 — Três no lugar de O Mistério da Carne, circulação e fotos (`a74f54a`, `9328bc8`)
 - [x] Cartela 13 — removida (`cbc2a0a`)
@@ -53,10 +53,11 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Fichas de Três, As Miçangas e A Natureza; Não Há Magia cadastrado como rascunho
 - [x] 26 imagens no bucket, ligadas aos filmes, com crédito de fotografia
 - [x] Sinopse de A Natureza alinhada com a versão da cliente
+- [x] Sinopse em inglês de As Miçangas no banco (estava vazia)
 - [ ] Classificar em `cinema` os filmes da lista da cliente; o que não tiver certeza fica sem categoria
 - [ ] `/catalogo/cinema` filtra por categoria (decidido: `/catalogo` é o acervo inteiro)
 - [ ] Créditos de direção e elenco de Três, As Miçangas e Não Há Magia
-- [ ] Limpeza: 8 assets `about:blank` e Daniela Marinho duplicada em `pessoas`
+- [x] Limpeza: 8 assets `about:blank` e Daniela Marinho duplicada em `pessoas` — backup em `../backups/2026-09-10/limpeza-daniela-e-assets.json`; os 2 créditos da cópia foram para a Daniela com slug (um era repetido e saiu)
 - 🔒 Anos conflitantes: O Véu de Amani (2017 × 2019), Mistério da Carne (2019 × 2018) — cliente
 - 🔒 Logline de A Natureza ainda é a sinopse antiga — cliente
 
@@ -83,4 +84,6 @@ Detalhe em `docs/home-cartelas.md`: teaser de Não Há Magia · imagem e ficha d
 Pacto da Viola · doc CATÁLOGO MOVEO SITE · decisão da cartela 04 · anos
 conflitantes · acesso ao Instagram · IDV do cartaz · pré-seleção ao Oscar ·
 láureas de prêmio do Mix Brasil e do Santander · Grande Otelo em inglês · texto
-das artes de Gramado e de Seattle · logline de A Natureza.
+das artes de Gramado e de Seattle · logline de A Natureza · grafia do elenco de As
+Miçangas (o documento diz Letícia Ferraz, a ficha técnica diz Tícia) · financiamento
+de As Miçangas (o site dizia "FAC-DF, Edital Cardume", sem fonte; saiu).

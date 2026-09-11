@@ -69,6 +69,12 @@ const translations: Record<Language, Record<string, string>> = {
     linkFotosPreEstreias: 'Fotos das pré-estreias',
     linkDistribuicaoInternacional: 'The Open Reel (distribuição internacional)',
     linkOndeAssistir: 'Vitrine Filmes (onde assistir no Brasil)',
+    // As Miçangas: sinopse do documento de alterações da cliente; formato e
+    // elenco da ficha técnica oficial. O documento escreve "Letícia Ferraz", a
+    // ficha e os arquivos dos stills escrevem "Tícia Ferraz" — ficou a ficha.
+    micangasSinopse: 'Isoladas em uma casa no coração do cerrado, duas irmãs realizam um procedimento de aborto sem se darem conta de que há uma serpente silvestre escondida no ambiente.',
+    micangasFormato: '19 min · Cor · Drama · 14 anos',
+    micangasElenco: 'Tícia Ferraz, Pâmela Germano, Karine Teles',
     estreiaMundial: 'Estreia Mundial',
     festivais: 'Festivais',
     premios: 'Prêmios',
@@ -178,6 +184,10 @@ const translations: Record<Language, Record<string, string>> = {
     linkFotosPreEstreias: 'Premiere photos',
     linkDistribuicaoInternacional: 'The Open Reel (international distribution)',
     linkOndeAssistir: 'Vitrine Filmes (where to watch in Brazil)',
+    // Sem sinopse oficial em inglês de As Miçangas: tradução nossa.
+    micangasSinopse: 'Isolated in a house in the heart of the cerrado, two sisters carry out an abortion without realizing that a wild snake is hiding in the room.',
+    micangasFormato: '19 min · Color · Drama · 14+',
+    micangasElenco: 'Tícia Ferraz, Pâmela Germano, Karine Teles',
     estreiaMundial: 'World Premiere',
     festivais: 'Festivals',
     premios: 'Awards',
