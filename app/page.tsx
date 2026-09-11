@@ -56,6 +56,16 @@ const LAUREAS_NATUREZA = [
     altPt: '53º Festival de Gramado — Melhor Trilha Sonora', altEn: '53rd Gramado Film Festival — Best Original Score' },
 ] as const;
 
+/** Links da cartela 06, na ordem do documento da cliente. Conferidos públicos (sem login) em 10/09/2026. */
+const LINKS_NATUREZA = [
+  { rotulo: 'linkFestivaisPremios', href: 'https://docs.google.com/document/d/1nlttyYCSwv7yz798VvQhWvPzwxggHphJtXPoNNC_PRo/edit?usp=sharing' },
+  { rotulo: 'linkLaureas', href: 'https://drive.google.com/drive/folders/1GB_nguQEnAyAWelFdoeiLCkyPTS3lvrl?usp=drive_link' },
+  { rotulo: 'linkPresskit', href: 'https://docs.google.com/document/d/1MaJ-4FHZd0A_DCKghup4p2i8VxmsiTpkASgc27dgE_Y/edit?usp=sharing' },
+  { rotulo: 'linkFotosPreEstreias', href: 'https://drive.google.com/drive/folders/1YRjfKN1p9od83qerX59l0O7N6W0J9iV-?usp=sharing' },
+  { rotulo: 'linkDistribuicaoInternacional', href: 'https://theopenreel.com/film/the-nature-of-invisible-things/' },
+  { rotulo: 'linkOndeAssistir', href: 'https://www.vitrinefilmes.com.br/pt/movie/the-nature-of-invisible-things?whereToWatch=in-cinemas' },
+] as const;
+
 const FONT_HUGE = 'var(--font-huge)';
 // Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
 const MOVEO_TRACKING_EM = -0.04;
@@ -5277,7 +5287,7 @@ export default function Home() {
             {/* Primary Video background - revealed through stripes */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5292,7 +5302,7 @@ export default function Home() {
             {/* Secondary Video - desaturated, pinned/slower parallax for depth */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5381,7 +5391,7 @@ export default function Home() {
                 <div style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.25)' }} />
                 <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase' as const }}>A NATUREZA DAS COISAS INVISÍVEIS</span>
               </div>
-              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2022 · 16mm</span>
+              <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontVariantNumeric: 'tabular-nums' as const }}>2025 · 90 MIN</span>
             </div>
           </section>
 
@@ -5400,7 +5410,7 @@ export default function Home() {
             {/* Primary Video - subtle parallax background */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5420,7 +5430,7 @@ export default function Home() {
             {/* Secondary Video - pinned/fixed effect, desaturated */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5532,7 +5542,7 @@ export default function Home() {
               {/* Video peek through the image */}
               <video
                 preload="none"
-                data-src="/videos/natureza.mp4"
+                data-src="/videos/natureza-teaser.mp4"
                 muted
                 loop
                 playsInline
@@ -5590,7 +5600,7 @@ export default function Home() {
             {/* Primary Video - full background with parallax */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5608,7 +5618,7 @@ export default function Home() {
             {/* Secondary Video - slower, desaturated layer for depth */}
             <video
               preload="none"
-              data-src="/videos/natureza.mp4"
+              data-src="/videos/natureza-teaser.mp4"
               muted
               loop
               playsInline
@@ -5808,11 +5818,44 @@ export default function Home() {
                       {t('mencaoEspecial')} — Seattle
                     </div>
                     <div>
-                      Jury Prize — Frameline49
+                      {t('premioJuri')} — Frameline49
                     </div>
                   </div>
                 </div>
               </div>
+              {/*
+                * Cartela 06: os "textos clicáveis" que a cliente pediu. Os seis
+                * links foram abertos sem login em 10/09/2026. As duas
+                * distribuidoras estavam no documento como "referência"; entram
+                * como link porque são as páginas oficiais do filme.
+                */}
+              <nav
+                aria-label={t('saibaMais')}
+                style={{
+                  marginTop: 'clamp(14px, 3vh, 32px)',
+                  paddingTop: 'clamp(10px, 2vh, 20px)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'baseline',
+                  columnGap: 'clamp(14px, 1.6vw, 24px)',
+                  rowGap: 6,
+                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                  fontSize: 'clamp(11px, 1vw, 14px)',
+                }}
+              >
+                {LINKS_NATUREZA.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'rgba(255, 255, 255, 0.85)', textDecoration: 'underline', textUnderlineOffset: 4, textDecorationColor: 'rgba(255, 255, 255, 0.35)' }}
+                  >
+                    {t(link.rotulo)} ↗
+                  </a>
+                ))}
+              </nav>
             </div>
           </section>
 
@@ -5850,7 +5893,7 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  Sinopse
+                  {t('sinopse')}
                 </div>
                 <div 
                   className="data-natureza-text"
@@ -5864,41 +5907,20 @@ export default function Home() {
                   }}
                 >
                   <p className="split-text">
-                    Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas. O filme explora as histórias que não vemos, mas que nos definem, revelando camadas de memória, identidade e pertencimento através de uma linguagem cinematográfica ousada e poética.
+                    {/*
+                      * Era um parágrafo sem fonte ("uma jornada visceral através de
+                      * narrativas invisíveis…"), só em português. Agora é a sinopse
+                      * que a cliente escreveu, a mesma de filmes.sinopse_pt.
+                      */}
+                    {t('naturezaSinopse')}
                   </p>
                 </div>
 
-                {/* Quote */}
-                <div
-                  className="data-natureza-quote"
-                  style={{
-                    marginTop: 'clamp(30px, 4vh, 50px)',
-                    paddingLeft: 'clamp(20px, 3vw, 30px)',
-                    borderLeft: '2px solid rgba(255, 255, 255, 0.3)',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                      fontSize: 'clamp(16px, 1.5vw, 22px)',
-                      lineHeight: '1.6',
-                      fontStyle: 'italic',
-                      color: 'rgba(255, 255, 255, 0.9)',
-                      marginBottom: 'clamp(12px, 2vh, 20px)',
-                    }}
-                  >
-                    &quot;O que não vemos é o que mais nos move.&quot;
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                      fontSize: 'clamp(11px, 1vw, 13px)',
-                      color: 'rgba(255, 255, 255, 0.5)',
-                    }}
-                  >
-                    — Rafaela Camelo
-                  </div>
-                </div>
+                {/*
+                  * Aqui havia uma citação atribuída à Rafaela Camelo que não existe
+                  * em nenhum material da produção. Saiu em 10/09/2026. O GSAP que
+                  * animava `.data-natureza-quote` já checava se o elemento existe.
+                  */}
               </div>
             </div>
 
@@ -5961,13 +5983,13 @@ export default function Home() {
                 </div>
                 <div
                   /*
-                   * Duas colunas a partir de `sm`. A ficha ganhou formato,
-                   * elenco e sinopse a pedido da cliente e, numa lista única,
-                   * passava da altura do painel em telas baixas — o print que
-                   * ela mandou tem 642px de altura, e em 600px o estouro
-                   * chegava a 44px. Em duas colunas as sete linhas curtas
-                   * viram quatro e sobra folga. Elenco e sinopse atravessam as
-                   * duas colunas: são textos longos e ficariam espremidos.
+                   * Duas colunas a partir de `sm`. A ficha ganhou formato e
+                   * elenco a pedido da cliente e, numa lista única, passava da
+                   * altura do painel em telas baixas — o print que ela mandou
+                   * tem 642px de altura. Em duas colunas as linhas curtas viram
+                   * metade. O elenco atravessa as duas colunas: é texto longo.
+                   * (A sinopse chegou a morar aqui; foi para a coluna esquerda
+                   * deste mesmo painel, que é onde o painel sempre a mostrou.)
                    */
                   className="grid grid-cols-1 sm:grid-cols-2 gap-x-8"
                   style={{
@@ -6002,43 +6024,6 @@ export default function Home() {
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
                   </div>
 
-                  {/*
-                    * Sinopse — pedida pela cliente na cartela 07.
-                    *
-                    * Fica escondida no celular. Este painel é um grid de duas
-                    * colunas fixas (1fr 1fr) que não empilha, então em 375px a
-                    * coluna de texto tem 140px de largura: a sinopse ocupa 237px
-                    * de altura e estoura o painel em 37px. Sem ela o bloco cabe
-                    * com 224px de sobra. Além disso, um parágrafo justificado
-                    * numa coluna de 140px não se lê — a sinopse continua
-                    * inteira na página do filme, em /catalogo/cinema/[slug].
-                    *
-                    * O conserto de verdade é o painel empilhar no celular, mas
-                    * isso é redesenho da seção inteira, não desta linha.
-                    */}
-                  <div
-                    className="hidden sm:block sm:col-span-2"
-                    style={{
-                      marginTop: 'clamp(8px, 3vh, 30px)',
-                      paddingTop: 'clamp(6px, 2vh, 24px)',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 'clamp(10px, 0.9vw, 13px)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        marginBottom: 'clamp(4px, 1.5vh, 16px)',
-                      }}
-                    >
-                      {t('sinopse')}
-                    </div>
-                    <p style={{ margin: 0, lineHeight: '1.6', color: 'rgba(255, 255, 255, 0.75)' }}>
-                      {t('naturezaSinopse')}
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>

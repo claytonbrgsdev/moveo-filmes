@@ -16,7 +16,7 @@ Legenda: `[x]` feito · `[ ]` a fazer · `🔒` bloqueado, com quem destrava.
 
 ## 0. Colocar em dia
 
-- [ ] Publicar os 16 commits da branch `ajustes-cliente-set2026` e conferir o deploy
+- [x] Publicar os 16 commits da branch `ajustes-cliente-set2026` e conferir o deploy (`71db194` — deploy concluído; landing para o público, home nova com `/preview`, catálogo com os 18 filmes)
 - [x] Escrever este plano
 
 ## 1. Home — documento de alterações da cliente
@@ -29,11 +29,14 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Cartela 03 — frase de posicionamento (`cb99eff`)
 - [ ] Cartela 03 — destacar A Natureza, As Miçangas, Três e Lubrina com as 8 imagens enviadas
 - 🔒 Cartela 04 — o documento diz "retirar" e "ok" ao mesmo tempo (cliente)
-- [ ] Cartela 05 — vídeo de A Natureza
-- [ ] Cartela 06 — festivais e destaques com links: festivais e prêmios, láureas, presskit, fotos das pré-estreias, distribuidoras
+- [x] Cartela 05 — vídeo de A Natureza: o bloco inteiro usava material de As Miçangas; agora é o teaser, e a descrição perdeu a frase inventada
+- [ ] Abertura — `capahome.png` é um still de As Miçangas sobreposto ao teaser do Natureza; trocar a imagem mantendo nome e `alt` (o GSAP depende dos dois)
+- [x] Cartela 06 — festivais e destaques com links: festivais e prêmios, láureas, presskit, fotos das pré-estreias, distribuidoras
+- [x] Chaves de tradução que apareciam cruas na tela: "colombia", "mexico", "uruguai" (pt) e "catalogoEm", "destaque" (en)
 - [x] Cartela 07 — ficha técnica com formato, elenco e sinopse (`f618e04`)
+- [x] Painel da sinopse (cartela 07): parágrafo sem fonte e citação atribuída à Rafaela Camelo que não existe em nenhum material — trocar pela sinopse oficial e tirar a citação
 - [ ] Cartela 08 — bloco novo de Não Há Magia com ficha e stills (teaser 🔒 cliente)
-- [ ] Cartela 09 — As Miçangas em destaque: teaser e ficha técnica
+- [ ] Cartela 09 — As Miçangas em destaque: teaser e ficha técnica (o bloco usa `micangas.mp4`, que são retratos da Lubrina — trocar pelo material certo)
 - [ ] Cartela 10 — As Miçangas: láureas e festivais em destaque
 - [x] Cartelas 11 e 12 — Três no lugar de O Mistério da Carne, circulação e fotos (`a74f54a`, `9328bc8`)
 - [x] Cartela 13 — removida (`cbc2a0a`)

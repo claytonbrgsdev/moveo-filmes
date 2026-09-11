@@ -42,7 +42,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Filmes
     aNaturezaDasCoisasInvisiveis: 'A NATUREZA DAS COISAS INVISÍVEIS',
     aNaturezaDasCoisasInvisiveisTitle: 'A Natureza das Coisas Invisíveis',
-    naturezaDescription: 'Primeiro longa-metragem internacional da Moveo Filmes. Uma jornada visceral através de narrativas invisíveis que conectam o Brasil contemporâneo com suas raízes mais profundas.',
+    naturezaDescription: 'Primeiro longa-metragem internacional da Moveo Filmes.',
     direcao: 'Direção:',
     roteiro: 'Roteiro:',
     ano: 'Ano:',
@@ -57,6 +57,18 @@ const translations: Record<Language, Record<string, string>> = {
     naturezaSinopse: 'Durante as férias de verão, duas meninas de dez anos se encontram num hospital e formam um vínculo inesperado. Esse laço as conduz por uma jornada agridoce de despedidas e de profundas descobertas sobre a vida.',
     grandeOteloTitulo: 'Prêmio Grande Otelo 2026',
     grandeOteloCategoria: 'Melhor Primeira Direção de Longa-Metragem',
+    // Estas três eram usadas na cartela 06 e não existiam em pt: a tela
+    // mostrava o nome da chave, "colombia", em vez do país.
+    colombia: 'Colômbia:',
+    mexico: 'México:',
+    uruguai: 'Uruguai',
+    premioJuri: 'Prêmio do Júri',
+    linkFestivaisPremios: 'Festivais e prêmios',
+    linkLaureas: 'Láureas',
+    linkPresskit: 'Presskit',
+    linkFotosPreEstreias: 'Fotos das pré-estreias',
+    linkDistribuicaoInternacional: 'The Open Reel (distribuição internacional)',
+    linkOndeAssistir: 'Vitrine Filmes (onde assistir no Brasil)',
     estreiaMundial: 'Estreia Mundial',
     festivais: 'Festivais',
     premios: 'Prêmios',
@@ -138,7 +150,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Filmes
     aNaturezaDasCoisasInvisiveis: 'THE NATURE OF INVISIBLE THINGS',
     aNaturezaDasCoisasInvisiveisTitle: 'The Nature of Invisible Things',
-    naturezaDescription: 'Moveo Filmes\' first international feature film. A visceral journey through invisible narratives that connect contemporary Brazil with its deepest roots.',
+    naturezaDescription: 'Moveo Filmes\' first international feature film.',
     direcao: 'Direction:',
     roteiro: 'Screenplay:',
     ano: 'Year:',
@@ -155,6 +167,17 @@ const translations: Record<Language, Record<string, string>> = {
     // Grande Otelo em português. Tradução nossa — confirmar com a Moveo.
     grandeOteloTitulo: 'Grande Otelo Award 2026',
     grandeOteloCategoria: 'Best Directorial Debut, Feature Film',
+    // Usadas no título "CATÁLOGO EM DESTAQUE" e ausentes em en: o site em
+    // inglês mostrava "catalogoEm" e "destaque".
+    catalogoEm: 'FEATURED',
+    destaque: 'CATALOG',
+    premioJuri: 'Jury Prize',
+    linkFestivaisPremios: 'Festivals and awards',
+    linkLaureas: 'Laurels',
+    linkPresskit: 'Press kit',
+    linkFotosPreEstreias: 'Premiere photos',
+    linkDistribuicaoInternacional: 'The Open Reel (international distribution)',
+    linkOndeAssistir: 'Vitrine Filmes (where to watch in Brazil)',
     estreiaMundial: 'World Premiere',
     festivais: 'Festivals',
     premios: 'Awards',

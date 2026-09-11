@@ -34,9 +34,9 @@ edição.
 | 02 | segundo `<section>` | Destaques (grade de imagens) |
 | 03 | terceiro `<section>` | Destaques + frase de posicionamento |
 | 04 | `Seção de Transição - Introdução ao Catálogo`, `Section index 04` | Cartão "CATÁLOGO EM DESTAQUE" |
-| 05 | `Seção 1 - A Natureza das Coisas Invisíveis - Title Only` | Título do filme |
-| 06 | `Seção 2 - A Natureza … - Editorial` | Festivais e destaques |
-| 07 | `Seção 3 - A Natureza … - Full Background` | Ficha técnica |
+| 05 | `Seção 1 - … Title Only` e `Seção 2 - … Editorial Split` | Vídeo com o título e o painel "O filme". O print da cliente pega a trilha no meio da transição entre os dois |
+| 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
+| 07 | `Seção 4 - … Split with Sinopse and Distribution` | Distribuição e ficha técnica |
 | 08 | **não existe** | Bloco novo: Não Há Magia |
 | 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` | Destaque do filme |
 | 10 | `AS MIÇANGAS - Panel 1` e `Panel 2` | Láureas e créditos |
@@ -70,12 +70,20 @@ de O Mistério da Carne por Três (cartelas 11 e 12) exigiu:
 - o selo de festival do painel 1, que era desenhado em cima do Sundance;
 - a ficha, a circulação e as chaves de i18n, que ficaram órfãs e saíram.
 
-**`misterio.mp4` não é d'O Mistério da Carne — é material da Lubrina.** A moça
-de tranças na porta de casa é a mesma dos stills da Lubrina, no mesmo cenário, e
-o print que a cliente mandou da abertura trazia uma legenda sobre a Lubrina em
-cima dele. Hoje só a coluna de vídeo da cartela 14 o usa. Não apague o arquivo.
-(Uma versão anterior deste texto dizia "cartelas 02 e 14"; eram 01 e 14. O da
-01, a caixa de vídeo do hero, virou o teaser do Natureza.)
+**Os nomes dos arquivos de vídeo mentem.** Conferido quadro a quadro contra os
+stills de cada filme, em 10/09/2026:
+
+| Arquivo | O que é de verdade | Onde fica |
+|---|---|---|
+| `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | coluna de vídeo da cartela 14 |
+| `micangas.mp4` | retratos de moradores, material da Lubrina | bloco de As Miçangas — errado, a trocar |
+| `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
+| `capahome.png` | still de As Miçangas | sobreposto ao teaser na abertura — a trocar |
+| `natureza-teaser.mp4`, `tres.mp4` | corretos: vieram do Drive da produção | blocos do Natureza e do Três |
+
+Não confie no nome: antes de usar um vídeo num bloco, extraia quadros e compare
+com os stills. (Uma versão anterior deste documento dizia que `misterio.mp4`
+sobrava nas "cartelas 02 e 14"; eram 01 e 14.)
 
 **Rótulo de láurea não é enfeite.** Os dois rodapés do selo diziam "Melhor
 Filme". A cliente listou festivais em que Três *passou*, não prêmios — trocar só
@@ -113,6 +121,15 @@ Com o painel do navegador oculto, duas coisas: a rolagem real da ferramenta
 (`computer scroll`) não roda, porque espera a página desenhar; e o `lagSmoothing`
 do GSAP conta quadros espaçados como 33ms, então animação e trilha quase não
 andam entre screenshots lentos. Uma rajada de screenshots curtos faz alcançar.
+
+**Parte do texto do bloco do Natureza foi escrita sem fonte.** A descrição do
+painel "O filme" ("uma jornada visceral através de narrativas invisíveis…"), o
+parágrafo do painel da sinopse e uma citação atribuída à Rafaela Camelo não
+aparecem em nenhum material da produção. Em 10/09/2026 a descrição ficou só com a
+frase que tem fonte, o parágrafo virou a sinopse oficial e a citação saiu. Antes
+de manter texto sobre um filme na home, confira se ele está no documento da
+cliente, no documento de prêmios ou no banco — e nunca ponha frase na boca de
+alguém sem a fonte.
 
 **A caixa de vídeo do hero depende da `capahome.png`.** O GSAP da abertura
 procura `img[alt="Capa Home"]` ou `img[src*="capahome"]` para revelar a caixa. Um
