@@ -4709,9 +4709,13 @@ export default function Home() {
 
                     <div className="grid grid-rows-2 flex-1 min-h-0 gap-2">
                       {/* Linha superior dividida verticalmente em 2 */}
+                      {/* key={language} nos textos desta cartela: o typewriter do GSAP troca o texto
+                          por um <span> por letra, e o React perde a referência — ao trocar o idioma
+                          com a página aberta, "Baseada em" e "Focado em" ficavam em português. Com a
+                          key o React recria o nó no idioma novo (sem repetir a animação). */}
                       <div className="grid grid-cols-2 gap-2">
                         <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 pl-0 flex items-end justify-start" data-second-animate>
-                          <p
+                          <p key={language}
                             className="text-white mix-blend-difference"
                             suppressHydrationWarning
                             style={{
@@ -4736,7 +4740,7 @@ export default function Home() {
 
                       {/* Container maior inferior com texto */}
                       <div className="bg-transparent rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6 pl-0 flex items-end justify-start" data-second-animate>
-                        <p
+                        <p key={language}
                           className="text-white mix-blend-difference"
                           suppressHydrationWarning
                           style={{
@@ -4774,6 +4778,7 @@ export default function Home() {
                         <div style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 20, background: 'rgba(255,255,255,0.3)' }} />
                       </div>
                       <div
+                        key={language}
                         ref={sobreMoveoTextRef}
                         className="text-white uppercase text-center mix-blend-difference" 
                         suppressHydrationWarning
@@ -4824,7 +4829,7 @@ export default function Home() {
                     <div className="grid grid-cols-3 flex-[2] min-h-0 gap-2">
                       {/* Container esquerdo (esquerda + centro mesclados) */}
                       <div className="col-span-2 bg-transparent flex items-end justify-start" data-second-animate>
-                        <p
+                        <p key={language}
                           className="text-white mix-blend-difference"
                           suppressHydrationWarning
                           style={{
@@ -7715,7 +7720,7 @@ export default function Home() {
                         fontVariantNumeric: 'tabular-nums',
                       }}
                     >
-                      08
+                      12
                     </span>
                     <span
                       style={{

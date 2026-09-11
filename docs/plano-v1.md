@@ -109,8 +109,10 @@ Fora do que o documento pede: links, páginas que a home abre, inglês e o que u
 - 🔒 Configurar o envio do formulário — conta no Resend, chave e domínio verificado (Clayton)
 - [x] Inglês: 11 textos fixos em português na home (Distribuição, Ficha Técnica, Brasil:, Internacional:, Lançamento Brasil:, texto da Berlinale, Arquivo de Imprensa, bloco de Contato) viraram chaves de tradução
 - [x] Catálogo: "Filmes de longa-metragem" virou "Longas e curtas-metragens" no índice e em `/catalogo/cinema`
-- [x] Contador do bloco CATÁLOGO/CINEMA da home subia até 08, número fixo; agora 12, o total de `/catalogo/cinema`
+- [x] Contador do bloco CATÁLOGO/CINEMA da home subia até 08, número fixo; agora 12, o total de `/catalogo/cinema` (no GSAP e no texto inicial, que tinha ficado 08 na primeira correção)
 - [x] `/noticias` dizia "Nenhuma notícia disponível" enquanto a home mostrava três e apontava para ela: as duas leem `lib/noticiasDestaque.ts`, e cada notícia leva à página do filme
+- [x] Trocar o idioma com a home aberta deixava "Baseada em" e "Focado em" em português: o typewriter da cartela 02 troca o texto por spans e o React perde o nó. Os textos têm `key={language}`
+- [x] Quem voltava com inglês salvo causava erro de hidratação e a página inteira era redesenhada no navegador (o idioma era lido do localStorage no primeiro render). Agora começa em `pt` e aplica o salvo depois; o `<html lang>` acompanha o idioma
 - 🔒 WhatsApp (61) 98142-4106 em `/contato` sem fonte (entrou em nov/2025) — confirmar com a cliente
 - 🔒 5 dos 12 filmes em `/catalogo/cinema` sem imagem; Terra de Luz e All Still Orbit não estão no currículo da empresa (são da filmografia da Daniela) — decidir com a cliente
 

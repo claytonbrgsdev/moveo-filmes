@@ -295,19 +295,19 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('language') as Language | null;
-      if (saved === 'pt' || saved === 'en') return saved;
-    }
-    return 'pt';
-  });
+  // Começa sempre em 'pt', como o HTML que o servidor gera. Ler o localStorage no
+  // inicializador fazia o primeiro render do cliente sair em inglês para quem tinha
+  // salvo 'en': erro de hidratação e a página inteira redesenhada no navegador.
+  const [language, setLanguageState] = useState<Language>('pt');
 
   useEffect(() => {
-    // Sincronizar com localStorage quando mudar
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('language', language);
-    }
+    // O idioma salvo só existe no navegador; aplicar depois da hidratação é o ponto.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (localStorage.getItem('language') === 'en') setLanguageState('en');
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language === 'en' ? 'en' : 'pt-BR';
   }, [language]);
 
   const setLanguage = (lang: Language) => {

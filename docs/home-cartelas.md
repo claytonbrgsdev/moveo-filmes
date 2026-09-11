@@ -173,9 +173,15 @@ Festival do Rio seguem em texto: nas pastas só há fotos, posts ou logos.
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
 
+**O typewriter da cartela 02 reescreve o DOM.** O GSAP troca o texto de cada bloco
+por um `<span>` por letra, e o React perde a referência daquele nó. Por isso os textos
+da cartela têm `key={language}`: ao trocar o idioma, o React recria o nó. Texto novo
+nessa cartela precisa da mesma `key`, senão fica no idioma antigo até recarregar.
+
 **Números fixos na home.** O contador do bloco CATÁLOGO/CINEMA sobe até 12 — o
-total de `/catalogo/cinema` em 11/09/2026, escrito no GSAP (`val: 12`). Filme novo no
-catálogo não muda esse número; até 11/09 ele dizia 08.
+total de `/catalogo/cinema` em 11/09/2026, escrito duas vezes: no GSAP (`val: 12`) e no
+texto inicial do `data-cinema-count`. Filme novo no catálogo não muda esse número; até
+11/09 ele dizia 08.
 
 ## O que deve virar CMS quando voltarmos
 
