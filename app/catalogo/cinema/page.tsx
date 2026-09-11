@@ -135,7 +135,7 @@ export default async function CinemaPage() {
                   fontWeight: 400,
                 }}
               >
-                Filmes de longa-metragem
+                Longas e curtas-metragens
               </h2>
             </div>
 

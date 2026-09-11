@@ -173,6 +173,10 @@ Festival do Rio seguem em texto: nas pastas só há fotos, posts ou logos.
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
 
+**Números fixos na home.** O contador do bloco CATÁLOGO/CINEMA sobe até 12 — o
+total de `/catalogo/cinema` em 11/09/2026, escrito no GSAP (`val: 12`). Filme novo no
+catálogo não muda esse número; até 11/09 ele dizia 08.
+
 ## O que deve virar CMS quando voltarmos
 
 Em ordem de dor. Tudo isto hoje é literal no JSX:
@@ -189,7 +193,8 @@ Em ordem de dor. Tudo isto hoje é literal no JSX:
    copy solta, sem tabela. Precisaria de algo tipo `home_blocos`.
 6. **As notícias da cartela 15.** A tabela `posts` existe e tem tela no painel,
    mas está vazia e a home não a lê: os três destaques são chaves de tradução
-   (`noticia*`) com a foto escolhida no JSX.
+   (`noticia*`) listadas em `lib/noticiasDestaque.ts`, que `/noticias` também mostra
+   enquanto não houver posts.
 
 Os itens 2, 3 e 4 são os baratos: o dado já está no banco e etiquetado. O caro é
 o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.

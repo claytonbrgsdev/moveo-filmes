@@ -13,6 +13,7 @@ import { useGridGuides } from '@/lib/hooks/useGridGuides';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLoading } from '@/lib/contexts/LoadingContext';
 import { useVideoLazyLoad } from '@/lib/hooks/useVideoLazyLoad';
+import { NOTICIAS_DESTAQUE } from '@/lib/noticiasDestaque';
 import {
   getMarkerPosition,
   getHorizontalLinePosition,
@@ -140,31 +141,15 @@ export default function Home() {
   const { language, t } = useLanguage();
   
   // News highlights traduzidos baseados no idioma
-  // Cartela 15: eram três notícias de exemplo. Agora são fatos com fonte (ver as chaves
-  // noticia* no LanguageContext), cada uma com foto do filme, até o Instagram sincronizar.
-  const newsHighlights = [
-    {
-      title: t('noticiaHamburgo'),
-      summary: t('noticiaHamburgoResumo'),
-      date: t('junho2026'),
-      tag: t('festival'),
-      image: '/imagens/nao-ha-magia/pedra.jpg',
-    },
-    {
-      title: t('noticiaGramado'),
-      summary: t('noticiaGramadoResumo'),
-      date: t('agosto2025'),
-      tag: t('premioTag'),
-      image: '/imagens/destaques/natureza-janela.jpg',
-    },
-    {
-      title: t('noticiaBerlinale'),
-      summary: t('noticiaBerlinaleResumo'),
-      date: t('fevereiro2025'),
-      tag: t('festival'),
-      image: '/imagens/capahome-natureza.jpg',
-    },
-  ];
+  // Cartela 15: fatos com fonte, os mesmos de /noticias enquanto não houver posts
+  // (lib/noticiasDestaque.ts; textos nas chaves noticia* do LanguageContext).
+  const newsHighlights = NOTICIAS_DESTAQUE.map((noticia) => ({
+    title: t(noticia.titulo),
+    summary: t(noticia.resumo),
+    date: t(noticia.data),
+    tag: t(noticia.tag),
+    image: noticia.imagem,
+  }));
   const isGuidesVisible = useGridGuides();
   const pathname = usePathname();
   const { setGsapReady } = useLoading();
@@ -2164,12 +2149,12 @@ export default function Home() {
         });
       }
 
-      // Film count-up: 01 → 08
+      // Film count-up: 01 → 12. Número fixo: o total de /catalogo/cinema em 11/09/2026 — a home não lê o banco
       const countEl = cinemaSectionRef.current?.querySelector('[data-cinema-count]') as HTMLElement | null;
       if (countEl) {
         const countObj = { val: 1 };
         gsap.to(countObj, {
-          val: 8,
+          val: 12,
           duration: 1.2,
           ease: 'power2.out',
           onUpdate() {
@@ -5776,7 +5761,7 @@ export default function Home() {
                 }}
               >
                 <p className="split-text">
-                  Generation KPlus, Filme de Abertura. Uma estreia histórica que marca o primeiro longa-metragem internacional da Moveo Filmes em um dos festivais mais prestigiosos do mundo.
+                  {t('berlinaleDescricao')}
                 </p>
               </div>
 
@@ -5981,7 +5966,7 @@ export default function Home() {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  Distribuição
+                  {t('rotuloDistribuicao')}
                 </div>
                 <div
                   /* Duas colunas pelo mesmo motivo da ficha logo abaixo: em
@@ -5996,10 +5981,10 @@ export default function Home() {
                   }}
                 >
                   <div className="mb-3 sm:mb-0">
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Brasil:</strong> Vitrine Filmes
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>{t('rotuloBrasil')}</strong> Vitrine Filmes
                   </div>
                   <div>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Internacional:</strong> The Open Reel
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.95)' }}>{t('rotuloInternacional')}</strong> The Open Reel
                   </div>
                 </div>
 
@@ -6015,7 +6000,7 @@ export default function Home() {
                     paddingTop: 'clamp(8px, 3vh, 30px)',
                   }}
                 >
-                  Ficha Técnica
+                  {t('rotuloFichaTecnica')}
                 </div>
                 <div
                   /*
@@ -6057,7 +6042,7 @@ export default function Home() {
                     <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('financiamento')}</strong> FAC-DF, FSA/Ancine
                   </div>
                   <div>
-                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Lançamento Brasil:</strong> 27/11/2025
+                    <strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('rotuloLancamentoBrasil')}</strong> 27/11/2025
                   </div>
 
                 </div>
@@ -8253,7 +8238,7 @@ export default function Home() {
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.22em', fontVariantNumeric: 'tabular-nums' as const }}>05</span>
                     <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.25)' }} />
                     <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
-                      ARQUIVO DE IMPRENSA
+                      {t('arquivoDeImprensa')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -8349,7 +8334,7 @@ export default function Home() {
               <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.22em', fontVariantNumeric: 'tabular-nums' as const }}>06</span>
               <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.25)' }} />
               <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_COND, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
-                ENTRE EM CONTATO
+                {t('entreEmContato')}
               </span>
             </div>
             <h2
@@ -8365,7 +8350,7 @@ export default function Home() {
                 maxWidth: '100%',
               }}
             >
-              Contato
+              {t('contatoTitulo')}
             </h2>
             <p
               data-contact-animate
@@ -8377,7 +8362,7 @@ export default function Home() {
                 maxWidth: '36ch',
               }}
             >
-              Fale com a Moveo para projetos, parcerias e informações gerais.
+              {t('contatoChamada')}
             </p>
             <div data-contact-animate className="flex flex-wrap gap-3">
               <Link
@@ -8423,7 +8408,7 @@ export default function Home() {
             </div>
             {/* Contact metadata */}
             <div data-contact-animate className="flex flex-wrap gap-4 sm:gap-7 items-start">
-              {[{ label: 'Email', value: 'contato@moveofilmes.com' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: 'Fundação', value: 'Brasília · 2018' }].map(({ label, value }, i) => (
+              {[{ label: 'Email', value: 'contato@moveofilmes.com' }, { label: 'GPS', value: "15°47'S  47°52'W" }, { label: t('rotuloFundacao'), value: 'Brasília · 2018' }].map(({ label, value }, i) => (
                 <React.Fragment key={label}>
                   {i > 0 && <div className="hidden sm:block" style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)', alignSelf: 'center' }} />}
                   <span style={{ display: 'flex', flexDirection: 'column' as const, gap: 3 }}>

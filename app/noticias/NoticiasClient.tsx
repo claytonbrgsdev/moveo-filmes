@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 import { LocationInfo } from '../components/LocationInfo';
 import { getMarkerPosition } from '@/lib/utils/gridCoordinates';
 import { formatPostForLanguage, type PostListRow } from '@/lib/supabase/posts';
+import { NOTICIAS_DESTAQUE } from '@/lib/noticiasDestaque';
 
 // Content translations (UI only)
 const uiContent = {
@@ -30,7 +31,7 @@ interface NoticiasClientProps {
 }
 
 export default function NoticiasClient({ posts }: NoticiasClientProps) {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t: traduzir } = useLanguage();
   const t = uiContent[language];
 
   const heroSectionRef = useRef<HTMLElement>(null);
@@ -156,8 +157,8 @@ export default function NoticiasClient({ posts }: NoticiasClientProps) {
             }}
           >
             <Image
-              src="/imagens/secao2home/Rectangle 9.png"
-              alt="Moveo Filmes"
+              src="/imagens/destaques/micangas-carro.jpg"
+              alt="As Miçangas"
               fill
               sizes="(max-width: 768px) 220px, 350px"
               className="object-cover"
@@ -312,12 +313,39 @@ export default function NoticiasClient({ posts }: NoticiasClientProps) {
             ))}
           </div>
 
-          {/* Empty state */}
+          {/* Sem posts no banco: as mesmas notícias da home (lib/noticiasDestaque.ts). Antes a
+              página dizia "Nenhuma notícia disponível" enquanto a home mostrava três e apontava
+              para cá. Cada uma leva à página do filme. */}
           {formattedPosts.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-neutral-500" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif" }}>
-                {language === 'pt' ? 'Nenhuma notícia disponível no momento.' : 'No news available at the moment.'}
-              </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-12">
+              {NOTICIAS_DESTAQUE.map((noticia) => (
+                <Link key={noticia.id} href={noticia.href} className="group cursor-pointer block">
+                  <div className="relative overflow-hidden mb-5" style={{ aspectRatio: '16/10', maxWidth: '100%' }}>
+                    <Image
+                      src={noticia.imagem}
+                      alt={traduzir(noticia.titulo)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 45vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-white" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(10px, 0.9vw, 12px)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                      {traduzir(noticia.tag)}
+                    </span>
+                    <span className="text-neutral-600">•</span>
+                    <span className="text-neutral-500" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(10px, 0.9vw, 12px)', fontWeight: 400 }}>
+                      {traduzir(noticia.data)}
+                    </span>
+                  </div>
+                  <h3 className="text-white mb-3 group-hover:text-neutral-300 transition-colors" style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif", fontSize: 'clamp(18px, 1.8vw, 26px)', fontWeight: 700, lineHeight: 1.2 }}>
+                    {traduzir(noticia.titulo)}
+                  </h3>
+                  <p className="text-neutral-400 leading-snug" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(13px, 1.1vw, 16px)', fontWeight: 500 }}>
+                    {traduzir(noticia.resumo)}
+                  </p>
+                </Link>
+              ))}
             </div>
           )}
         </div>

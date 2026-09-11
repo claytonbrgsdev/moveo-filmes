@@ -99,6 +99,21 @@ Segunda passada, cartela por cartela, com os prints e os links do documento.
 - 🔒 Cartela 04 — A Arte de Andar Pelas Ruas de Brasília está no catálogo sem imagem nem sinopse; o print dela tem um still (cliente)
 - 🔒 Cartela 01 — "Mix Brasil | México": a pasta só tem a láurea do Mix Brasil (cliente)
 
+## 6. Terceira passada (11/09/2026)
+
+Fora do que o documento pede: links, páginas que a home abre, inglês e o que um visitante faz.
+
+- [x] Links da cartela 06 (Docs e Drive) abrem sem login
+- [x] "Lançamento Brasil: 27/11/2025" confere (Tela Viva, 24/11/2025)
+- [x] Formulário de contato respondia "Mensagem enviada com sucesso!" sem enviar nada: `RESEND_API_KEY` não existe na Vercel e a rota só registrava no log (com o conteúdo). Agora responde 503 e aponta o e-mail; o conteúdo não vai mais para o log
+- 🔒 Configurar o envio do formulário — conta no Resend, chave e domínio verificado (Clayton)
+- [x] Inglês: 11 textos fixos em português na home (Distribuição, Ficha Técnica, Brasil:, Internacional:, Lançamento Brasil:, texto da Berlinale, Arquivo de Imprensa, bloco de Contato) viraram chaves de tradução
+- [x] Catálogo: "Filmes de longa-metragem" virou "Longas e curtas-metragens" no índice e em `/catalogo/cinema`
+- [x] Contador do bloco CATÁLOGO/CINEMA da home subia até 08, número fixo; agora 12, o total de `/catalogo/cinema`
+- [x] `/noticias` dizia "Nenhuma notícia disponível" enquanto a home mostrava três e apontava para ela: as duas leem `lib/noticiasDestaque.ts`, e cada notícia leva à página do filme
+- 🔒 WhatsApp (61) 98142-4106 em `/contato` sem fonte (entrou em nov/2025) — confirmar com a cliente
+- 🔒 5 dos 12 filmes em `/catalogo/cinema` sem imagem; Terra de Luz e All Still Orbit não estão no currículo da empresa (são da filmografia da Daniela) — decidir com a cliente
+
 ## Pendências da cliente, para resolver na entrega
 
 Detalhe em `docs/home-cartelas.md`: teaser de Não Há Magia · imagem e ficha de O

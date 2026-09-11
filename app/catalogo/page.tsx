@@ -25,7 +25,7 @@ const content = {
     heroSub: 'Descubra o acervo de histórias das quais a Moveo faz parte — dos projetos em desenvolvimento aos títulos em distribuição.',
     totalLabel: 'títulos no acervo',
     cinemaTitle: 'Cinema',
-    cinemaLabel: 'Filmes de longa-metragem',
+    cinemaLabel: 'Longas e curtas-metragens',
     outrosTitle: 'Mostras',
     outrosLabel: 'Exposições e projetos especiais',
     pipeline: [
@@ -44,7 +44,7 @@ const content = {
     heroSub: 'Discover the collection of stories in which Moveo plays a part — from projects in development to titles in distribution.',
     totalLabel: 'titles in the archive',
     cinemaTitle: 'Cinema',
-    cinemaLabel: 'Feature films',
+    cinemaLabel: 'Feature and short films',
     outrosTitle: 'Showcase',
     outrosLabel: 'Exhibitions & special projects',
     pipeline: [

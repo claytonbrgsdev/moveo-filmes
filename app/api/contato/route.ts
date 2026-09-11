@@ -137,12 +137,14 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      // RESEND_API_KEY not set — log only (safe fallback, form still works)
-      console.log('[contato] RESEND_API_KEY not set — email not sent. Message received:', {
-        nome: sanitizedNome,
-        email: sanitizedEmail,
-        mensagem: sanitizedMensagem,
-      });
+      // Sem RESEND_API_KEY (era o caso na Vercel em 11/09/2026) a rota respondia "enviada
+      // com sucesso" e a mensagem só ia para o log: quem escrevia achava que tinha falado com
+      // a Moveo. Agora avisa e aponta o e-mail. O conteúdo não vai mais para o log.
+      console.error('[contato] RESEND_API_KEY ausente — mensagem não enviada.');
+      return NextResponse.json(
+        { error: 'O formulário está fora do ar no momento. Escreva para contato@moveofilmes.com.' },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json(
