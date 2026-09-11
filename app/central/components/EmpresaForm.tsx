@@ -233,7 +233,7 @@ export function EmpresaForm({ empresaId, onSave, onCancel, onDirtyChange }: Empr
           <div>
             <label style={labelStyle}>Upload do logo</label>
             <StorageUpload
-              storagePath={`empresas/${empresaId ?? 'new'}`}
+              storagePath={empresaId ? `empresas/${empresaId}` : null}
               onUploaded={url => set('logo_url', url)}
               existingUrl={form.logo_url}
               accept="image/*"

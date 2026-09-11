@@ -74,14 +74,14 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Página de detalhe do filme entrega só as colunas que usa — antes iam no HTML `valor` e `observacoes` de financiamento, observações de festival, `tags`, e-mail e telefone de empresa
 - [x] Galeria da página de detalhe vazia: filtrava `tipo = 'imagem'` e os 29 assets do banco são `still` (o painel oferece os dois)
 - 🔒 Chave pública lê colunas internas pela API (2 valores de financiamento, 6 observações): o HTML já não leva, mas quem consulta o REST com a chave anônima lê. Proteger exige permissão por coluna ou view no banco — decisão (Clayton)
-- [ ] Estado do painel na URL (F5 e link direto)
-- [ ] Upload feito antes de salvar não vira arquivo órfão em `filmes/new/`
+- [ ] Estado do painel na URL (F5 e link direto) — mexe na navegação do /central, que só dá para testar logado; fica para depois da entrega, com sessão de admin
+- [x] Upload feito antes de salvar não vira arquivo órfão em `filmes/new/` — nos quatro formulários o envio só libera depois de salvar (verificado por tipo e lint; o /central não foi aberto no navegador porque exige login)
 - [x] Rotas-esqueleto `/filme/[slug]` e `/empresa/[slug]` removidas — devolviam `null` (página em branco) e nada no site apontava para elas. O filme mora em `/catalogo/*/[slug]`; página de empresa não existe
-- [ ] 12 erros de ESLint pré-existentes
+- [ ] 12 erros de ESLint pré-existentes — são efeitos dos componentes do /central; mesma condição do item acima
 
 ## 4. Entrega da v1
 
-- [ ] Mensagem para a cliente com o que ela precisa fazer
+- [x] Mensagem para a cliente com o que ela precisa fazer — texto entregue ao Clayton em 10/09/2026, para mandar junto com o link
 - 🔒 Conta da cliente no painel — ela cria em `/auth/signup`
 - 🔒 Fechar o signup depois que a conta dela existir
 - 🔒 Desligar o gate "em breve" — decisão de lançamento (Clayton)

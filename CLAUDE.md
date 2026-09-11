@@ -250,9 +250,11 @@ os números não fechavam (6 no índice, 18 na página). `/catalogo` só mostra
 contagens, então um filme com categoria nula fica fora de todas as páginas de
 lista. Classifique antes de publicar um filme novo.
 
-**Upload antes de salvar vira órfão.** No filme novo o `storagePath` usa
-`filmes/${filmeId ?? 'new'}/…`, então o arquivo cai numa pasta `new/` e nunca
-é reassociado. Também não há limpeza de storage no delete.
+**Upload só depois de salvar.** Até 10/09/2026 o cadastro novo enviava para
+`filmes/new/…` (e `pessoas/new`, `empresas/new`, `posts/new`), pasta que nunca era
+reassociada. Agora o `StorageUpload` recebe `storagePath={id ? … : null}` e, sem
+id, só pede para salvar antes — igual aos painéis de assets, que já exigiam modo
+edição. Continua não havendo limpeza de storage no delete.
 
 **12 erros de ESLint pré-existentes** (`react-hooks/set-state-in-effect`), a
 maioria em `app/central/components/`. Não quebram build nem runtime. São

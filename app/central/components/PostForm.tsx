@@ -213,7 +213,7 @@ export function PostForm({ postId, filmes, onSave, onCancel, onDirtyChange }: Po
           <div>
             <label style={labelStyle}>Upload</label>
             <StorageUpload
-              storagePath={`posts/${postId ?? 'new'}`}
+              storagePath={postId ? `posts/${postId}` : null}
               onUploaded={url => set('imagem_capa_url', url)}
               existingUrl={form.imagem_capa_url}
               accept="image/*"

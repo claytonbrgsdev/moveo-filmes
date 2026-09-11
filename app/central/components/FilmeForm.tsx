@@ -521,7 +521,7 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], empresas = 
           <div>
             <Field label="Poster Principal">
               <StorageUpload
-                storagePath={`filmes/${filmeId ?? 'new'}/poster`}
+                storagePath={filmeId ? `filmes/${filmeId}/poster` : null}
                 onUploaded={(url) => setField('poster_principal_url', url)}
                 existingUrl={form.poster_principal_url}
                 accept="image/*"
@@ -535,7 +535,7 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], empresas = 
           <div>
             <Field label="Thumbnail para Cards">
               <StorageUpload
-                storagePath={`filmes/${filmeId ?? 'new'}/thumbnail`}
+                storagePath={filmeId ? `filmes/${filmeId}/thumbnail` : null}
                 onUploaded={(url) => setField('thumbnail_card_url', url)}
                 existingUrl={form.thumbnail_card_url}
                 accept="image/*"
@@ -549,7 +549,7 @@ export function FilmeForm({ filmeId, onSave, onCancel, pessoas = [], empresas = 
           <div>
             <Field label="Imagem Open Graph">
               <StorageUpload
-                storagePath={`filmes/${filmeId ?? 'new'}/og`}
+                storagePath={filmeId ? `filmes/${filmeId}/og` : null}
                 onUploaded={(url) => setField('imagem_og_url', url)}
                 existingUrl={form.imagem_og_url}
                 accept="image/*"

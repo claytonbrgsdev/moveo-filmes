@@ -187,7 +187,7 @@ export function PessoaForm({ pessoaId, onSave, onCancel, onDirtyChange }: Pessoa
           <div>
             <label style={labelStyle}>Upload de foto</label>
             <StorageUpload
-              storagePath={`pessoas/${pessoaId ?? 'new'}`}
+              storagePath={pessoaId ? `pessoas/${pessoaId}` : null}
               onUploaded={url => set('foto_url', url)}
               existingUrl={form.foto_url}
               accept="image/*"

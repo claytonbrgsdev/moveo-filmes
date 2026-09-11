@@ -7,8 +7,12 @@ const FONT_BODY = "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif"
 const MAX_MB = 10
 
 interface StorageUploadProps {
-  /** Storage path — e.g. `filmes/abc123/poster.jpg` */
-  storagePath: string
+  /**
+   * Storage path — e.g. `filmes/abc123/poster`. `null` enquanto o cadastro não foi
+   * salvo: sem id não há pasta certa, e o arquivo ia para `…/new/` e nunca era
+   * reassociado. Nesse caso o componente só pede para salvar antes.
+   */
+  storagePath: string | null
   /** Called with the public URL after a successful upload */
   onUploaded: (url: string) => void
   /** Existing URL to show as preview */
@@ -33,6 +37,7 @@ export function StorageUpload({
 
   const handleFile = (file: File) => {
     setError(null)
+    if (!storagePath) return
 
     // Client-side file size guard
     if (file.size > MAX_MB * 1024 * 1024) {
@@ -90,6 +95,14 @@ export function StorageUpload({
 
     xhr.open('POST', '/api/admin/upload')
     xhr.send(fd)
+  }
+
+  if (!storagePath) {
+    return (
+      <p className="text-white/40 text-xs" style={{ fontFamily: FONT_BODY }}>
+        Salve o cadastro para liberar o envio de arquivos.
+      </p>
+    )
   }
 
   return (
