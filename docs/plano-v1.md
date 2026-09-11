@@ -44,7 +44,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Cartela 13 — removida (`cbc2a0a`)
 - [x] Cartela 14 — título não cobre mais o texto (`5c68829`)
 - 🔒 Cartela 14 — conteúdo de "outros trabalhos" (doc CATÁLOGO MOVEO SITE sem acesso — cliente)
-- [ ] Cartela 15 — notícias com link para Instagram e Vimeo
+- [x] Cartela 15 — links para o Instagram e o Vimeo na lateral de Notícias e nos botões do Contato (a lateral some no celular; o Contato não)
 - 🔒 Cartela 15 — sincronização automática com o Instagram (acesso à conta — cliente)
 - [x] Cartela 16 — vídeo da logo no lugar do frame de As Miçangas (animação `LOGO BRANCA - SEM FUNDO.mov` sobre preto, 285KB; `object-contain` para a palavra MOVEO não ser cortada na coluna estreita)
 - [ ] Sobre — materiais de portfólio: currículo da Moveo (pt/en), Daniela Marinho (bio e retrato)

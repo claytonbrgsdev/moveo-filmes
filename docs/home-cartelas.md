@@ -44,7 +44,7 @@ edição.
 | 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
 | 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
-| 15 | penúltimo `<section>` | Notícias |
+| 15 | `Seção - NOTÍCIAS` | Notícias — links para o Instagram e o Vimeo (`REDES_MOVEO`, repetidos nos botões do Contato) desde 10/09/2026 |
 | 16 | `Seção - CONTATO / FOOTER` (não é `<section>`, é `<div>`) | Contato — a coluna da direita é a animação da logo (`/videos/logo-moveo.mp4`) desde 10/09/2026; antes era a `capahome.png` |
 
 Entre 08/09 e entre 10/11 existem `<section>` de transição (`Transition:

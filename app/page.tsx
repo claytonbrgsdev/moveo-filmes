@@ -21,6 +21,13 @@ import {
 } from '@/lib/utils/gridCoordinates';
 
 
+// Cartela 15: a cliente pediu o Instagram e "talvez o Vimeo". Aparecem na lateral
+// de Notícias e nos botões do Contato (a lateral some no celular).
+const REDES_MOVEO = [
+  { nome: 'Instagram', href: 'https://www.instagram.com/moveofilmes/' },
+  { nome: 'Vimeo', href: 'https://vimeo.com/moveofilmes' },
+] as const;
+
 const newsImages = [
   '/imagens/secao2home/Rectangle 10.png',
   '/imagens/secao2home/Rectangle 8.png',
@@ -8164,6 +8171,14 @@ export default function Home() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
+                    {REDES_MOVEO.map((rede) => (
+                      <a key={rede.nome} href={rede.href} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-white/40 hover:border-white transition-colors uppercase" style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, letterSpacing: '0.08em' }}>
+                        {rede.nome} ↗
+                      </a>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
                     {newsSlides.map((item) => (
                       <div key={item.title} className="px-3 py-1 border border-white/25 uppercase" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL }}>
                         {item.tag}
@@ -8288,6 +8303,11 @@ export default function Home() {
               >
                 Mostras
               </Link>
+              {REDES_MOVEO.map((rede) => (
+                <a key={rede.nome} href={rede.href} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-white/40 hover:border-white transition-colors uppercase" style={{ fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif", fontSize: FONT_SMALL, letterSpacing: '0.08em' }}>
+                  {rede.nome} ↗
+                </a>
+              ))}
             </div>
             {/* Contact metadata */}
             <div data-contact-animate className="flex flex-wrap gap-4 sm:gap-7 items-start">
