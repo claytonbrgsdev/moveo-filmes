@@ -98,6 +98,16 @@ const LAUREAS_MICANGAS = [
   { src: '/imagens/laureas/micangas-curta-brasilia.png', largura: 370, altPt: '12º Curta Brasília — Seleção Oficial', altEn: '12th Curta Brasília — Official Selection' },
 ] as const;
 
+// Cartela 09 — os cinco stills da produção de As Miçangas (fotos de Joanna Ramos e Thaís
+// Mallon), em public/imagens/micangas. `area` coloca cada um na grade 6×6 do painel "O filme".
+const STILLS_MICANGAS = [
+  { src: '/imagens/micangas/still-03.jpg', area: 'col-span-3 row-span-4', posicao: '50% 40%' },
+  { src: '/imagens/micangas/still-01.jpg', area: 'col-span-3 row-span-2', posicao: '50% 50%' },
+  { src: '/imagens/micangas/still-04.jpg', area: 'col-span-3 row-span-2', posicao: '40% 50%' },
+  { src: '/imagens/micangas/still-05.jpg', area: 'col-span-4 row-span-2', posicao: '50% 50%' },
+  { src: '/imagens/micangas/still-02.jpg', area: 'col-span-2 row-span-2', posicao: '72% 50%' },
+] as const;
+
 const FONT_HUGE = 'var(--font-huge)';
 // Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
 const MOVEO_TRACKING_EM = -0.04;
@@ -6211,24 +6221,8 @@ export default function Home() {
               backgroundColor: '#0a0a0a',
             }}
           >
-            {/* Secondary Video - depth layer, desaturated */}
-            <video
-              preload="none"
-              data-src="/videos/micangas-trailer.mp4"
-              muted
-              loop
-              playsInline
-              data-micangas-video="secondary"
-              className="absolute inset-0 w-full h-full object-cover transform-gpu"
-              style={{
-                zIndex: 0,
-                willChange: 'transform, opacity, filter',
-                transform: 'scale(1.0)',
-                opacity: 0,
-                filter: 'saturate(0.4) brightness(0.4)',
-              }}
-            >
-            </video>
+            {/* Havia aqui um segundo <video> do mesmo trailer, só como camada de profundidade.
+                Saiu em 11/09/2026 (o GSAP da fita de filme já tratava a ausência dele). */}
 
             {/* Primary Video - revealed through film strips */}
             <video
@@ -6363,7 +6357,14 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ===== AS MIÇANGAS - Panel 1: Fragmented Memory Mosaic ===== */}
+          {/* ===== AS MIÇANGAS - Panel 1: O filme — stills e sinopse =====
+            * Refeito em 11/09/2026. Eram seis fragmentos espalhados, cinco deles o mesmo trailer
+            * (que já abre o bloco e volta nos créditos), com a sinopse flutuando por cima dos
+            * vídeos, difícil de ler. Agora os cinco stills da produção ficam numa grade e a
+            * sinopse e a ficha numa coluna de fundo liso. Continua na animação de mosaico
+            * compartilhada com o Três: [data-micangas-mosaic], [data-mosaic-fragment],
+            * [data-mosaic-text] — os dois últimos nascem com opacity 0 e só o GSAP revela.
+            */}
           <section
             className="horizontal-section relative flex-shrink-0 text-white"
             data-micangas-panel="1"
@@ -6376,260 +6377,80 @@ export default function Home() {
               backgroundColor: '#050505',
             }}
           >
-            {/* Asymmetric Mosaic Grid - scattered memory fragments */}
-
-            {/* Fragment 1 - Large center-left */}
-            <div
-              data-mosaic-fragment="large"
-              className="absolute overflow-hidden"
-              style={{
-                left: '8%',
-                top: '10%',
-                width: '45%',
-                height: '55%',
-                opacity: 0,
-                transform: 'translateY(40px)',
-                zIndex: 1,
-              }}
-            >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.1)' }}
-              >
-              </video>
-            </div>
-
-            {/* Fragment 2 - Medium top-right. Cartela 09: é o still do rio (STILL02, foto de
-                Thaís Mallon), a imagem que a cliente indicou para o bloco. Era mais um recorte
-                espelhado do trailer. */}
-            <div
-              data-mosaic-fragment="medium"
-              className="absolute overflow-hidden"
-              style={{
-                right: '5%',
-                top: '5%',
-                width: '32%',
-                height: '40%',
-                opacity: 0,
-                transform: 'translateX(40px)',
-                zIndex: 2,
-                filter: 'saturate(0.7) brightness(0.9)',
-              }}
-            >
-              <Image
-                src="/imagens/destaques/micangas-rio.jpg"
-                alt="As Miçangas"
-                fill
-                sizes="32vw"
-                className="object-cover"
-                style={{ transform: 'scale(1.08)' }}
-                unoptimized
-              />
-            </div>
-
-            {/* Fragment 3 - Small top-left corner */}
-            <div
-              data-mosaic-fragment="small"
-              className="absolute overflow-hidden"
-              style={{
-                left: '2%',
-                top: '2%',
-                width: '18%',
-                height: '22%',
-                opacity: 0,
-                transform: 'scale(0.8)',
-                zIndex: 3,
-                filter: 'saturate(0) brightness(0.7)',
-              }}
-            >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.2)' }}
-              >
-              </video>
-            </div>
-
-            {/* Fragment 4 - Medium bottom-right */}
-            <div
-              data-mosaic-fragment="medium"
-              className="absolute overflow-hidden"
-              style={{
-                right: '10%',
-                bottom: '8%',
-                width: '35%',
-                height: '38%',
-                opacity: 0,
-                transform: 'translateY(-30px)',
-                zIndex: 2,
-              }}
-            >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.1)' }}
-              >
-              </video>
-            </div>
-
-            {/* Fragment 5 - Small bottom-left */}
-            <div
-              data-mosaic-fragment="small"
-              className="absolute overflow-hidden"
-              style={{
-                left: '5%',
-                bottom: '12%',
-                width: '22%',
-                height: '28%',
-                opacity: 0,
-                transform: 'translateX(-30px)',
-                zIndex: 3,
-                filter: 'sepia(0.3) brightness(0.85)',
-              }}
-            >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.15) scaleY(-1)' }}
-              >
-              </video>
-            </div>
-
-            {/* Fragment 6 - Tiny accent right-center */}
-            <div
-              data-mosaic-fragment="tiny"
-              className="absolute overflow-hidden"
-              style={{
-                right: '2%',
-                top: '50%',
-                width: '12%',
-                height: '15%',
-                opacity: 0,
-                transform: 'scale(0.9)',
-                zIndex: 4,
-                filter: 'saturate(1.3) contrast(1.1)',
-              }}
-            >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.3)' }}
-              >
-              </video>
-            </div>
-
-            {/* Floating Text Content - positioned in the gaps */}
-            <div
-              data-mosaic-text=""
-              className="absolute"
-              style={{
-                // No celular, 55% mais a largura mínima de 200px passava 46px da
-                // borda direita do painel (343px) e o overflow: hidden cortava o
-                // texto. O min() fica em 55% onde cabe e puxa para a esquerda
-                // quando não cabe; no desktop (painel de 1180px) nada muda.
-                left: 'min(55%, calc(100% - clamp(200px, 30vw, 350px) - 16px))',
-                // Ancorado pelo pé, não em top: 55%. Com sinopse, formato e elenco
-                // (cartela 09) o bloco foi de ~130px para ~300px e, preso a 55% da
-                // altura, estourava 90px pelo pé do painel em 1280x600 e 42px no
-                // celular. Ancorado embaixo, cresce para cima e fica no painel.
-                bottom: 'clamp(24px, 6vh, 64px)',
-                width: 'clamp(200px, 30vw, 350px)',
-                zIndex: 10,
-                opacity: 0,
-                transform: 'translateY(20px)',
-                // O trailer de As Miçangas é luz de dia no cerrado, e o texto passa
-                // por cima dos fragmentos.
-                textShadow: '0 2px 14px rgba(0, 0, 0, 0.85)',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(10px, 0.9vw, 12px)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.25em',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  marginBottom: 'clamp(12px, 1.5vh, 20px)',
-                }}
-              >
-                {t('oFilme')}
+            <div className="grid h-full grid-rows-[minmax(0,1fr)_auto] md:grid-rows-1 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+              {/* Stills */}
+              <div className="grid grid-cols-6 grid-rows-6 gap-2 min-h-0" style={{ padding: 'clamp(8px, 1.5vw, 20px)' }}>
+                {STILLS_MICANGAS.map((still) => (
+                  <div
+                    key={still.src}
+                    data-mosaic-fragment=""
+                    className={`relative overflow-hidden ${still.area}`}
+                    style={{ opacity: 0, transform: 'translateY(24px)' }}
+                  >
+                    <Image
+                      src={still.src}
+                      alt="As Miçangas"
+                      fill
+                      sizes="(min-width: 768px) 35vw, 60vw"
+                      className="object-cover"
+                      style={{ objectPosition: still.posicao }}
+                      unoptimized
+                    />
+                  </div>
+                ))}
               </div>
-              <h3
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
-                  fontSize: 'clamp(24px, 3vw, 42px)',
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  marginBottom: 'clamp(15px, 2vh, 25px)',
-                  color: 'white',
-                  lineHeight: 1.1,
-                }}
-              >
-                {t('asMicangasTitle')}
-              </h3>
-              <p
-                style={{
-                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(13px, 1.1vw, 16px)',
-                  lineHeight: '1.7',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  marginBottom: 'clamp(20px, 3vh, 35px)',
-                }}
-              >
-                {/* Era "Memória e identidade através de narrativas fragmentadas e poéticas.", sem fonte. */}
-                {t('micangasSinopse')}
-              </p>
 
-              {/* Credits */}
+              {/* Sinopse e ficha */}
               <div
+                data-mosaic-text=""
+                className="flex flex-col justify-center min-h-0"
                 style={{
-                  fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
-                  fontSize: 'clamp(11px, 0.95vw, 13px)',
-                  lineHeight: '1.9',
-                  color: 'rgba(255, 255, 255, 0.5)',
+                  opacity: 0,
+                  transform: 'translateY(20px)',
+                  backgroundColor: '#0a0a0a',
+                  padding: 'clamp(16px, 3vw, 48px)',
+                  gap: 'clamp(8px, 1.8vh, 20px)',
+                  overflow: 'hidden',
                 }}
               >
-                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('direcao')}</span> Emanuel Lavor e Rafaela Camelo</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('formato')}</span> {t('micangasFormato')}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('elenco')}</span> {t('micangasElenco')}</div>
-                <div><span style={{ color: 'rgba(255,255,255,0.3)' }}>{t('producao')}</span> Moveo Filmes</div>
+                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(10px, 0.9vw, 12px)', textTransform: 'uppercase', letterSpacing: '0.25em', color: 'rgba(255, 255, 255, 0.5)' }}>
+                  {t('oFilme')}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+                    fontSize: 'clamp(24px, 3vw, 44px)',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.05,
+                    color: 'white',
+                  }}
+                >
+                  {t('asMicangasTitle')}
+                </h3>
+                <p style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(14px, 1.25vw, 18px)', lineHeight: 1.65, color: 'rgba(255, 255, 255, 0.88)', maxWidth: '46ch' }}>
+                  {t('micangasSinopse')}
+                </p>
+                <div
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(12px, 1vw, 14px)',
+                    lineHeight: 1.8,
+                    color: 'rgba(255, 255, 255, 0.72)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(8px, 1.8vh, 20px)',
+                  }}
+                >
+                  <div><span style={{ color: 'rgba(255,255,255,0.45)' }}>{t('direcao')}</span> Emanuel Lavor e Rafaela Camelo</div>
+                  <div><span style={{ color: 'rgba(255,255,255,0.45)' }}>{t('formato')}</span> {t('micangasFormato')}</div>
+                  <div><span style={{ color: 'rgba(255,255,255,0.45)' }}>{t('elenco')}</span> {t('micangasElenco')}</div>
+                  <div><span style={{ color: 'rgba(255,255,255,0.45)' }}>{t('producao')}</span> Moveo Filmes</div>
+                </div>
+                <div className="hidden sm:block" style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(9px, 0.8vw, 11px)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>
+                  {t('fotos')} Joanna Ramos, Thaís Mallon
+                </div>
               </div>
             </div>
-
-            {/* Subtle grid lines for structure */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                zIndex: 5,
-                opacity: 0.03,
-                backgroundImage: `
-                  linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
-                `,
-                backgroundSize: '100px 100px',
-              }}
-            />
           </section>
 
           {/* ===== AS MIÇANGAS - Panel 2: Full-Bleed Credits ===== */}

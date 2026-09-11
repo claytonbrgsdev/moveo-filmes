@@ -38,7 +38,7 @@ edição.
 | 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
 | 07 | `Seção 4 - … Split with Sinopse and Distribution` | Distribuição e ficha técnica |
 | 08 | `NÃO HÁ MAGIA — cartela 08`, logo antes de `Transition: Natureza → Miçangas` | **Não Há Magia** desde 10/09/2026: still grande, faixa de stills, ficha e sinopse. Painel sem GSAP. O teaser vai na transição de ripas diagonais logo depois |
-| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: Fragmented Memory Mosaic` | Título do filme e o mosaico com sinopse e ficha. O fragmento 2 do mosaico é o still do rio que a cliente indicou |
+| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: O filme — stills e sinopse` | Título sobre o trailer; depois a grade com os cinco stills da produção (`STILLS_MICANGAS`, o do rio que a cliente indicou incluído) e a sinopse e a ficha numa coluna de fundo liso |
 | 10 | `AS MIÇANGAS - Panel 2: Full-Bleed Credits` | Faixa de láureas (`LAUREAS_MICANGAS`), os 11 festivais em texto e os créditos |
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
 | 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
@@ -81,7 +81,7 @@ stills de cada filme, em 10/09/2026:
 | `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
 | ~~`capahome.png`~~ | still de As Miçangas | **removida** em 10/09/2026. A abertura e o painel "O filme" do Natureza usam `capahome-natureza.jpg` (still 01 do filme); o card de compartilhamento usa `og-moveo.jpg` |
 | `logo-moveo.mp4` | a animação da logo (libélula + MOVEO filmes), 12s, desenhada sobre preto a partir do `.mov` com alfa que a cliente mandou | coluna direita do Contato |
-| `natureza-teaser.mp4`, `tres.mp4`, `micangas-trailer.mp4` | corretos: vieram do Drive da produção. O de As Miçangas foi cortado antes da cartela de título e da logo da Tarrafa | blocos do Natureza, do Três e de As Miçangas |
+| `natureza-teaser.mp4`, `tres.mp4`, `micangas-trailer.mp4` | corretos: vieram do Drive da produção. O de As Miçangas foi cortado antes da cartela de título e da logo da Tarrafa | blocos do Natureza, do Três e de As Miçangas (este, desde 11/09/2026, só na abertura e nos créditos do bloco — eram oito cópias) |
 
 Não confie no nome: antes de usar um vídeo num bloco, extraia quadros e compare
 com os stills. (Uma versão anterior deste documento dizia que `misterio.mp4`
@@ -112,9 +112,11 @@ há imagem repetida entre as duas cartelas, nunca dentro da mesma. Três espaço
 estreitos têm `objectPosition` para não cortar o rosto. As `secao2home/Rectangle
 *.png` continuam em uso em outras seções e páginas (notícias, sobre, contato).
 
-**O texto dos mosaicos usa `left: min(55%, …)`.** Com `55%` puro, no celular o
-bloco passava 46px da borda e era cortado pelo `overflow: hidden` — nas
-Miçangas desde sempre, no Três por herança. Não volte para `55%`.
+**O texto do mosaico do Três usa `left: min(55%, …)`.** Com `55%` puro, no celular o
+bloco passava 46px da borda e era cortado pelo `overflow: hidden`. Não volte para `55%`.
+O de As Miçangas deixou de flutuar em 11/09/2026: é uma coluna ao lado da grade de
+stills, e os fragmentos são células da grade — a animação compartilhada só mexe em
+opacidade e deslocamento, então funciona igual.
 
 **Para verificar animação de rolagem, role pelo Lenis, não pela janela.** O
 ScrollTrigger desta home não lê `window.scrollY`: `SmoothScrollProvider.tsx`

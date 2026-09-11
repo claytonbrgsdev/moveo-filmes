@@ -124,7 +124,7 @@ Pedido do Clayton na conferência: onde um conteúdo que falta está sendo "fing
 - [x] Cartela 02 — o espaço de O Pacto da Viola usava outro still do Natureza; agora o aviso "Inserir imagem de O Pacto da Viola aqui"
 - [x] Cartela 14 — "Além dos filmes" usava um vídeo da Lubrina e três stills de outros filmes no lugar do material de mostras, exposições e projetos especiais (doc CATÁLOGO); agora quatro avisos "Inserir…"
 - [x] `/catalogo` — o card de Mostras e exposições tinha um vídeo da Lubrina de fundo; saiu
-- [ ] As Miçangas — o trailer aparece 8 vezes (2 na abertura, 5 no mosaico, 1 nos créditos) e a sinopse flutua sobre vídeo. Plano: 1 vídeo na abertura (cartela 09), o mosaico com os 5 stills da produção e a sinopse numa coluna própria, 1 vídeo nos créditos com as láureas (cartela 10)
+- [x] As Miçangas — o trailer aparecia 8 vezes (2 na abertura, 5 no mosaico, 1 nos créditos) e a sinopse flutuava sobre vídeo. Agora 2: um na abertura (cartela 09) e um nos créditos com as láureas (cartela 10). O painel "O filme" virou uma grade com os 5 stills da produção (Joanna Ramos, Thaís Mallon) e a sinopse e a ficha numa coluna de fundo liso
 
 ## Pendências da cliente, para resolver na entrega
 

@@ -88,7 +88,7 @@ edição 24/08/2026). Para conferir: https://moveofilmes.com/preview.
 
 - [ ] **09.1** Destacar o filme As Miçangas — ✅
 - [ ] **09.2** Vídeo (teaser) na página de destaque — ✅ trailer da pasta de materiais
-- [ ] **09.3** Imagem de As Miçangas (o rio) — ✅ no mosaico
+- [ ] **09.3** Imagem de As Miçangas (o rio) — ✅ na grade de stills do painel "O filme", com os outros quatro da produção
 - [ ] **09.4** 19 min, Cor, Drama, 14 anos — ✅
 - [ ] **09.5** Direção: Emanuel Lavor e Rafaela Camelo — ✅
 - [ ] **09.6** Elenco: "Letícia Ferraz", Pâmela Germano, Karine Teles — ❓ o site diz **Tícia** Ferraz, como a ficha técnica e os arquivos da produção; perguntar
