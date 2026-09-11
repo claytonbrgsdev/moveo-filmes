@@ -8314,16 +8314,18 @@ export default function Home() {
             </p>
           </div>
 
-          <div data-contact-animate className="md:col-span-5 relative h-48 md:h-full overflow-hidden" style={{ position: 'relative' }}>
-            <Image
-              src="/imagens/capahome.png"
-              alt="Contato Moveo"
-              fill
-              className="object-cover"
-              style={{ filter: 'grayscale(30%) brightness(0.75)' }}
-              unoptimized
+          <div data-contact-animate className="md:col-span-5 relative h-48 md:h-full overflow-hidden bg-black" style={{ position: 'relative' }}>
+            {/* Cartela 16 — animação da logo (fundo preto), no lugar do still de As Miçangas.
+                object-contain: com cover a palavra MOVEO é cortada na coluna estreita. */}
+            <video
+              data-src="/videos/logo-moveo.mp4"
+              preload="none"
+              muted
+              loop
+              playsInline
+              aria-label="Moveo Filmes"
+              className="absolute inset-0 w-full h-full object-contain"
             />
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 40%)', zIndex: 1 }} />
             {/* Viewfinder — top-left */}
             <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 12, left: 12 }}>
               <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />

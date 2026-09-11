@@ -45,7 +45,7 @@ edição.
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
 | 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
 | 15 | penúltimo `<section>` | Notícias |
-| 16 | último `<section>` | Vídeo da logo |
+| 16 | `Seção - CONTATO / FOOTER` (não é `<section>`, é `<div>`) | Contato — a coluna da direita é a animação da logo (`/videos/logo-moveo.mp4`) desde 10/09/2026; antes era a `capahome.png` |
 
 Entre 08/09 e entre 10/11 existem `<section>` de transição (`Transition:
 Natureza → Miçangas`, `Transition: Miçangas → Mistério`) que não são cartelas —
@@ -78,7 +78,8 @@ stills de cada filme, em 10/09/2026:
 | `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | coluna de vídeo da cartela 14 |
 | `micangas.mp4` | retratos de moradores, material da Lubrina | retângulo decorativo na seção de catálogo |
 | `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
-| `capahome.png` | still de As Miçangas | sobreposto ao teaser na abertura — a trocar |
+| `capahome.png` | still de As Miçangas | sobreposto ao teaser na abertura e no painel "O filme" do Natureza — a trocar |
+| `logo-moveo.mp4` | a animação da logo (libélula + MOVEO filmes), 12s, desenhada sobre preto a partir do `.mov` com alfa que a cliente mandou | coluna direita do Contato |
 | `natureza-teaser.mp4`, `tres.mp4`, `micangas-trailer.mp4` | corretos: vieram do Drive da produção. O de As Miçangas foi cortado antes da cartela de título e da logo da Tarrafa | blocos do Natureza, do Três e de As Miçangas |
 
 Não confie no nome: antes de usar um vídeo num bloco, extraia quadros e compare
