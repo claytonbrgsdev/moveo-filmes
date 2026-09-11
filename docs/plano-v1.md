@@ -49,7 +49,8 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Cartela 15 — links para o Instagram e o Vimeo na lateral de Notícias e nos botões do Contato (a lateral some no celular; o Contato não)
 - 🔒 Cartela 15 — sincronização automática com o Instagram (acesso à conta — cliente)
 - [x] Cartela 16 — vídeo da logo no lugar do frame de As Miçangas (animação `LOGO BRANCA - SEM FUNDO.mov` sobre preto, 285KB; `object-contain` para a palavra MOVEO não ser cortada na coluna estreita)
-- [ ] Sobre — materiais de portfólio: currículo da Moveo (pt/en), Daniela Marinho (bio e retrato)
+- [x] Sobre — materiais de portfólio: textos de Sobre e Equipe dos currículos da empresa e da Daniela Marinho, retrato dela (Paula Carrubba) no lugar do placeholder, lista de produções do currículo e fotos dos filmes no lugar da `secao2home`
+- 🔒 Sobre em inglês — os currículos em inglês não abriram (404); o inglês da página é tradução nossa (cliente)
 
 ## 2. Catálogo e dados
 
@@ -96,4 +97,4 @@ Miçangas (o documento diz Letícia Ferraz, a ficha técnica diz Tícia) · fina
 de As Miçangas (o site dizia "FAC-DF, Edital Cardume", sem fonte; saiu) · láureas de As
 Miçangas em arte (só existem as de Curta Brasília e do Panorama) · Feijão com Arroz, O Colar
 de Coralina e Uma Dose Violenta de Qualquer Coisa (sem ano, sinopse nem imagem, por isso
-fora das listagens) · Não Há Magia em inglês (sinopse, formato e lançamento são tradução nossa).
+fora das listagens) · Não Há Magia em inglês (sinopse, formato e lançamento são tradução nossa) · inglês do /sobre (tradução nossa; os currículos em inglês não abriram) · durações e anos que divergem entre fontes (As Miçangas: 18 min no currículo, 19 na ficha técnica).

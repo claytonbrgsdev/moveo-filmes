@@ -15,23 +15,62 @@ const content = {
     heroTitle: 'Sobre',
     heroSubtitle: 'Moveo Filmes, fundada em 2018 em Brasília, dedica-se a filmes de arte para o mercado internacional, com foco em promissores cineastas brasileiros.',
     aboutTitle: 'Sobre',
-    aboutText1: 'Moveo Filmes, fundada em 2018 em Brasília, dedica-se a filmes de arte para o mercado internacional, com foco em promissores cineastas brasileiros. A empresa construiu um histórico sólido, colaborando com talentos emergentes como Rafaela Camelo, que dirigiu o primeiro',
-    aboutText2: 'longa-metragem internacional da Moveo, "A Natureza das Coisas Invisíveis" (2025). Este filme teve sua estreia mundial na Berlinale e foi financiado pelo FAC-DF, FSA/Ancine, Fundo de Coprodução Minoritária Chileno, e desenvolvimento pela Nouvelle-Aquitaine, França.',
+    aboutText1: 'Sediada em Brasília desde 2018 e dirigida por sua sócia-fundadora, Daniela Marinho, a Moveo Filmes é uma produtora independente de cinema com foco em projetos de identidade autoral e atuação voltada ao mercado internacional. A empresa construiu um histórico expressivo em vitrines de prestígio internacional e nacional, incluindo Berlinale, Sundance, FICCI (Cartagena) e Gramado.',
+    aboutText2: 'Em 2025, a Moveo lançou seu primeiro longa-metragem como produtora principal, “A Natureza das Coisas Invisíveis” (coprodução Brasil-Chile), que estreou na Berlinale, conquistou mais de 20 prêmios internacionais e venceu o Prêmio Grande Otelo de Melhor Primeira Direção. Atualmente, a produtora desenvolve os projetos “O Jardim das Delícias”, “Alto Paraíso” e “La Nube de Basura”.',
     teamTitle: 'Equipe',
-    teamBio1: 'Daniela Marinho é produtora de cinema, formada em Direito e com mestrado em Comunicação Social. Atualmente, atua como Produtora Executiva e Programadora de Cinema no Cine Brasília, uma sala de cinema pública inaugurada em 1960.',
-    teamBio2: 'Entre seus créditos de produção cinematográfica estão os curtas O Mistério da Carne, de Rafaela Camelo, exibido no Festival de Sundance em 2019, e O Véu de Amani, de Renata Diniz, vencedor de melhor roteiro no Festival de Gramado em 2019.',
+    teamBio1: 'Daniela Marinho é uma produtora de cinema nascida em Brasília em 1985, com mais de 15 anos de experiência na indústria audiovisual. Sua formação abrange Direito e Comunicação, e profissionalmente já contribuiu para a realização de mais de 10 longas-metragens e uma centena de mostras de cinema.',
+    teamBio2: 'Atualmente, é Produtora Executiva e Supervisora de Atividades Formativas e de Mercado na Gestão Compartilhada do Cine Brasília. Participou de laboratórios como EAVE Puentes (2025), BrLab (2020, 2022) e First Cut Lab (2024), é membro da Rede de Talentos Paradiso e foi destaque na 75ª Berlinale como uma das cinco produtoras latino-americanas pela LatAm Cinema.',
+    producoesTitle: 'Produções',
   },
   en: {
     heroTitle: 'About',
     heroSubtitle: 'Moveo Filmes, founded in 2018 in Brasília, focuses on arthouse films for the international market, with an emphasis on promising Brazilian filmmakers.',
     aboutTitle: 'About',
-    aboutText1: 'Moveo Filmes, founded in 2018 in Brasília, focuses on arthouse films for the international market, with an emphasis on promising Brazilian filmmakers. The company has built a strong track record, collaborating with emerging talents like Rafaela Camelo, who directed',
-    aboutText2: 'Moveo\'s first international feature, "A Natureza das Coisas Invisíveis" (2025). This film had its world premiere at Berlinale, and it was funded by FAC-DF, FSA/Ancine, the Chilean Minor Coproduction Fund, and development by Nouvelle-Aquitaine, France.',
+    aboutText1: 'Based in Brasília since 2018 and led by its founding partner, Daniela Marinho, Moveo Filmes is an independent film production company focused on auteur-driven projects and the international market. The company has built a strong track record at prestigious international and Brazilian showcases, including the Berlinale, Sundance, FICCI (Cartagena) and Gramado.',
+    aboutText2: 'In 2025, Moveo released its first feature film as lead producer, “A Natureza das Coisas Invisíveis” (a Brazil-Chile co-production), which premiered at the Berlinale, won more than 20 international awards and received the Grande Otelo Award for Best First Feature Direction. The company is currently developing “O Jardim das Delícias”, “Alto Paraíso” and “La Nube de Basura”.',
     teamTitle: 'Team',
-    teamBio1: 'Daniela Marinho is a film producer with a degree in Law and a master\'s degree in Social Communication. She currently serves as Executive Producer and Film Programmer at Cine Brasília, a public movie theater built in 1960.',
-    teamBio2: 'Among her film production credits are the short films O Mistério da Carne, by Rafaela Camelo, showcased at Sundance in 2019, and O Véu de Amani, by Renata Diniz, winner of best screenplay at the Gramado Festival in 2019.',
+    teamBio1: 'Daniela Marinho is a film producer born in Brasília in 1985, with more than 15 years of experience in the audiovisual industry. Her background spans Law and Communication, and she has contributed to more than 10 feature films and a hundred film showcases.',
+    teamBio2: 'She is currently Executive Producer and Supervisor of Training and Market Activities at Cine Brasília. She has taken part in labs such as EAVE Puentes (2025), BrLab (2020, 2022) and First Cut Lab (2024), is a member of the Paradiso Talent Network and was featured at the 75th Berlinale by LatAm Cinema as one of five Latin American producers.',
+    producoesTitle: 'Productions',
   },
 };
+
+// Textos de Sobre e Equipe e a lista de produções vêm dos currículos que a cliente
+// mandou em set/2026 (empresa e Daniela Marinho, versão em português). Os de inglês
+// não abriram: o inglês desta página é tradução nossa. Anos e durações seguem o
+// currículo — o banco diverge em O Véu de Amani e O Mistério da Carne.
+const PRODUCOES = [
+  {
+    pt: 'Produções e coproduções',
+    en: 'Productions and co-productions',
+    filmes: [
+      { titulo: 'Música Secular', ano: 2026, duracao: '19 min', direcao: ['Emanuel Lavor'] },
+      { titulo: 'A Natureza das Coisas Invisíveis', ano: 2025, duracao: '90 min', direcao: ['Rafaela Camelo'] },
+      { titulo: 'Três', ano: 2024, duracao: '20 min', direcao: ['Lila Foster'] },
+      { titulo: 'As Miçangas', ano: 2023, duracao: '18 min', direcao: ['Rafaela Camelo', 'Emanuel Lavor'] },
+      { titulo: 'Lubrina', ano: 2023, duracao: '17 min', direcao: ['Leonardo Hecht', 'Vinícius Fernandes'] },
+      { titulo: 'O Mistério da Carne', ano: 2018, duracao: '18 min', direcao: ['Rafaela Camelo'] },
+    ],
+  },
+  {
+    pt: 'Produções associadas',
+    en: 'Associate productions',
+    filmes: [
+      { titulo: 'Não Há Magia', ano: 2026, duracao: '15 min', direcao: ['Lucas Milhomem'] },
+      { titulo: 'O Pacto da Viola', ano: 2024, duracao: '99 min', direcao: ['Guilherme Bacalhao'] },
+      { titulo: 'O Véu de Amani', ano: 2019, duracao: '14 min', direcao: ['Renata Diniz'] },
+    ],
+  },
+  {
+    pt: 'Serviços audiovisuais',
+    en: 'Production services',
+    filmes: [
+      { titulo: 'O Vazio de Domingo à Tarde', ano: 2023, duracao: '94 min', direcao: ['Gustavo Galvão'] },
+      { titulo: 'Ainda Temos a Imensidão da Noite', ano: 2019, duracao: '98 min', direcao: ['Gustavo Galvão'] },
+      { titulo: 'Maria Luiza', ano: 2019, duracao: '80 min', direcao: ['Marcelo Díaz'] },
+    ],
+  },
+];
 
 export default function SobrePage() {
   const { language, setLanguage } = useLanguage();
@@ -283,8 +322,8 @@ export default function SobrePage() {
             }}
           >
             <Image
-              src="/imagens/secao2home/Rectangle 10.png"
-              alt="Moveo Filmes"
+              src="/imagens/capahome-natureza.jpg"
+              alt="A Natureza das Coisas Invisíveis"
               fill
               sizes="(max-width: 768px) 220px, 350px"
               className="object-cover"
@@ -369,8 +408,8 @@ export default function SobrePage() {
                   }}
                 >
                   <Image
-                    src="/imagens/secao2home/Rectangle 9.png"
-                    alt="Sobre"
+                    src="/imagens/destaques/tres-familia.jpg"
+                    alt="Três"
                     fill
                     sizes="200px"
                     className="object-cover"
@@ -453,17 +492,75 @@ export default function SobrePage() {
                   }}
                 >
                   <Image
-                    src="/imagens/secao2home/Rectangle 11.png"
+                    src="/imagens/sobre/daniela-marinho.jpg"
                     alt="Daniela Marinho"
                     fill
                     sizes="160px"
                     className="object-cover"
-                    style={{ filter: 'grayscale(100%) brightness(0.45) contrast(1.1)' }}
+                    style={{ filter: 'grayscale(100%) brightness(0.85) contrast(1.05)' }}
                   />
                   <SecondaryImageOverlay />
+                  <span
+                    className="absolute left-2 bottom-2 z-10"
+                    style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 9, letterSpacing: '0.06em', color: 'rgba(255, 255, 255, 0.7)' }}
+                  >
+                    {language === 'pt' ? 'Foto' : 'Photo'}: Paula Carrubba
+                  </span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Produções — lista do currículo da empresa (ver PRODUCOES) */}
+        <div
+          className="relative z-10"
+          style={{ padding: '96px var(--frame-pad) 0 var(--circle-offset)' }}
+        >
+          <h2
+            className="text-white mb-10"
+            style={{
+              fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, sans-serif",
+              fontSize: 'clamp(40px, 5vw, 72px)',
+              fontWeight: 700,
+            }}
+          >
+            {t.producoesTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10">
+            {PRODUCOES.map((grupo) => (
+              <div key={grupo.pt}>
+                <h3
+                  className="mb-5 uppercase"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(11px, 0.9vw, 13px)',
+                    letterSpacing: '0.12em',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  {language === 'pt' ? grupo.pt : grupo.en}
+                </h3>
+                <ul className="space-y-4">
+                  {grupo.filmes.map((filme) => (
+                    <li key={filme.titulo}>
+                      <div
+                        className="text-white"
+                        style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(15px, 1.2vw, 18px)', fontWeight: 500 }}
+                      >
+                        {filme.titulo}
+                      </div>
+                      <div
+                        className="text-neutral-400"
+                        style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(12px, 0.95vw, 14px)' }}
+                      >
+                        {filme.ano} · {filme.duracao} · {filme.direcao.join(language === 'pt' ? ' e ' : ' and ')}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
