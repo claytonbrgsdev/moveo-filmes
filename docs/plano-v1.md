@@ -76,7 +76,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - 🔒 Chave pública lê colunas internas pela API (2 valores de financiamento, 6 observações): o HTML já não leva, mas quem consulta o REST com a chave anônima lê. Proteger exige permissão por coluna ou view no banco — decisão (Clayton)
 - [ ] Estado do painel na URL (F5 e link direto)
 - [ ] Upload feito antes de salvar não vira arquivo órfão em `filmes/new/`
-- [ ] Rotas-esqueleto `/filme/[slug]` e `/empresa/[slug]`
+- [x] Rotas-esqueleto `/filme/[slug]` e `/empresa/[slug]` removidas — devolviam `null` (página em branco) e nada no site apontava para elas. O filme mora em `/catalogo/*/[slug]`; página de empresa não existe
 - [ ] 12 erros de ESLint pré-existentes
 
 ## 4. Entrega da v1

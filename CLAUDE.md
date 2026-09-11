@@ -250,11 +250,6 @@ os números não fechavam (6 no índice, 18 na página). `/catalogo` só mostra
 contagens, então um filme com categoria nula fica fora de todas as páginas de
 lista. Classifique antes de publicar um filme novo.
 
-**Rotas-esqueleto.** `app/empresa/[slug]` e `app/filme/[slug]` aparecem no
-quadro de rotas do build, mas `generateStaticParams` devolve `[]` e o
-componente devolve `null`. Não são páginas; não confunda a presença delas com
-a existência de uma página de empresa.
-
 **Upload antes de salvar vira órfão.** No filme novo o `storagePath` usa
 `filmes/${filmeId ?? 'new'}/…`, então o arquivo cai numa pasta `new/` e nunca
 é reassociado. Também não há limpeza de storage no delete.
