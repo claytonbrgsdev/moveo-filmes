@@ -26,7 +26,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Travamento: vídeos só carregam quando entram na tela (`0a33668`)
 - [x] Cartela 01 — abertura com foco em A Natureza: teaser, título, láureas (`618c8da`)
 - [x] Cartela 02 — destaques só com filmes prontos: as 6 imagens que a cliente linkou (Três, As Miçangas, A Natureza, Lubrina, O Mistério da Carne, O Véu de Amani), em `public/imagens/destaques/`
-- 🔒 Cartela 02 — imagem de O Pacto da Viola (o link do documento dá 404 — cliente); o espaço dela está com outro still do Natureza
+- 🔒 Cartela 02 — imagem de O Pacto da Viola (o link do documento dá 404 — cliente); o espaço dela mostra o aviso "Inserir imagem de O Pacto da Viola aqui"
 - [x] Cartela 03 — frase de posicionamento (`cb99eff`)
 - [x] Cartela 03 — A Natureza, As Miçangas, Três e Lubrina com as 8 imagens enviadas; a grade tem 10 espaços, nenhuma imagem se repete dentro da cartela
 - 🔒 Cartela 04 — o documento diz "retirar" e "ok" ao mesmo tempo (cliente)
@@ -115,6 +115,16 @@ Fora do que o documento pede: links, páginas que a home abre, inglês e o que u
 - [x] Quem voltava com inglês salvo causava erro de hidratação e a página inteira era redesenhada no navegador (o idioma era lido do localStorage no primeiro render). Agora começa em `pt` e aplica o salvo depois; o `<html lang>` acompanha o idioma
 - 🔒 WhatsApp (61) 98142-4106 em `/contato` sem fonte (entrou em nov/2025) — confirmar com a cliente
 - 🔒 5 dos 12 filmes em `/catalogo/cinema` sem imagem; Terra de Luz e All Still Orbit não estão no currículo da empresa (são da filmografia da Daniela) — decidir com a cliente
+
+## 7. Placeholders explícitos e bloco de As Miçangas (11/09/2026)
+
+Pedido do Clayton na conferência: onde um conteúdo que falta está sendo "fingido" com outro, trocar por um aviso claro; e refatorar o bloco de As Miçangas (vídeo repetido, sinopse difícil de ler).
+
+- [x] Cartela 08 — a transição de ripas diagonais mostrava o trailer de As Miçangas no lugar do teaser de Não Há Magia; agora o aviso "Inserir teaser de Não Há Magia aqui" (`c29f543`)
+- [x] Cartela 02 — o espaço de O Pacto da Viola usava outro still do Natureza; agora o aviso "Inserir imagem de O Pacto da Viola aqui"
+- [x] Cartela 14 — "Além dos filmes" usava um vídeo da Lubrina e três stills de outros filmes no lugar do material de mostras, exposições e projetos especiais (doc CATÁLOGO); agora quatro avisos "Inserir…"
+- [x] `/catalogo` — o card de Mostras e exposições tinha um vídeo da Lubrina de fundo; saiu
+- [ ] As Miçangas — o trailer aparece 8 vezes (2 na abertura, 5 no mosaico, 1 nos créditos) e a sinopse flutua sobre vídeo. Plano: 1 vídeo na abertura (cartela 09), o mosaico com os 5 stills da produção e a sinopse numa coluna própria, 1 vídeo nos créditos com as láureas (cartela 10)
 
 ## Pendências da cliente, para resolver na entrega
 

@@ -43,7 +43,7 @@ edição.
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
 | 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
-| 14 | `<section>` seguinte ao finale | "ALÉM DOS FILMES" |
+| 14 | `Seção - ARQUIVO MOVEL` | "ALÉM DOS FILMES" — a coluna de vídeo e as três imagens são avisos até chegar o material do doc CATÁLOGO |
 | 15 | `Seção - NOTÍCIAS` | Notícias — links para o Instagram e o Vimeo (`REDES_MOVEO`, repetidos nos botões do Contato) desde 10/09/2026 |
 | 16 | `Seção - CONTATO / FOOTER` (não é `<section>`, é `<div>`) | Contato — a coluna da direita é a animação da logo (`/videos/logo-moveo.mp4`) desde 10/09/2026; antes era a `capahome.png` |
 
@@ -76,7 +76,7 @@ stills de cada filme, em 10/09/2026:
 
 | Arquivo | O que é de verdade | Onde fica |
 |---|---|---|
-| `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | coluna de vídeo da cartela 14 |
+| `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | fora da home desde 11/09/2026 (era a coluna de vídeo da cartela 14, no lugar do material de mostras); segue em `/em-breve` |
 | `micangas.mp4` | retratos de moradores, material da Lubrina | retângulo decorativo na seção de catálogo |
 | `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
 | ~~`capahome.png`~~ | still de As Miçangas | **removida** em 10/09/2026. A abertura e o painel "O filme" do Natureza usam `capahome-natureza.jpg` (still 01 do filme); o card de compartilhamento usa `og-moveo.jpg` |
@@ -212,8 +212,8 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 |---|---|
 | Teaser de Não Há Magia | a cliente ainda não tem — ela escreveu "esperando envio". Vai na transição de ripas diagonais entre o painel de Não Há Magia e As Miçangas, que mostrava o trailer de As Miçangas — o mesmo que passa no bloco seguinte. Até chegar, a transição mostra o aviso "Inserir teaser de Não Há Magia aqui"; quando chegar, volta a ser `<video data-src data-transition-video>` |
 | Não Há Magia em inglês | ela só mandou português. Sinopse, formato e lançamento em inglês (home e `filmes.sinopse_en`) são tradução nossa; o título ficou o original |
-| Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco. O espaço dela na cartela 02 (comentário `Linha C` no JSX) está com outro still do Natureza até ela chegar |
-| Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |
+| Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco. O espaço dela na cartela 02 (comentário `Linha C` no JSX) mostra o aviso "Inserir imagem de O Pacto da Viola aqui" |
+| Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14. Até chegar, a coluna de vídeo e as três imagens da cartela são avisos "Inserir…" |
 | Anos de O Véu de Amani e O Mistério da Carne | resolvidos em 11/09/2026: 2019 e 2018, como na lista do catálogo que ela pôs na cartela 04 e nos currículos. Backup em `../backups/2026-09-10/revisao-documento-antes.json` |
 | A Arte de Andar Pelas Ruas de Brasília | está na lista do catálogo da cliente (cartela 04) e no catálogo, mas sem imagem nem sinopse; o print dela mostra um still |
 | "Mix Brasil \| México" (cartela 01) | a pasta de láurea só tem a do Mix Brasil; não há arte do Mix México |

@@ -35,7 +35,7 @@ edição 24/08/2026). Para conferir: https://moveofilmes.com/preview.
 - [ ] **02.5** Imagem de Lubrina — ✅
 - [ ] **02.6** Imagem de O Mistério da Carne — ✅
 - [ ] **02.7** Imagem de O Véu de Amani — ✅
-- [ ] **02.8** Imagem de O Pacto da Viola — 🔒 o link dá 404; o espaço está com outro still do Natureza
+- [ ] **02.8** Imagem de O Pacto da Viola — 🔒 o link dá 404; o espaço mostra o aviso "Inserir imagem de O Pacto da Viola aqui"
 
 ## Cartela 03 — destaques
 
@@ -125,7 +125,7 @@ edição 24/08/2026). Para conferir: https://moveofilmes.com/preview.
 
 ## Cartela 14 — "Além dos filmes"
 
-- [ ] **14.1** Inserir material sobre os outros tipos de trabalho da Moveo (doc CATÁLOGO MOVEO SITE) — 🔒 o documento não abre
+- [ ] **14.1** Inserir material sobre os outros tipos de trabalho da Moveo (doc CATÁLOGO MOVEO SITE) — 🔒 o documento não abre; a coluna de vídeo e as três imagens da cartela mostram avisos "Inserir…"
 - [ ] **14.2** "É difícil ler a última parte do texto que fica em cima do título" — ✅ o texto não cobre mais o título (medido no tamanho do print dela, no desktop e no celular)
 
 ## Cartela 15 — notícias

@@ -1334,7 +1334,7 @@ export default function CatalogoPage() {
           ))}
         </div>
 
-        {/* MOSTRAS */}
+        {/* MOSTRAS — sem vídeo de fundo: era um da Lubrina, que não é material de mostras nem de exposições. */}
         <CategoryRow
           href={t.outrosHref}
           title={t.outrosTitle}
@@ -1342,7 +1342,6 @@ export default function CatalogoPage() {
           count={counts[t.outrosHref]}
           large
           index={5}
-          videoSrc="/videos/misterio.mp4"
         />
       </section>
 

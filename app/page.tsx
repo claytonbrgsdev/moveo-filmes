@@ -4695,15 +4695,12 @@ export default function Home() {
                         />
                       </div>
 
-                      {/* Linha C — lugar de O Pacto da Viola: o link da imagem no documento da cliente dá 404; até lá, outro still do Natureza */}
-                      <div className="relative overflow-hidden" data-second-image>
-                        <Image
-                          src="/imagens/destaques/natureza-ceu.jpg"
-                          alt="A Natureza das Coisas Invisíveis"
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
+                      {/* Linha C — lugar de O Pacto da Viola. O link da imagem no documento da cliente dá 404;
+                          até chegar, o aviso. Antes era outro still do Natureza, que parecia ser a imagem certa. */}
+                      <div className="relative overflow-hidden flex items-center justify-center text-center" data-second-image style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: 6 }}>
+                        <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.45, color: 'rgba(255, 255, 255, 0.75)', fontSize: 'clamp(8px, 0.7vw, 11px)' }}>
+                          {t('pactoDaViolaImagemPendente')}
+                        </span>
                       </div>
                     </div>
 
@@ -7897,16 +7894,16 @@ export default function Home() {
               <div className="grid grid-cols-6 sm:grid-cols-12 grid-rows-8 gap-2 sm:gap-4 md:gap-6 h-full min-h-0" style={{ overflow: 'visible' }}>
                 {/* Coluna video esquerda */}
                 <div className="hidden sm:block col-span-2 row-span-8 relative overflow-hidden" data-arquivo-image>
-                  <video
-                    preload="none"
-                    data-src="/videos/misterio.mp4"
-                    muted
-                    loop
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{ filter: 'brightness(0.8) saturate(0.7)' }}
+                  {/* Lugar do material de mostras, exposições e projetos especiais (doc CATÁLOGO MOVEO
+                      SITE, que ainda não abre). Era um vídeo da Lubrina, que não é esse material. */}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-center"
+                    style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: '12px 26px 12px 12px' }}
                   >
-                  </video>
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.45, color: 'rgba(255, 255, 255, 0.75)', fontSize: 'clamp(9px, 0.8vw, 12px)' }}>
+                      {t('arquivoMaterialPendente')}
+                    </span>
+                  </div>
                   {/* Subtle vignette overlay */}
                   <div
                     className="absolute inset-0 pointer-events-none"
@@ -8053,13 +8050,14 @@ export default function Home() {
 
                 {/* Imagens à direita */}
                 <div className="col-start-5 sm:col-start-8 col-span-2 sm:col-span-4 row-start-1 row-span-3 relative overflow-hidden" data-arquivo-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 10.png"
-                    alt="Arquivo móvel imagem 1"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-center"
+                    style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: 12 }}
+                  >
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.45, color: 'rgba(255, 255, 255, 0.75)', fontSize: 'clamp(9px, 0.8vw, 12px)' }}>
+                      {t('arquivoImagemPendente')}
+                    </span>
+                  </div>
                   {/* Viewfinder top-left */}
                   <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
@@ -8072,13 +8070,14 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="col-start-4 sm:col-start-8 col-span-3 sm:col-span-4 row-start-3 row-span-3 relative overflow-hidden" data-arquivo-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 9.png"
-                    alt="Arquivo móvel imagem 2"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-center"
+                    style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: 12 }}
+                  >
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.45, color: 'rgba(255, 255, 255, 0.75)', fontSize: 'clamp(9px, 0.8vw, 12px)' }}>
+                      {t('arquivoImagemPendente')}
+                    </span>
+                  </div>
                   {/* Viewfinder top-left */}
                   <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
@@ -8091,13 +8090,14 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="col-start-4 sm:col-start-7 col-span-3 sm:col-span-5 row-start-6 row-span-2 relative overflow-hidden" data-arquivo-image>
-                  <Image
-                    src="/imagens/secao2home/Rectangle 11.png"
-                    alt="Arquivo móvel imagem 3"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-center"
+                    style={{ border: '1px dashed rgba(255, 255, 255, 0.35)', padding: 12 }}
+                  >
+                    <span style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.45, color: 'rgba(255, 255, 255, 0.75)', fontSize: 'clamp(9px, 0.8vw, 12px)' }}>
+                      {t('arquivoImagemPendente')}
+                    </span>
+                  </div>
                   {/* Viewfinder top-left */}
                   <div className="absolute pointer-events-none" style={{ zIndex: 2, top: 8, left: 8 }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 1, background: 'rgba(255,255,255,0.4)' }} />
