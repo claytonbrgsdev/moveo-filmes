@@ -4481,10 +4481,10 @@ export default function Home() {
                 src="/imagens/capahome-natureza.jpg"
                 alt="Capa Home"
                 fill
+                sizes="100vw"
                 className="object-cover"
                 style={{ zIndex: 1, opacity: 0.18, mixBlendMode: 'screen' as const }}
                 priority
-                unoptimized
               />
               {/* Vignette */}
               <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2, background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%)' }} />
@@ -4559,9 +4559,8 @@ export default function Home() {
                       key={laurea.srcPt}
                       src={language === 'en' ? laurea.srcEn : laurea.srcPt}
                       alt={language === 'en' ? laurea.altEn : laurea.altPt}
-                      width={laurea.largura}
-                      height={240}
-                      unoptimized
+                      width={Math.round(laurea.largura / 4)}
+                      height={60}
                       style={{ height: 'clamp(26px, 3.6vw, 58px)', width: 'auto' }}
                     />
                   ))}
@@ -4653,8 +4652,8 @@ export default function Home() {
                           src="/imagens/destaques/tres-deitados.jpg"
                           alt="Três"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
                       <div className="relative overflow-hidden col-span-2" data-second-image>
@@ -4662,8 +4661,8 @@ export default function Home() {
                           src="/imagens/destaques/micangas-porta.jpg"
                           alt="As Miçangas"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
@@ -4671,8 +4670,8 @@ export default function Home() {
                           src="/imagens/destaques/natureza-cama.jpg"
                           alt="A Natureza das Coisas Invisíveis"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
 
@@ -4682,8 +4681,8 @@ export default function Home() {
                           src="/imagens/destaques/lubrina-rosto.jpg"
                           alt="Lubrina"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
@@ -4691,8 +4690,8 @@ export default function Home() {
                           src="/imagens/destaques/misterio-da-carne.jpg"
                           alt="O Mistério da Carne"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
@@ -4700,8 +4699,8 @@ export default function Home() {
                           src="/imagens/destaques/veu-de-amani.jpg"
                           alt="O Véu de Amani"
                           fill
+                          sizes="(min-width: 768px) 22vw, 42vw"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
 
@@ -4739,8 +4738,8 @@ export default function Home() {
                             src="/imagens/destaques/tres-familia.jpg"
                             alt="Três"
                             fill
+                            sizes="(min-width: 768px) 22vw, 42vw"
                             className="object-cover"
-                            unoptimized
                           />
                         </div>
                       </div>
@@ -4863,8 +4862,8 @@ export default function Home() {
                             src="/imagens/destaques/natureza-corredor.jpg"
                             alt="A Natureza das Coisas Invisíveis"
                             fill
+                            sizes="(min-width: 768px) 22vw, 42vw"
                             className="object-cover"
-                            unoptimized
                           />
                         </div>
                         <div className="relative overflow-hidden" data-second-image>
@@ -4872,8 +4871,8 @@ export default function Home() {
                             src="/imagens/destaques/micangas-rio.jpg"
                             alt="As Miçangas"
                             fill
+                            sizes="(min-width: 768px) 22vw, 42vw"
                             className="object-cover"
-                            unoptimized
                           />
                         </div>
                       </div>
@@ -4934,8 +4933,8 @@ export default function Home() {
                         src="/imagens/destaques/micangas-carro.jpg"
                         alt="As Miçangas"
                         fill
+                        sizes="(min-width: 768px) 22vw, 42vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
 
@@ -4945,8 +4944,8 @@ export default function Home() {
                         src="/imagens/destaques/tres-familia.jpg"
                         alt="Três"
                         fill
+                        sizes="(min-width: 768px) 22vw, 42vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
 
@@ -4957,8 +4956,8 @@ export default function Home() {
                         alt="Lubrina"
                         style={{ objectPosition: '62% 50%' }}
                         fill
+                        sizes="(min-width: 768px) 22vw, 42vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
 
@@ -4968,8 +4967,8 @@ export default function Home() {
                         src="/imagens/destaques/natureza-janela.jpg"
                         alt="A Natureza das Coisas Invisíveis"
                         fill
+                        sizes="(min-width: 768px) 22vw, 42vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
 
@@ -4980,8 +4979,8 @@ export default function Home() {
                         alt="Três"
                         style={{ objectPosition: '30% 50%' }}
                         fill
+                        sizes="(min-width: 768px) 22vw, 42vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
                   </div>
@@ -4994,8 +4993,8 @@ export default function Home() {
                       src="/imagens/destaques/lubrina-nuvens.jpg"
                       alt="Lubrina"
                       fill
+                      sizes="(min-width: 768px) 22vw, 42vw"
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
 
@@ -5005,8 +5004,8 @@ export default function Home() {
                       src="/imagens/destaques/micangas-rio.jpg"
                       alt="As Miçangas"
                       fill
+                      sizes="(min-width: 768px) 22vw, 42vw"
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
 
@@ -5088,8 +5087,8 @@ export default function Home() {
                       src="/imagens/destaques/natureza-cama.jpg"
                       alt="A Natureza das Coisas Invisíveis"
                       fill
+                      sizes="(min-width: 768px) 22vw, 42vw"
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
 
@@ -5100,8 +5099,8 @@ export default function Home() {
                       alt="As Miçangas"
                       style={{ objectPosition: '40% 50%' }}
                       fill
+                      sizes="(min-width: 768px) 22vw, 42vw"
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
 
@@ -5111,8 +5110,8 @@ export default function Home() {
                       src="/imagens/destaques/natureza-corredor.jpg"
                       alt="A Natureza das Coisas Invisíveis"
                       fill
+                      sizes="(min-width: 768px) 22vw, 42vw"
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
                 </div>
@@ -5604,7 +5603,6 @@ export default function Home() {
                     mixBlendMode: 'multiply',
                   }}
                   data-speed="0.3"
-                  unoptimized
                 />
               </div>
               {/* Gradient overlay for blending */}
@@ -6086,8 +6084,8 @@ export default function Home() {
                     src="/imagens/nao-ha-magia/pedra.jpg"
                     alt={t('naoHaMagiaTitulo')}
                     fill
+                    sizes="(min-width: 768px) 55vw, 100vw"
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
                 <div className="hidden md:grid grid-cols-4 gap-2">
@@ -6097,8 +6095,8 @@ export default function Home() {
                         src={`/imagens/nao-ha-magia/${still}.jpg`}
                         alt={t('naoHaMagiaTitulo')}
                         fill
+                        sizes="14vw"
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
                   ))}
@@ -6394,7 +6392,6 @@ export default function Home() {
                       sizes="(min-width: 768px) 35vw, 60vw"
                       className="object-cover"
                       style={{ objectPosition: still.posicao }}
-                      unoptimized
                     />
                   </div>
                 ))}
@@ -6525,9 +6522,8 @@ export default function Home() {
                     key={laurea.src}
                     src={laurea.src}
                     alt={language === 'en' ? laurea.altEn : laurea.altPt}
-                    width={laurea.largura}
-                    height={240}
-                    unoptimized
+                    width={Math.round(laurea.largura / 4)}
+                    height={60}
                     style={{ height: 'clamp(26px, 3.6vw, 58px)', width: 'auto', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7))' }}
                   />
                 ))}
@@ -7220,7 +7216,7 @@ export default function Home() {
                 src="/imagens/tres/bella-montiel-v500t-1790-mai23aa025.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.05)' }}
               />
@@ -7245,7 +7241,7 @@ export default function Home() {
                 src="/imagens/tres/tres-4-300dpi.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.1)' }}
               />
@@ -7270,7 +7266,7 @@ export default function Home() {
                 src="/imagens/tres/tres-6-300dpi.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.15)' }}
               />
@@ -7294,7 +7290,7 @@ export default function Home() {
                 src="/imagens/tres/tres-7-300dpi.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.05)' }}
               />
@@ -7319,7 +7315,7 @@ export default function Home() {
                 src="/imagens/tres/tres-v500t-1790-mai23aa020.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.1)' }}
               />
@@ -7344,7 +7340,7 @@ export default function Home() {
                 src="/imagens/tres/tres-v500t-1791-mai23aa024.jpg"
                 alt={`${t('tresTitulo')} — ${t('tresFotosDivulgacao')}`}
                 fill
-                unoptimized
+                sizes="(min-width: 768px) 42vw, 45vw"
                 className="object-cover"
                 style={{ transform: 'scale(1.2)' }}
               />
@@ -7973,8 +7969,8 @@ export default function Home() {
                           src={item.image}
                           alt={item.title}
                           fill
+                          sizes="(min-width: 640px) 60vw, 100vw"
                           className="object-cover"
-                          unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                         <div className="absolute top-5 left-5 flex items-center gap-3 z-10 mix-blend-difference">

@@ -24,6 +24,7 @@ Legenda: `[x]` feito · `[ ]` a fazer · `🔒` bloqueado, com quem destrava.
 Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 
 - [x] Travamento: vídeos só carregam quando entram na tela (`0a33668`)
+- [x] G.1 (conferência) — imagens da home servidas no tamanho original (`unoptimized`, 1200–1400px): 1,6 MB dos 2,1 MB da abertura. As 33 `<Image>` da home passam pelo otimizador da Vercel (AVIF/WebP), cada uma com `sizes` medido na tela (1440px e celular); as láureas declaradas a 60px de altura em vez de 240
 - [x] Cartela 01 — abertura com foco em A Natureza: teaser, título, láureas (`618c8da`)
 - [x] Cartela 02 — destaques só com filmes prontos: as 6 imagens que a cliente linkou (Três, As Miçangas, A Natureza, Lubrina, O Mistério da Carne, O Véu de Amani), em `public/imagens/destaques/`
 - 🔒 Cartela 02 — imagem de O Pacto da Viola (o link do documento dá 404 — cliente); o espaço dela mostra o aviso "Inserir imagem de O Pacto da Viola aqui"
