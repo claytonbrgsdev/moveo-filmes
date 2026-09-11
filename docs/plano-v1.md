@@ -70,7 +70,9 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 
 - [x] Link de e-mail inválido explica o motivo (`ff0de60`)
 - [x] Crédito de empresa lia coluna inexistente (`50501d1`)
-- [ ] Página de detalhe do filme entrega só as colunas que usa (hoje a linha inteira vai no HTML)
+- [x] Página de detalhe do filme entrega só as colunas que usa — antes iam no HTML `valor` e `observacoes` de financiamento, observações de festival, `tags`, e-mail e telefone de empresa
+- [x] Galeria da página de detalhe vazia: filtrava `tipo = 'imagem'` e os 29 assets do banco são `still` (o painel oferece os dois)
+- 🔒 Chave pública lê colunas internas pela API (2 valores de financiamento, 6 observações): o HTML já não leva, mas quem consulta o REST com a chave anônima lê. Proteger exige permissão por coluna ou view no banco — decisão (Clayton)
 - [ ] Estado do painel na URL (F5 e link direto)
 - [ ] Upload feito antes de salvar não vira arquivo órfão em `filmes/new/`
 - [ ] Rotas-esqueleto `/filme/[slug]` e `/empresa/[slug]`

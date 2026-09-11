@@ -266,14 +266,21 @@ anteriores a este trabalho — não são regressão.
 **`/auth/callback` engole erro de token.** Token inválido não avisa nada: cai
 em `/auth/reset-password`, que não acha sessão e rebota para `/auth/login`.
 
-**A página de detalhe do filme entrega a linha inteira ao navegador.**
-`app/catalogo/*/[slug]/page.tsx` faz `select("*")` e passa o objeto para
-`FilmeContent`, que é `'use client'`. Toda coluna de `filmes` vai serializada no
-HTML público — inclusive `status_interno_*`, `buscando_*` e o que a tela não
-mostra. Na prática: um `grep` no HTML acha texto que não aparece na página
-(aconteceu com uma `logline_pt` desatualizada). Antes de concluir, veja se a
-ocorrência está dentro de `<script>`. E nada que não possa ser público deve
-morar em `filmes`.
+**Tudo o que a página de detalhe do filme recebe vai para o HTML.**
+`app/catalogo/*/[slug]/page.tsx` passa os dados para `FilmeContent`, que é
+`'use client'` — cada coluna selecionada vai serializada na página pública. Até
+10/09/2026 eram `select("*")` e iam junto `valor` e `observacoes` de
+financiamento, `tags`, e-mail e telefone de empresa. Desde então as queries listam
+só as colunas que a tela usa: **coluna nova que a página precise mostrar tem que
+entrar no `select` das duas páginas** (cinema e mostras), senão chega `undefined`
+sem erro. `status_interno_*` e `buscando_*` continuam indo porque a tela mostra.
+
+Isso tira do HTML, não da API: a chave anônima é pública e a RLS deixa ler essas
+colunas pelo REST. Proteger de verdade exige permissão por coluna ou uma view.
+E nada que não possa ser público deve morar nessas tabelas.
+
+**A galeria da página de detalhe lê `imagem` e `still`.** O painel oferece os dois
+tipos; a página filtrava só `imagem` e ficava vazia com os 29 stills do banco.
 
 **Pastas com `_` não viram rota.** `app/api/__foo/` é pasta privada do App
 Router e não existe como endpoint — custou uma rodada de debug.

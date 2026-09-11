@@ -34,10 +34,13 @@ export default async function FilmeCinemaPage({ params }: PageProps) {
   // Usar cliente sem cookies para build estático
   const supabase = createCachedAnonClient([TAG_FILMES]);
 
-  // Buscar filme pelo slug
+  // Só as colunas que a tela usa. FilmeContent é 'use client': tudo o que chega
+  // aqui vai serializado no HTML público, inclusive o que a página não mostra.
   const { data: filme, error } = await supabase
     .from("filmes")
-    .select("*")
+    .select(
+      "id, slug, titulo_pt, titulo_en, ano, ano_previsto, tipo_obra, duracao_min, status_interno_pt, status_interno_en, generos, paises_producao, categoria_site, sinopse_pt, sinopse_en, buscando_pt, buscando_en, poster_principal_url, thumbnail_card_url, imagem_og_url"
+    )
     .eq("slug", slug)
     .single();
 
@@ -51,9 +54,9 @@ export default async function FilmeCinemaPage({ params }: PageProps) {
     supabase
       .from("filmes_creditos")
       .select(`
-        *,
-        pessoas(*),
-        empresas(*)
+        id, cargo, pessoa_id, empresa_id, nome_exibicao, ordem,
+        pessoas(id, nome, nome_exibicao, slug),
+        empresas(id, nome, slug)
       `)
       .eq("filme_id", filme.id)
       .order("ordem", { ascending: true }),
@@ -61,30 +64,32 @@ export default async function FilmeCinemaPage({ params }: PageProps) {
     // Financiamentos
     supabase
       .from("filmes_financiamentos")
-      .select("*")
+      // sem valor, moeda e observacoes
+      .select("id, nome, tipo, ano, fase, resultado")
       .eq("filme_id", filme.id)
       .order("ano", { ascending: false }),
     
     // Festivais
     supabase
       .from("filmes_festivais")
-      .select("*")
+      .select("id, nome, edicao, ano, cidade, pais, secao, tipo_evento, tipo_estreia")
       .eq("filme_id", filme.id)
       .order("ano", { ascending: false }),
     
     // Premiações
     supabase
       .from("filmes_premiacoes")
-      .select("*")
+      .select("id, titulo_do_premio, categoria, ano, festival_nome, tipo")
       .eq("filme_id", filme.id)
       .order("ano", { ascending: false }),
     
-    // Assets (imagens adicionais)
+    // Assets (imagens adicionais). O painel oferece "imagem" e "still"; filtrar só
+    // "imagem" deixava a galeria vazia — os 29 assets do banco são stills.
     supabase
       .from("filmes_assets")
-      .select("*")
+      .select("id, url, tipo, credito, alt_pt, alt_en")
       .eq("filme_id", filme.id)
-      .eq("tipo", "imagem")
+      .in("tipo", ["imagem", "still"])
       .order("ordem", { ascending: true }),
   ]);
 
