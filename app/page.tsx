@@ -6058,6 +6058,96 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ===== NÃO HÁ MAGIA — cartela 08 =====
+            * Bloco novo a pedido da cliente, entre A Natureza e a transição para As
+            * Miçangas. Ainda sem teaser ("esperando envio"): quando chegar, entra no
+            * lugar do still grande como <video preload="none" data-src>, igual aos
+            * outros blocos. Não depende de GSAP — nada aqui nasce com opacity 0.
+            */}
+          <section
+            className="horizontal-section relative flex-shrink-0 text-white"
+            data-nao-ha-magia-panel=""
+            style={{
+              width: 'calc(100vw - var(--frame-pad) * 2)',
+              height: 'calc(100vh - var(--frame-pad) * 2)',
+              overflow: 'hidden',
+              backgroundColor: '#0a0a0a',
+            }}
+          >
+            <div className="grid h-full grid-rows-[minmax(0,2fr)_minmax(0,3fr)] md:grid-rows-1 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+              {/* Esquerda — still grande e, a partir de md, uma faixa com os outros quatro */}
+              <div className="flex flex-col min-h-0 gap-2">
+                <div className="relative flex-1 min-h-0 overflow-hidden">
+                  <Image
+                    src="/imagens/nao-ha-magia/pedra.jpg"
+                    alt={t('naoHaMagiaTitulo')}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                <div className="hidden md:grid grid-cols-4 gap-2">
+                  {['abertura', 'museu', 'pov', 'teatro'].map((still) => (
+                    <div key={still} className="relative overflow-hidden" style={{ aspectRatio: '16 / 9' }}>
+                      <Image
+                        src={`/imagens/nao-ha-magia/${still}.jpg`}
+                        alt={t('naoHaMagiaTitulo')}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Direita — título, ficha e sinopse */}
+              <div
+                className="flex flex-col justify-center min-h-0"
+                style={{ padding: 'clamp(16px, 3vw, 48px)', gap: 'clamp(8px, 2vh, 22px)', overflow: 'hidden' }}
+              >
+                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(10px, 0.9vw, 13px)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255, 255, 255, 0.6)' }}>
+                  Lucas Milhomem · 2026
+                </div>
+                <h2
+                  className="uppercase"
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro Bold Extended', Arial, Helvetica, sans-serif",
+                    fontWeight: 700,
+                    fontSize: 'clamp(28px, 4.2vw, 80px)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {t('naoHaMagiaTitulo')}
+                </h2>
+                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(12px, 1.1vw, 14px)', color: 'rgba(255, 255, 255, 0.7)' }}>
+                  {t('naoHaMagiaFormato')}
+                </div>
+                <p
+                  style={{
+                    fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif",
+                    fontSize: 'clamp(12px, 1.15vw, 16px)',
+                    lineHeight: 1.6,
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 'clamp(8px, 2vh, 22px)',
+                  }}
+                >
+                  {t('naoHaMagiaSinopse')}
+                </p>
+                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(11px, 1vw, 14px)', lineHeight: 1.6, color: 'rgba(255, 255, 255, 0.7)' }}>
+                  <div><strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('direcao')}</strong> Lucas Milhomem</div>
+                  <div><strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('elenco')}</strong> {t('naoHaMagiaElenco')}</div>
+                  <div><strong style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{t('lancamento')}</strong> {t('naoHaMagiaLancamento')}</div>
+                </div>
+                <div style={{ fontFamily: "'Helvetica Neue LT Pro', Arial, sans-serif", fontSize: 'clamp(9px, 0.8vw, 11px)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>
+                  {t('fotos')} Luis Hartmann
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Transition: Natureza → Miçangas - DIAGONAL WIPE */}
           <section
             className="horizontal-section relative flex-shrink-0 overflow-hidden bg-black"

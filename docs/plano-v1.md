@@ -37,7 +37,9 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] Chaves de tradução que apareciam cruas na tela: "colombia", "mexico", "uruguai" (pt) e "catalogoEm", "destaque" (en)
 - [x] Cartela 07 — ficha técnica com formato, elenco e sinopse (`f618e04`)
 - [x] Painel da sinopse (cartela 07): parágrafo sem fonte e citação atribuída à Rafaela Camelo que não existe em nenhum material — trocar pela sinopse oficial e tirar a citação
-- [ ] Cartela 08 — bloco novo de Não Há Magia com ficha e stills (teaser 🔒 cliente)
+- [x] Cartela 08 — Não Há Magia: painel novo entre A Natureza e a transição para As Miçangas, com o still da pedra, faixa com os outros quatro, ficha e sinopse do documento
+- 🔒 Cartela 08 — teaser de Não Há Magia (cliente: "esperando envio"); entra no lugar do still grande
+- [ ] Notícias (cartela 15) — os três destaques do carrossel são texto de exemplo, não notícias da Moveo; trocar por fatos com fonte enquanto o Instagram não sincroniza
 - [x] Cartela 09 — As Miçangas: o bloco mostrava retratos da Lubrina; agora é o trailer do filme, com sinopse, formato, elenco, direção (são dois diretores, o site dava um), roteiro e coprodução da ficha técnica oficial
 - [x] Cartela 10 — As Miçangas: os 11 festivais do documento em destaque, com o prêmio de Melhor Curta do Panorama (em texto: só há láurea em arte de Curta Brasília e do Panorama)
 - [x] Cartelas 11 e 12 — Três no lugar de O Mistério da Carne, circulação e fotos (`a74f54a`, `9328bc8`)
@@ -56,8 +58,9 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] 26 imagens no bucket, ligadas aos filmes, com crédito de fotografia
 - [x] Sinopse de A Natureza alinhada com a versão da cliente
 - [x] Sinopse em inglês de As Miçangas no banco (estava vazia)
+- [x] Não Há Magia publicado no catálogo (`cinema`, público — eram rascunho e sem categoria), com sinopse em inglês traduzida por nós; backup em `../backups/2026-09-10/nao-ha-magia-antes-de-publicar.json`
 - [x] Classificar em `cinema` os filmes da lista da cliente e os já lançados (9); ficam sem categoria os 3 sem ano, sinopse nem imagem e o rascunho — backup em `../backups/2026-09-10/categorias-antes.json`
-- [x] `/catalogo/cinema` filtra por categoria (decidido: `/catalogo` é a visão geral) — a página estática lista os 9
+- [x] `/catalogo/cinema` filtra por categoria (decidido: `/catalogo` é a visão geral) — a página estática lista os 9; 10 desde que Não Há Magia foi publicado
 - [x] Créditos de direção e elenco de Três, As Miçangas e Não Há Magia — 13 pessoas, 5 créditos, 10 no elenco; ids em `../backups/2026-09-10/criados-creditos-elenco.json`
 - [x] Limpeza: 8 assets `about:blank` e Daniela Marinho duplicada em `pessoas` — backup em `../backups/2026-09-10/limpeza-daniela-e-assets.json`; os 2 créditos da cópia foram para a Daniela com slug (um era repetido e saiu)
 - 🔒 Anos conflitantes: O Véu de Amani (2017 × 2019), Mistério da Carne (2019 × 2018) — cliente
@@ -91,4 +94,4 @@ Miçangas (o documento diz Letícia Ferraz, a ficha técnica diz Tícia) · fina
 de As Miçangas (o site dizia "FAC-DF, Edital Cardume", sem fonte; saiu) · láureas de As
 Miçangas em arte (só existem as de Curta Brasília e do Panorama) · Feijão com Arroz, O Colar
 de Coralina e Uma Dose Violenta de Qualquer Coisa (sem ano, sinopse nem imagem, por isso
-fora das listagens).
+fora das listagens) · Não Há Magia em inglês (sinopse, formato e lançamento são tradução nossa).

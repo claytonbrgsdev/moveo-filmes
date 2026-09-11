@@ -75,6 +75,13 @@ const translations: Record<Language, Record<string, string>> = {
     micangasSinopse: 'Isoladas em uma casa no coração do cerrado, duas irmãs realizam um procedimento de aborto sem se darem conta de que há uma serpente silvestre escondida no ambiente.',
     micangasFormato: '19 min · Cor · Drama · 14 anos',
     micangasElenco: 'Tícia Ferraz, Pâmela Germano, Karine Teles',
+    // Cartela 08 — Não Há Magia. Ficha e sinopse do documento de alterações da cliente.
+    naoHaMagiaTitulo: 'Não Há Magia',
+    naoHaMagiaFormato: 'Curta-metragem · 15 min · Documentário/Fantasia',
+    naoHaMagiaElenco: 'Yara Ktaish, Márcia Witczak',
+    naoHaMagiaSinopse: 'Um dia na vida de Yara, uma atriz síria exilada no Brasil, enquanto viaja pelo país com uma peça de teatro. Em Brasília, um encontro com uma pedra flutuante a perturba silenciosamente. O momento surreal persiste, confundindo as fronteiras entre memória e atuação, passado e presente. Enquanto caminha pela cidade, a inescapável saudade de um lar para o qual não pode mais retornar emerge suavemente.',
+    naoHaMagiaLancamento: '04/06/2026 — Festival Internacional de Curtas-Metragens de Hamburgo, Alemanha',
+    lancamento: 'Lançamento:',
     estreiaMundial: 'Estreia Mundial',
     festivais: 'Festivais',
     premios: 'Prêmios',
@@ -188,6 +195,14 @@ const translations: Record<Language, Record<string, string>> = {
     micangasSinopse: 'Isolated in a house in the heart of the cerrado, two sisters carry out an abortion without realizing that a wild snake is hiding in the room.',
     micangasFormato: '19 min · Color · Drama · 14+',
     micangasElenco: 'Tícia Ferraz, Pâmela Germano, Karine Teles',
+    // Não Há Magia: a cliente só mandou a versão em português. Sinopse, formato e
+    // lançamento abaixo são tradução nossa — confirmar com ela. O título fica o original.
+    naoHaMagiaTitulo: 'Não Há Magia',
+    naoHaMagiaFormato: 'Short film · 15 min · Documentary/Fantasy',
+    naoHaMagiaElenco: 'Yara Ktaish, Márcia Witczak',
+    naoHaMagiaSinopse: 'A day in the life of Yara, a Syrian actress exiled in Brazil, as she travels the country with a theater play. In Brasília, an encounter with a floating stone quietly unsettles her. The surreal moment lingers, blurring the boundaries between memory and performance, past and present. As she walks through the city, the inescapable longing for a home she can no longer return to gently emerges.',
+    naoHaMagiaLancamento: 'June 4, 2026 — Hamburg International Short Film Festival, Germany',
+    lancamento: 'Release:',
     estreiaMundial: 'World Premiere',
     festivais: 'Festivals',
     premios: 'Awards',
