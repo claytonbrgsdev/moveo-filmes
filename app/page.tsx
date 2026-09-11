@@ -4469,7 +4469,7 @@ export default function Home() {
               </video>
               {/* Image overlay with reduced opacity for blend effect */}
               <Image
-                src="/imagens/capahome.png"
+                src="/imagens/capahome-natureza.jpg"
                 alt="Capa Home"
                 fill
                 className="object-cover"
@@ -4641,8 +4641,8 @@ export default function Home() {
                       {/* Linha A */}
                       <div className="relative overflow-hidden" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 8.png"
-                          alt="Imagem 1"
+                          src="/imagens/destaques/tres-deitados.jpg"
+                          alt="Três"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4650,8 +4650,8 @@ export default function Home() {
                       </div>
                       <div className="relative overflow-hidden col-span-2" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 11.png"
-                          alt="Imagem 2"
+                          src="/imagens/destaques/micangas-porta.jpg"
+                          alt="As Miçangas"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4659,8 +4659,8 @@ export default function Home() {
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 9.png"
-                          alt="Imagem 3"
+                          src="/imagens/destaques/natureza-cama.jpg"
+                          alt="A Natureza das Coisas Invisíveis"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4670,8 +4670,8 @@ export default function Home() {
                       {/* Linhas B e C - Retângulo B1+B2+C1+C2 */}
                       <div className="relative overflow-hidden col-span-2 row-span-2" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 10.png"
-                          alt="Imagem 4"
+                          src="/imagens/destaques/lubrina-rosto.jpg"
+                          alt="Lubrina"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4679,8 +4679,8 @@ export default function Home() {
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 12.png"
-                          alt="Imagem 5"
+                          src="/imagens/destaques/misterio-da-carne.jpg"
+                          alt="O Mistério da Carne"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4688,19 +4688,19 @@ export default function Home() {
                       </div>
                       <div className="relative overflow-hidden" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 8.png"
-                          alt="Imagem 6"
+                          src="/imagens/destaques/veu-de-amani.jpg"
+                          alt="O Véu de Amani"
                           fill
                           className="object-cover"
                           unoptimized
                         />
                       </div>
 
-                      {/* Linha C - restantes */}
+                      {/* Linha C — lugar de O Pacto da Viola: o link da imagem no documento da cliente dá 404; até lá, outro still do Natureza */}
                       <div className="relative overflow-hidden" data-second-image>
                         <Image
-                          src="/imagens/secao2home/Rectangle 122.png"
-                          alt="Imagem 7"
+                          src="/imagens/destaques/natureza-ceu.jpg"
+                          alt="A Natureza das Coisas Invisíveis"
                           fill
                           className="object-cover"
                           unoptimized
@@ -4726,8 +4726,8 @@ export default function Home() {
                         </div>
                         <div className="relative overflow-hidden" data-second-image>
                           <Image
-                            src="/imagens/secao2home/Rectangle 10.png"
-                            alt="Imagem 8"
+                            src="/imagens/destaques/tres-familia.jpg"
+                            alt="Três"
                             fill
                             className="object-cover"
                             unoptimized
@@ -4849,8 +4849,8 @@ export default function Home() {
                       <div className="grid grid-rows-3 gap-2">
                         <div className="relative overflow-hidden row-span-2" data-second-image>
                           <Image
-                            src="/imagens/secao2home/Rectangle 122.png"
-                            alt="Imagem 9"
+                            src="/imagens/destaques/natureza-corredor.jpg"
+                            alt="A Natureza das Coisas Invisíveis"
                             fill
                             className="object-cover"
                             unoptimized
@@ -4858,8 +4858,8 @@ export default function Home() {
                         </div>
                         <div className="relative overflow-hidden" data-second-image>
                           <Image
-                            src="/imagens/secao2home/Rectangle 9.png"
-                            alt="Imagem 10"
+                            src="/imagens/destaques/micangas-rio.jpg"
+                            alt="As Miçangas"
                             fill
                             className="object-cover"
                             unoptimized
@@ -4920,8 +4920,8 @@ export default function Home() {
                     {/* A1 superior */}
                     <div className="relative overflow-hidden" data-third-image>
                       <Image
-                        src="/imagens/secao2home/Rectangle 8.png"
-                        alt="Imagem 11"
+                        src="/imagens/destaques/micangas-carro.jpg"
+                        alt="As Miçangas"
                         fill
                         className="object-cover"
                         unoptimized
@@ -4931,8 +4931,8 @@ export default function Home() {
                     {/* A3 */}
                     <div className="relative overflow-hidden row-span-2 col-start-3" data-third-image>
                       <Image
-                        src="/imagens/secao2home/Rectangle 9.png"
-                        alt="Imagem 12"
+                        src="/imagens/destaques/tres-familia.jpg"
+                        alt="Três"
                         fill
                         className="object-cover"
                         unoptimized
@@ -4942,8 +4942,9 @@ export default function Home() {
                     {/* A4 */}
                     <div className="relative overflow-hidden row-span-2 col-start-4" data-third-image>
                       <Image
-                        src="/imagens/secao2home/Rectangle 10.png"
-                        alt="Imagem 13"
+                        src="/imagens/destaques/lubrina-penumbra.jpg"
+                        alt="Lubrina"
+                        style={{ objectPosition: '62% 50%' }}
                         fill
                         className="object-cover"
                         unoptimized
@@ -4953,8 +4954,8 @@ export default function Home() {
                     {/* Container mesclado: A'1, A'2, B1, B2, B'1 e B'2 */}
                     <div className="relative overflow-hidden col-span-2 row-span-3 col-start-1 row-start-2" data-third-image>
                       <Image
-                        src="/imagens/secao2home/Rectangle 11.png"
-                        alt="Imagem 14"
+                        src="/imagens/destaques/natureza-janela.jpg"
+                        alt="A Natureza das Coisas Invisíveis"
                         fill
                         className="object-cover"
                         unoptimized
@@ -4964,8 +4965,9 @@ export default function Home() {
                     {/* B4 */}
                     <div className="relative overflow-hidden row-span-2 col-start-4 row-start-3" data-third-image>
                       <Image
-                        src="/imagens/secao2home/Rectangle 12.png"
-                        alt="Imagem 15"
+                        src="/imagens/destaques/tres-escrivaninha.jpg"
+                        alt="Três"
+                        style={{ objectPosition: '30% 50%' }}
                         fill
                         className="object-cover"
                         unoptimized
@@ -4978,8 +4980,8 @@ export default function Home() {
                   {/* Rectangle 11 - squared image - first */}
                   <div className="relative overflow-hidden col-start-1 row-start-1" data-third-image>
                     <Image
-                      src="/imagens/secao2home/Rectangle 11.png"
-                      alt="Imagem 19"
+                      src="/imagens/destaques/lubrina-nuvens.jpg"
+                      alt="Lubrina"
                       fill
                       className="object-cover"
                       unoptimized
@@ -4989,8 +4991,8 @@ export default function Home() {
                   {/* Rectangle 12 - rectangled image - second */}
                   <div className="relative overflow-hidden col-span-2 col-start-1 row-start-2" data-third-image>
                     <Image
-                      src="/imagens/secao2home/Rectangle 12.png"
-                      alt="Imagem 20"
+                      src="/imagens/destaques/micangas-rio.jpg"
+                      alt="As Miçangas"
                       fill
                       className="object-cover"
                       unoptimized
@@ -5072,8 +5074,8 @@ export default function Home() {
                   {/* A5 */}
                   <div className="relative overflow-hidden col-start-5 row-start-1" data-third-image>
                     <Image
-                      src="/imagens/secao2home/Rectangle 8.png"
-                      alt="Imagem 16"
+                      src="/imagens/destaques/natureza-cama.jpg"
+                      alt="A Natureza das Coisas Invisíveis"
                       fill
                       className="object-cover"
                       unoptimized
@@ -5083,8 +5085,9 @@ export default function Home() {
                   {/* B5 */}
                   <div className="relative overflow-hidden col-start-5 row-start-2" data-third-image>
                     <Image
-                      src="/imagens/secao2home/Rectangle 9.png"
-                      alt="Imagem 17"
+                      src="/imagens/destaques/micangas-porta.jpg"
+                      alt="As Miçangas"
+                      style={{ objectPosition: '40% 50%' }}
                       fill
                       className="object-cover"
                       unoptimized
@@ -5094,8 +5097,8 @@ export default function Home() {
                   {/* C5 e D5 mesclados */}
                   <div className="relative overflow-hidden row-span-2 col-start-5 row-start-3" data-third-image>
                     <Image
-                      src="/imagens/secao2home/Rectangle 10.png"
-                      alt="Imagem 18"
+                      src="/imagens/destaques/natureza-corredor.jpg"
+                      alt="A Natureza das Coisas Invisíveis"
                       fill
                       className="object-cover"
                       unoptimized
@@ -5579,7 +5582,7 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src="/imagens/capahome.png"
+                  src="/imagens/capahome-natureza.jpg"
                   alt="A Natureza das Coisas Invisíveis"
                   fill
                   sizes="40vw"

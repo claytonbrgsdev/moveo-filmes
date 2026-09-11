@@ -31,8 +31,8 @@ edição.
 | Cartela | Onde no código (comentário JSX) | O que é |
 |---|---|---|
 | 01 | primeiro `<section>` do arquivo, `Section index 01` | Abertura / hero — a caixa de vídeo mostra A Natureza (teaser, título, láureas) desde 10/09/2026 |
-| 02 | segundo `<section>` | Destaques (grade de imagens) |
-| 03 | terceiro `<section>` | Destaques + frase de posicionamento |
+| 02 | segundo `<section>` | "Sobre a Moveo" — grade com os filmes prontos que a cliente escolheu (desde 10/09/2026) |
+| 03 | terceiro `<section>` | Destaques de A Natureza, As Miçangas, Três e Lubrina + frase de posicionamento |
 | 04 | `Seção de Transição - Introdução ao Catálogo`, `Section index 04` | Cartão "CATÁLOGO EM DESTAQUE" |
 | 05 | `Seção 1 - … Title Only` e `Seção 2 - … Editorial Split` | Vídeo com o título e o painel "O filme". O print da cliente pega a trilha no meio da transição entre os dois |
 | 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
@@ -78,7 +78,7 @@ stills de cada filme, em 10/09/2026:
 | `misterio.mp4` | Lubrina (a moça na porta, o homem com a enxada) | coluna de vídeo da cartela 14 |
 | `micangas.mp4` | retratos de moradores, material da Lubrina | retângulo decorativo na seção de catálogo |
 | `natureza.mp4` | As Miçangas (termina no crédito de direção de Rafaela Camelo e Emanuel Lavor) | quadrado decorativo na seção de catálogo |
-| `capahome.png` | still de As Miçangas | sobreposto ao teaser na abertura e no painel "O filme" do Natureza — a trocar |
+| ~~`capahome.png`~~ | still de As Miçangas | **removida** em 10/09/2026. A abertura e o painel "O filme" do Natureza usam `capahome-natureza.jpg` (still 01 do filme); o card de compartilhamento usa `og-moveo.jpg` |
 | `logo-moveo.mp4` | a animação da logo (libélula + MOVEO filmes), 12s, desenhada sobre preto a partir do `.mov` com alfa que a cliente mandou | coluna direita do Contato |
 | `natureza-teaser.mp4`, `tres.mp4`, `micangas-trailer.mp4` | corretos: vieram do Drive da produção. O de As Miçangas foi cortado antes da cartela de título e da logo da Tarrafa | blocos do Natureza, do Três e de As Miçangas |
 
@@ -103,6 +103,13 @@ sozinho, e a landing já é desenhada para ficar de pé com ele fora. Os origina
 em 2000px continuam no bucket, em `filmes/tres/`, ligados ao filme em
 `filmes_assets`. Das sete fotos, seis estão na home; a sétima é a mesma cena da
 foto grande.
+
+As grades das cartelas 02 e 03 usam `/imagens/destaques/` (1200px, tarja preta
+recortada): são as imagens que a cliente linkou em cada "Imagem X" do documento,
+conferidas pelo id do Drive. Cada grade tem 10 espaços e ela escolheu 7 e 8, então
+há imagem repetida entre as duas cartelas, nunca dentro da mesma. Três espaços
+estreitos têm `objectPosition` para não cortar o rosto. As `secao2home/Rectangle
+*.png` continuam em uso em outras seções e páginas (notícias, sobre, contato).
 
 **O texto dos mosaicos usa `left: min(55%, …)`.** Com `55%` puro, no celular o
 bloco passava 46px da borda e era cortado pelo `overflow: hidden` — nas
@@ -132,10 +139,12 @@ de manter texto sobre um filme na home, confira se ele está no documento da
 cliente, no documento de prêmios ou no banco — e nunca ponha frase na boca de
 alguém sem a fonte.
 
-**A caixa de vídeo do hero depende da `capahome.png`.** O GSAP da abertura
+**A caixa de vídeo do hero depende da imagem de capa.** O GSAP da abertura
 procura `img[alt="Capa Home"]` ou `img[src*="capahome"]` para revelar a caixa. Um
-efeito zera a opacidade dela; o outro só devolve se achar essa imagem. Trocar ou
-renomear a imagem deixa a caixa inteira invisível, sem erro.
+efeito zera a opacidade dela; o outro só devolve se achar essa imagem. Por isso o
+still do Natureza que entrou em 10/09/2026 se chama `capahome-natureza.jpg` e
+manteve o `alt`. Um arquivo sem "capahome" no nome e com outro `alt` deixa a
+caixa inteira invisível, sem erro.
 
 **Láureas são arte de festival, não texto nosso.** Ficam em
 `public/imagens/laureas/`, brancas, aparadas, a 240px de altura, e são listadas em
@@ -171,7 +180,7 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | O quê | Estado |
 |---|---|
 | Teaser de Não Há Magia | a cliente ainda não tem — ela escreveu "esperando envio" |
-| Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco |
+| Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco. O espaço dela na cartela 02 (comentário `Linha C` no JSX) está com outro still do Natureza até ela chegar |
 | Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |
 | Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
 | Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |

@@ -25,12 +25,14 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 
 - [x] Travamento: vídeos só carregam quando entram na tela (`0a33668`)
 - [x] Cartela 01 — abertura com foco em A Natureza: teaser, título, láureas (`618c8da`)
-- [ ] Cartela 02 — destaques só com filmes prontos (6 das 7 imagens; O Pacto da Viola 🔒 cliente)
+- [x] Cartela 02 — destaques só com filmes prontos: as 6 imagens que a cliente linkou (Três, As Miçangas, A Natureza, Lubrina, O Mistério da Carne, O Véu de Amani), em `public/imagens/destaques/`
+- 🔒 Cartela 02 — imagem de O Pacto da Viola (o link do documento dá 404 — cliente); o espaço dela está com outro still do Natureza
 - [x] Cartela 03 — frase de posicionamento (`cb99eff`)
-- [ ] Cartela 03 — destacar A Natureza, As Miçangas, Três e Lubrina com as 8 imagens enviadas
+- [x] Cartela 03 — A Natureza, As Miçangas, Três e Lubrina com as 8 imagens enviadas; a grade tem 10 espaços, nenhuma imagem se repete dentro da cartela
 - 🔒 Cartela 04 — o documento diz "retirar" e "ok" ao mesmo tempo (cliente)
 - [x] Cartela 05 — vídeo de A Natureza: o bloco inteiro usava material de As Miçangas; agora é o teaser, e a descrição perdeu a frase inventada
-- [ ] Abertura — `capahome.png` é um still de As Miçangas sobreposto ao teaser do Natureza; trocar a imagem mantendo nome e `alt` (o GSAP depende dos dois)
+- [x] Abertura — a `capahome.png` (still de As Miçangas) virou `capahome-natureza.jpg`, still do Natureza, também no painel "O filme"; mesmo `alt` e "capahome" no nome, que é o que o GSAP procura
+- [x] Card de compartilhamento (Open Graph) — usava a mesma `capahome.png`, declarada 1920×1080 sem ser; agora `og-moveo.jpg` 1200×630, still do Natureza. É a prévia que aparece quando o link for mandado à cliente
 - [x] Cartela 06 — festivais e destaques com links: festivais e prêmios, láureas, presskit, fotos das pré-estreias, distribuidoras
 - [x] Chaves de tradução que apareciam cruas na tela: "colombia", "mexico", "uruguai" (pt) e "catalogoEm", "destaque" (en)
 - [x] Cartela 07 — ficha técnica com formato, elenco e sinopse (`f618e04`)

@@ -35,9 +35,9 @@ export const metadata: Metadata = {
       'Produtora de cinema independente sediada em Brasília, fundada em 2018.',
     images: [
       {
-        url: '/imagens/capahome.png',
-        width: 1920,
-        height: 1080,
+        url: '/imagens/og-moveo.jpg',
+        width: 1200,
+        height: 630,
         alt: 'Moveo Filmes',
       },
     ],
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: 'Moveo Filmes',
     description:
       'Produtora de cinema independente sediada em Brasília, fundada em 2018.',
-    images: ['/imagens/capahome.png'],
+    images: ['/imagens/og-moveo.jpg'],
   },
 };
 
