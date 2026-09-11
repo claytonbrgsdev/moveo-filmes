@@ -139,6 +139,14 @@ de manter texto sobre um filme na home, confira se ele está no documento da
 cliente, no documento de prêmios ou no banco — e nunca ponha frase na boca de
 alguém sem a fonte.
 
+O mesmo valia para as três notícias do carrossel da cartela 15 ("Dois longas
+autorais selecionados para Rotterdam…", "Residência Criativa DF", "Co-produção
+transatlântica"): texto de exemplo, com data, publicado como notícia da Moveo.
+Em 10/09/2026 viraram Não Há Magia em Hamburgo (documento de alterações), os três
+prêmios de Gramado e a abertura da Generation KPlus na Berlinale (documento
+"ANCI - Exibições e prêmios"). O lançamento comercial do Natureza que a ficha da
+cartela 07 cita (27/11/2025, Vitrine Filmes) não está nesse documento e ficou fora.
+
 **A caixa de vídeo do hero depende da imagem de capa.** O GSAP da abertura
 procura `img[alt="Capa Home"]` ou `img[src*="capahome"]` para revelar a caixa. Um
 efeito zera a opacidade dela; o outro só devolve se achar essa imagem. Por isso o
@@ -171,6 +179,9 @@ Em ordem de dor. Tudo isto hoje é literal no JSX:
 4. **As láureas.** Já existem `filmes_festivais` e `filmes_premiacoes`.
 5. **A frase de posicionamento da cartela 03** e os textos de 14/15/16 —
    copy solta, sem tabela. Precisaria de algo tipo `home_blocos`.
+6. **As notícias da cartela 15.** A tabela `posts` existe e tem tela no painel,
+   mas está vazia e a home não a lê: os três destaques são chaves de tradução
+   (`noticia*`) com a foto escolhida no JSX.
 
 Os itens 2, 3 e 4 são os baratos: o dado já está no banco e etiquetado. O caro é
 o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.

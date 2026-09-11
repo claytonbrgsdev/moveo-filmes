@@ -124,18 +124,20 @@ const translations: Record<Language, Record<string, string>> = {
     as: 'AS',
     micangas: 'MIÇANGAS',
     // News/Notícias
-    mostraInternacional2025: 'Mostra Internacional 2025',
-    mostraInternacional2025Summary: 'Dois longas autorais selecionados para Rotterdam exibindo a estética MOVEO.',
-    residenciaCriativaDF: 'Residência Criativa DF',
-    residenciaCriativaDFSummary: 'Laboratório imersivo de direção com foco em narrativas híbridas e arquivos vivos.',
-    coproducaoTransatlantica: 'Co-produção transatlântica',
-    coproducaoTransatlanticaSummary: 'Novo filme em parceria com estúdios europeus amplia a presença da produtora.',
-    marco2025: 'Março 2025',
-    junho2025: 'Junho 2025',
+    // Notícias da home (cartela 15). Eram texto de exemplo ("Dois longas autorais selecionados
+    // para Rotterdam…"); agora só fatos com fonte: o documento de alterações da cliente
+    // (Hamburgo) e "ANCI - Exibições e prêmios" (Gramado, Berlinale).
+    noticiaHamburgo: 'Não Há Magia em Hamburgo',
+    noticiaHamburgoResumo: 'O curta de Lucas Milhomem foi lançado em 04/06/2026 no Festival Internacional de Curtas-Metragens de Hamburgo, na Alemanha.',
+    noticiaGramado: 'Três prêmios em Gramado',
+    noticiaGramadoResumo: 'A Natureza das Coisas Invisíveis recebeu o Prêmio Especial do Júri e os de Melhor Atriz Coadjuvante e Melhor Trilha Sonora no 53º Festival de Cinema de Gramado.',
+    noticiaBerlinale: 'Abertura da Generation KPlus na Berlinale',
+    noticiaBerlinaleResumo: 'A Natureza das Coisas Invisíveis foi o filme de abertura da mostra Generation KPlus no 75º Festival Internacional de Cinema de Berlim.',
+    junho2026: 'Junho 2026',
+    fevereiro2025: 'Fevereiro 2025',
     agosto2025: 'Agosto 2025',
     festival: 'Festival',
-    residencia: 'Residência',
-    producaoTag: 'Produção',
+    premioTag: 'Prêmio',
   },
   en: {
     catalog: 'Catalog',
@@ -245,18 +247,20 @@ const translations: Record<Language, Record<string, string>> = {
     as: 'THE',
     micangas: 'BEADS',
     // News/Notícias
-    mostraInternacional2025: 'International Showcase 2025',
-    mostraInternacional2025Summary: 'Two auteur feature films selected for Rotterdam showcasing MOVEO aesthetics.',
-    residenciaCriativaDF: 'Creative Residency DF',
-    residenciaCriativaDFSummary: 'Immersive directing laboratory focused on hybrid narratives and living archives.',
-    coproducaoTransatlantica: 'Transatlantic co-production',
-    coproducaoTransatlanticaSummary: 'New film in partnership with European studios expands the production company\'s presence.',
-    marco2025: 'March 2025',
-    junho2025: 'June 2025',
+    // Notícias da home (cartela 15). Eram texto de exemplo ("Dois longas autorais selecionados
+    // para Rotterdam…"); agora só fatos com fonte: o documento de alterações da cliente
+    // (Hamburgo) e "ANCI - Exibições e prêmios" (Gramado, Berlinale).
+    noticiaHamburgo: 'Não Há Magia in Hamburg',
+    noticiaHamburgoResumo: 'Lucas Milhomem\'s short film was released on June 4, 2026 at the Hamburg International Short Film Festival, Germany.',
+    noticiaGramado: 'Three awards at Gramado',
+    noticiaGramadoResumo: 'A Natureza das Coisas Invisíveis won the Special Jury Award, Best Supporting Actress and Best Original Score at the 53rd Gramado Film Festival.',
+    noticiaBerlinale: 'Opening Generation KPlus at the Berlinale',
+    noticiaBerlinaleResumo: 'A Natureza das Coisas Invisíveis was the opening film of Generation KPlus at the 75th Berlin International Film Festival.',
+    junho2026: 'June 2026',
+    fevereiro2025: 'February 2025',
     agosto2025: 'August 2025',
     festival: 'Festival',
-    residencia: 'Residency',
-    producaoTag: 'Production',
+    premioTag: 'Award',
     // Placeholder texts
     // Informações técnicas adicionais
     colombia: 'Colombia:',

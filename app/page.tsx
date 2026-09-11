@@ -28,12 +28,6 @@ const REDES_MOVEO = [
   { nome: 'Vimeo', href: 'https://vimeo.com/moveofilmes' },
 ] as const;
 
-const newsImages = [
-  '/imagens/secao2home/Rectangle 10.png',
-  '/imagens/secao2home/Rectangle 8.png',
-  '/imagens/secao2home/Rectangle 9.png',
-];
-
 /**
  * Láureas de A Natureza das Coisas Invisíveis na abertura (cartela 01), na
  * ordem em que a cliente listou. As artes vêm das pastas da produção e foram
@@ -135,24 +129,29 @@ export default function Home() {
   const { language, t } = useLanguage();
   
   // News highlights traduzidos baseados no idioma
+  // Cartela 15: eram três notícias de exemplo. Agora são fatos com fonte (ver as chaves
+  // noticia* no LanguageContext), cada uma com foto do filme, até o Instagram sincronizar.
   const newsHighlights = [
     {
-      title: t('mostraInternacional2025'),
-      summary: t('mostraInternacional2025Summary'),
-      date: t('marco2025'),
+      title: t('noticiaHamburgo'),
+      summary: t('noticiaHamburgoResumo'),
+      date: t('junho2026'),
       tag: t('festival'),
+      image: '/imagens/nao-ha-magia/pedra.jpg',
     },
     {
-      title: t('residenciaCriativaDF'),
-      summary: t('residenciaCriativaDFSummary'),
-      date: t('junho2025'),
-      tag: t('residencia'),
-    },
-    {
-      title: t('coproducaoTransatlantica'),
-      summary: t('coproducaoTransatlanticaSummary'),
+      title: t('noticiaGramado'),
+      summary: t('noticiaGramadoResumo'),
       date: t('agosto2025'),
-      tag: t('producaoTag'),
+      tag: t('premioTag'),
+      image: '/imagens/destaques/natureza-janela.jpg',
+    },
+    {
+      title: t('noticiaBerlinale'),
+      summary: t('noticiaBerlinaleResumo'),
+      date: t('fevereiro2025'),
+      tag: t('festival'),
+      image: '/imagens/capahome-natureza.jpg',
     },
   ];
   const isGuidesVisible = useGridGuides();
@@ -313,10 +312,7 @@ export default function Home() {
   const centerTop = `calc(${getHorizontalLinePosition('E')} + (${getHorizontalLinePosition('F')} - ${getHorizontalLinePosition('E')}) / 2)`;
   const centerLeft = `calc(${getMarkerPosition(7)} + (${getMarkerPosition(8)} - ${getMarkerPosition(7)}) / 2)`;
 
-  const newsSlides = newsHighlights.slice(0, 3).map((item, idx) => ({
-    ...item,
-    image: newsImages[idx % newsImages.length],
-  }));
+  const newsSlides = newsHighlights.slice(0, 3);
 
   useLayoutEffect(() => {
 
