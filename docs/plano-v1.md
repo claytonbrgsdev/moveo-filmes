@@ -41,7 +41,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - 🔒 Cartela 08 — teaser de Não Há Magia (cliente: "esperando envio"); entra no lugar do still grande
 - [x] Notícias (cartela 15) — os três destaques do carrossel eram texto de exemplo ("Dois longas autorais selecionados para Rotterdam…", "Residência Criativa DF", "Co-produção transatlântica"); agora são Não Há Magia em Hamburgo, os três prêmios de Gramado e a abertura da Generation KPlus na Berlinale, com foto de cada filme
 - [x] Cartela 09 — As Miçangas: o bloco mostrava retratos da Lubrina; agora é o trailer do filme, com sinopse, formato, elenco, direção (são dois diretores, o site dava um), roteiro e coprodução da ficha técnica oficial
-- [x] Cartela 10 — As Miçangas: os 11 festivais do documento em destaque, com o prêmio de Melhor Curta do Panorama (em texto: só há láurea em arte de Curta Brasília e do Panorama)
+- [x] Cartela 10 — As Miçangas: os 11 festivais do documento em destaque, com o prêmio de Melhor Curta do Panorama (em texto; as láureas em arte entraram na revisão de 11/09)
 - [x] Cartelas 11 e 12 — Três no lugar de O Mistério da Carne, circulação e fotos (`a74f54a`, `9328bc8`)
 - [x] Cartela 13 — removida (`cbc2a0a`)
 - [x] Cartela 14 — título não cobre mais o texto (`5c68829`)
@@ -64,7 +64,7 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - [x] `/catalogo/cinema` filtra por categoria (decidido: `/catalogo` é a visão geral) — a página estática lista os 9; 10 desde que Não Há Magia foi publicado
 - [x] Créditos de direção e elenco de Três, As Miçangas e Não Há Magia — 13 pessoas, 5 créditos, 10 no elenco; ids em `../backups/2026-09-10/criados-creditos-elenco.json`
 - [x] Limpeza: 8 assets `about:blank` e Daniela Marinho duplicada em `pessoas` — backup em `../backups/2026-09-10/limpeza-daniela-e-assets.json`; os 2 créditos da cópia foram para a Daniela com slug (um era repetido e saiu)
-- 🔒 Anos conflitantes: O Véu de Amani (2017 × 2019), Mistério da Carne (2019 × 2018) — cliente
+- [x] Anos: O Véu de Amani 2019 e O Mistério da Carne 2018, como na lista do catálogo que ela pôs no documento e nos dois currículos (revisão de 11/09)
 - 🔒 Logline de A Natureza ainda é a sinopse antiga — cliente
 
 ## 3. Código
@@ -86,15 +86,26 @@ Mapa cartela → código e armadilhas: `docs/home-cartelas.md`.
 - 🔒 Fechar o signup depois que a conta dela existir
 - 🔒 Desligar o gate "em breve" — decisão de lançamento (Clayton)
 
+## 5. Revisão contra o documento da cliente (11/09/2026)
+
+Segunda passada, cartela por cartela, com os prints e os links do documento.
+
+- [x] Cartela 04 (OBS "incluir no catálogo os filmes") — A Natureza e O Mistério da Carne estavam em `distribuicao` e não apareciam em `/catalogo/cinema`; foram para `cinema`, que agora tem os 7 da lista dela (12 no total). Backup em `../backups/2026-09-10/revisao-documento-antes.json`
+- [x] Cartela 04 — anos da lista dela no banco: O Véu de Amani 2019 (era 2017), O Mistério da Carne 2018 (era 2019); os dois currículos dizem o mesmo
+- [x] Cartela 11 — Três sem sinopse no banco: agora "O cotidiano de uma vida a três.", a frase do documento (sem versão em inglês)
+- [x] Cartela 06 — "Melhor Filme — Uruguai" virou "Melhor Filme, Júri Infantil — Uruguai", como no documento de prêmios
+- [x] Cartela 09 — a imagem de As Miçangas do documento (STILL02, o rio) entrou no mosaico, no lugar de um recorte espelhado do trailer
+- [x] Cartela 10 — "Destacar as láureas": faixa com as láureas de Hong Kong, Palm Springs, Huesca, Panorama e Curta Brasília, a mesma arte dos posts e do cartaz da produção; os outros seis festivais seguem em texto (nas pastas só há fotos, posts ou logos)
+- 🔒 Cartela 04 — A Arte de Andar Pelas Ruas de Brasília está no catálogo sem imagem nem sinopse; o print dela tem um still (cliente)
+- 🔒 Cartela 01 — "Mix Brasil | México": a pasta só tem a láurea do Mix Brasil (cliente)
+
 ## Pendências da cliente, para resolver na entrega
 
 Detalhe em `docs/home-cartelas.md`: teaser de Não Há Magia · imagem e ficha de O
-Pacto da Viola · doc CATÁLOGO MOVEO SITE · decisão da cartela 04 · anos
-conflitantes · acesso ao Instagram · IDV do cartaz · pré-seleção ao Oscar ·
+Pacto da Viola · doc CATÁLOGO MOVEO SITE · decisão da cartela 04 · acesso ao Instagram · IDV do cartaz · pré-seleção ao Oscar ·
 láureas de prêmio do Mix Brasil e do Santander · Grande Otelo em inglês · texto
 das artes de Gramado e de Seattle · logline de A Natureza · grafia do elenco de As
 Miçangas (o documento diz Letícia Ferraz, a ficha técnica diz Tícia) · financiamento
-de As Miçangas (o site dizia "FAC-DF, Edital Cardume", sem fonte; saiu) · láureas de As
-Miçangas em arte (só existem as de Curta Brasília e do Panorama) · Feijão com Arroz, O Colar
+de As Miçangas (o site dizia "FAC-DF, Edital Cardume", sem fonte; saiu) · Feijão com Arroz, O Colar
 de Coralina e Uma Dose Violenta de Qualquer Coisa (sem ano, sinopse nem imagem, por isso
 fora das listagens) · Não Há Magia em inglês (sinopse, formato e lançamento são tradução nossa) · inglês do /sobre (tradução nossa; os currículos em inglês não abriram) · durações e anos que divergem entre fontes (As Miçangas: 18 min no currículo, 19 na ficha técnica).

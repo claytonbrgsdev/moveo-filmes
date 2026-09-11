@@ -38,8 +38,8 @@ edição.
 | 06 | `Seção 3 - … Full Background` | 75ª Berlinale, festivais, prêmios e os links pedidos |
 | 07 | `Seção 4 - … Split with Sinopse and Distribution` | Distribuição e ficha técnica |
 | 08 | `NÃO HÁ MAGIA — cartela 08`, logo antes de `Transition: Natureza → Miçangas` | **Não Há Magia** desde 10/09/2026: still grande, faixa de stills, ficha e sinopse. Painel sem GSAP; sem teaser ainda |
-| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: Fragmented Memory Mosaic` | Título do filme e o mosaico com sinopse e ficha |
-| 10 | `AS MIÇANGAS - Panel 2: Full-Bleed Credits` | Créditos e láureas |
+| 09 | `AS MIÇANGAS - Panel 0: Film Strip Reveal` e `Panel 1: Fragmented Memory Mosaic` | Título do filme e o mosaico com sinopse e ficha. O fragmento 2 do mosaico é o still do rio que a cliente indicou |
+| 10 | `AS MIÇANGAS - Panel 2: Full-Bleed Credits` | Faixa de láureas (`LAUREAS_MICANGAS`), os 11 festivais em texto e os créditos |
 | 11 | `TRÊS - Panel 0: Venetian Blind Reveal` | **Três** desde 10/09/2026 — era O Mistério da Carne |
 | 12 | `TRÊS - Panel 1`, `Panel 2` e `Panel 3` | **Três**: circulação, ficha e mosaico de fotos de divulgação |
 | 13 | ~~`Finale: End of showcase`~~ | **removida** em 10/09/2026, a pedido da cliente |
@@ -162,6 +162,14 @@ caixa cinza opaca, removida por luminância. Os originais estão nas pastas de
 láurea da produção no Drive. Os textos alternativos seguem o documento oficial
 de prêmios, não o que está escrito na arte.
 
+As de As Miçangas estão em `LAUREAS_MICANGAS` (cartela 10): Hong Kong, Palm Springs,
+Huesca, Panorama e Curta Brasília — a mesma arte que a produção usou nos posts e no
+cartaz. **Antes de concluir que um festival não tem láurea, abra a pasta inteira**,
+com subpastas e compactados: em 10/09 este documento dizia que As Miçangas só tinha
+arte de Curta Brasília e do Panorama, mas a de Hong Kong estava num `.zip`, em PDF,
+e a de Huesca numa subpasta. Berlinale, Biarritz, Goiânia, Kinoforum, New Directors e
+Festival do Rio seguem em texto: nas pastas só há fotos, posts ou logos.
+
 **A numeração visível na tela (`Section index NN`) não é a cartela.** Ela para
 no 04 e serve de enfeite editorial.
 
@@ -194,8 +202,9 @@ o 1, porque muda a estrutura da página, e o 5, porque não tem onde guardar.
 | Não Há Magia em inglês | ela só mandou português. Sinopse, formato e lançamento em inglês (home e `filmes.sinopse_en`) são tradução nossa; o título ficou o original |
 | Imagem de O Pacto da Viola | link do Drive dá 404; filme também não existe no banco. O espaço dela na cartela 02 (comentário `Linha C` no JSX) está com outro still do Natureza até ela chegar |
 | Doc CATÁLOGO MOVEO SITE | não compartilhado; é o conteúdo da cartela 14 |
-| Ano de O Véu de Amani | banco diz 2017, a lista dela diz 2019 |
-| Ano de Mistério da Carne | banco diz 2019, a lista dela diz 2018 |
+| Anos de O Véu de Amani e O Mistério da Carne | resolvidos em 11/09/2026: 2019 e 2018, como na lista do catálogo que ela pôs na cartela 04 e nos currículos. Backup em `../backups/2026-09-10/revisao-documento-antes.json` |
+| A Arte de Andar Pelas Ruas de Brasília | está na lista do catálogo da cliente (cartela 04) e no catálogo, mas sem imagem nem sinopse; o print dela mostra um still |
+| "Mix Brasil \| México" (cartela 01) | a pasta de láurea só tem a do Mix Brasil; não há arte do Mix México |
 | `logline_pt` de A Natureza | a sinopse foi alinhada em 10/09/2026 — a home e `filmes.sinopse_pt`/`sinopse_en` usam a versão curta da cliente. Mas `logline_pt`/`logline_en` ainda guardam a sinopse antiga, que era cópia dela. Nenhuma página exibe a logline hoje; se a home passar a ler `filmes`, ela aparece. Escrever uma logline de verdade é conteúdo |
 | Láureas do Três | pedidas na cartela 12; ela não mandou imagem de láurea para este filme, só a lista de festivais |
 | Elenco do Três no celular | escondido abaixo de `sm` no painel 2, mesma causa do painel da cartela 07 (coluna de 137px) |

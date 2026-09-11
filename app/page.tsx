@@ -86,6 +86,17 @@ const FESTIVAIS_MICANGAS: { pt: string; en: string; premioPt?: string; premioEn?
   { pt: 'Goiânia Mostra Curtas', en: 'Goiânia Mostra Curtas' },
 ];
 
+// Cartela 10 — "Destacar as láureas". Só os festivais que têm arte de láurea nas pastas
+// da produção (a mesma que ela usou nos posts e no cartaz); os outros seguem em texto na
+// lista de FESTIVAIS_MICANGAS. Brancas, aparadas, 240px de altura, em public/imagens/laureas.
+const LAUREAS_MICANGAS = [
+  { src: '/imagens/laureas/micangas-hong-kong.png', largura: 544, altPt: '47º Festival Internacional de Cinema de Hong Kong — Seleção Oficial', altEn: '47th Hong Kong International Film Festival — Official Selection' },
+  { src: '/imagens/laureas/micangas-palm-springs.png', largura: 375, altPt: 'Palm Springs International ShortFest 2023 — Seleção Oficial', altEn: 'Palm Springs International ShortFest 2023 — Official Selection' },
+  { src: '/imagens/laureas/micangas-huesca.png', largura: 754, altPt: '51º Festival Internacional de Cinema de Huesca', altEn: '51st Huesca International Film Festival' },
+  { src: '/imagens/laureas/micangas-panorama.png', largura: 475, altPt: 'XIX Panorama Internacional Coisa de Cinema — Melhor Curta-Metragem da Competitiva Nacional', altEn: '19th Panorama Internacional Coisa de Cinema — Best Short Film, National Competition' },
+  { src: '/imagens/laureas/micangas-curta-brasilia.png', largura: 370, altPt: '12º Curta Brasília — Seleção Oficial', altEn: '12th Curta Brasília — Official Selection' },
+] as const;
+
 const FONT_HUGE = 'var(--font-huge)';
 // Tracking do wordmark MOVEO (em). Negativo para as letras ficarem levemente coladas, formando um bloco.
 const MOVEO_TRACKING_EM = -0.04;
@@ -5837,7 +5848,7 @@ export default function Home() {
                     }}
                   >
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
-                      {t('melhorFilme')} — {t('uruguai')}
+                      {t('melhorFilmeJuriInfantil')} — {t('uruguai')}
                     </div>
                     <div style={{ marginBottom: 'clamp(6px, 0.8vh, 10px)' }}>
                       {t('mencaoEspecial')} — Seattle
@@ -6397,7 +6408,9 @@ export default function Home() {
               </video>
             </div>
 
-            {/* Fragment 2 - Medium top-right */}
+            {/* Fragment 2 - Medium top-right. Cartela 09: é o still do rio (STILL02, foto de
+                Thaís Mallon), a imagem que a cliente indicou para o bloco. Era mais um recorte
+                espelhado do trailer. */}
             <div
               data-mosaic-fragment="medium"
               className="absolute overflow-hidden"
@@ -6412,16 +6425,15 @@ export default function Home() {
                 filter: 'saturate(0.7) brightness(0.9)',
               }}
             >
-              <video
-                preload="none"
-                data-src="/videos/micangas-trailer.mp4"
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transform: 'scale(1.15) scaleX(-1)' }}
-              >
-              </video>
+              <Image
+                src="/imagens/destaques/micangas-rio.jpg"
+                alt="As Miçangas"
+                fill
+                sizes="32vw"
+                className="object-cover"
+                style={{ transform: 'scale(1.08)' }}
+                unoptimized
+              />
             </div>
 
             {/* Fragment 3 - Small top-left corner */}
@@ -6676,7 +6688,7 @@ export default function Home() {
                 para o texto ler sobre o trailer; os créditos seguem no pé. */}
             <div
               className="absolute inset-x-0 top-0 pointer-events-none"
-              style={{ height: '45%', zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)' }}
+              style={{ height: '60%', zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)' }}
             />
             <div
               data-micangas-festivais=""
@@ -6690,6 +6702,19 @@ export default function Home() {
                 textShadow: '0 2px 14px rgba(0, 0, 0, 0.85)',
               }}
             >
+              <div className="flex flex-wrap items-center" style={{ gap: 'clamp(12px, 2vw, 28px)', marginBottom: 'clamp(12px, 2.4vh, 26px)' }}>
+                {LAUREAS_MICANGAS.map((laurea) => (
+                  <Image
+                    key={laurea.src}
+                    src={laurea.src}
+                    alt={language === 'en' ? laurea.altEn : laurea.altPt}
+                    width={laurea.largura}
+                    height={240}
+                    unoptimized
+                    style={{ height: 'clamp(26px, 3.6vw, 58px)', width: 'auto', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7))' }}
+                  />
+                ))}
+              </div>
               <div style={{ fontSize: 'clamp(10px, 0.9vw, 12px)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255, 255, 255, 0.55)', marginBottom: 'clamp(6px, 1vh, 12px)' }}>
                 {t('festivais')}
               </div>
