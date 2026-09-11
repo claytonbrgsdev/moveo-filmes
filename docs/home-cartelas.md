@@ -186,6 +186,12 @@ total de `/catalogo/cinema` em 11/09/2026, escrito duas vezes: no GSAP (`val: 12
 texto inicial do `data-cinema-count`. Filme novo no catálogo não muda esse número; até
 11/09 ele dizia 08.
 
+**Imagens da home passam pelo otimizador.** Desde 11/09/2026 nenhuma `<Image>` da
+home usa `unoptimized`: cada uma tem `sizes` medido na tela, e a Vercel entrega
+AVIF/WebP no tamanho do espaço. Imagem nova precisa de `sizes` — sem ele o Next
+assume `100vw` e manda a maior versão. O carrossel 3D do bloco de catálogo cria as
+caixas no DOM e não tem imagem (as que ele tentava usar nunca apareciam).
+
 ## O que deve virar CMS quando voltarmos
 
 Em ordem de dor. Tudo isto hoje é literal no JSX:

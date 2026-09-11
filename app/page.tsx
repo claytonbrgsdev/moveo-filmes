@@ -1100,15 +1100,11 @@ export default function Home() {
     const boxes: HTMLDivElement[] = [];
     const numBoxes = 24;
 
-    // Images array - using existing placeholder images
-    // Note: Using the same image paths as used elsewhere in the codebase
-    const images = [
-      '/imagens/secao2home/Rectangle 8.png',
-      '/imagens/secao2home/Rectangle 9.png',
-      '/imagens/secao2home/Rectangle 10.png',
-      '/imagens/secao2home/Rectangle 11.png',
-      '/imagens/secao2home/Rectangle 122.png',
-    ];
+    // As caixas não têm imagem. Até 11/09/2026 o código pré-carregava cinco PNGs da
+    // secao2home (~230 KB) e aplicava como background-image com url() sem aspas — o nome
+    // "Rectangle 8.png" tem espaço, a regra CSS era inválida e nenhuma imagem aparecia:
+    // o visitante baixava os arquivos e via caixas escuras. Saiu o download; o visual é o
+    // mesmo. Imagem nessas caixas é decisão de conteúdo (cliente).
 
     // Create boxes
     for (let i = 0; i < numBoxes; i++) {
@@ -1121,16 +1117,6 @@ export default function Home() {
     }
 
     const ctx = gsap.context(() => {
-      // Preload images
-      const imagePromises = images.map((src) => {
-        return new Promise<void>((resolve, reject) => {
-          const img = document.createElement('img');
-          img.onload = () => resolve();
-          img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-          img.src = src;
-        });
-      });
-
       // Initial setup for container
       gsap.set(container, {
         perspective: 600,
@@ -1138,12 +1124,9 @@ export default function Home() {
       });
 
       // Wait for images to load, then setup boxes
-      Promise.allSettled(imagePromises).then(() => {
+      Promise.resolve().then(() => {
         // Initial setup for each box
         boxes.forEach((box, i) => {
-          const imageIndex = i % images.length;
-          const imageUrl = images[imageIndex];
-          
           // First set GSAP properties
           gsap.set(box, {
             left: '50%',
@@ -1162,15 +1145,6 @@ export default function Home() {
             opacity: 1,
           });
           
-          // Then set background image directly on the element (after GSAP.set to ensure it's not overwritten)
-          // Use requestAnimationFrame to ensure GSAP has finished applying styles
-          requestAnimationFrame(() => {
-            box.style.setProperty('background-image', `url(${imageUrl})`, 'important');
-            box.style.setProperty('background-size', 'cover', 'important');
-            box.style.setProperty('background-position', 'center', 'important');
-            box.style.setProperty('background-repeat', 'no-repeat', 'important');
-          });
-
           // Create timeline for each box
           const tl = gsap.timeline({ paused: true, defaults: { immediateRender: true } })
             .fromTo(box, {

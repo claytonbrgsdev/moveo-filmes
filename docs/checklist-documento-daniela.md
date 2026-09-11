@@ -9,7 +9,7 @@ edição 24/08/2026). Para conferir: https://moveofilmes.com/preview.
 
 ## Geral
 
-- [ ] **G.1** "Site está muito pesado e acaba travando tudo quando vai abrir" — ✅ os vídeos só carregam quando chegam na tela; carga inicial da home em 2,2 MB, só o teaser começa a baixar
+- [x] **G.1** "Site está muito pesado e acaba travando tudo quando vai abrir" — ✅ os vídeos só carregam quando chegam na tela (na abertura, só o teaser) e as imagens passam pelo otimizador no tamanho de cada espaço: a carga inicial da home caiu de 2,1 MB para 563 KB (medido em produção em 11/09/2026), e ainda saíram ~230 KB de imagens que o carrossel 3D baixava sem exibir
 
 ## Cartela 01 — abertura
 
